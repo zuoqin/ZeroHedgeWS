@@ -10,19 +10,23 @@ open WebSharper.UI.Next.Server
 type EndPoint =
     | [<EndPoint "/">] Home
     | [<EndPoint "/about">] About
+    | [<EndPoint "/story">] Story of id : string
     | [<EndPoint "/api">] Api of id: ApiEndPoint
 
 and ApiEndPoint =
     | [<EndPoint "GET /page">] GetPage of int
     | [<EndPoint "GET /story">] GetStory of string
 
+//and StoryPoint =
+//    | [<Query("id")>] Story of string
 
 
 
 module Templating =
     open WebSharper.UI.Next.Html
 
-    type MainTemplate = Templating.Template<"Main.html">
+    type MainTemplate = Templating.Template<"Views\Main.html">
+    type StoryTemplate = Templating.Template<"Views\Story.html">
 
     // Compute a menubar where the menu item for the given endpoint is active
     let MenuBar (ctx: Context<EndPoint>) endpoint : Doc list =
@@ -35,7 +39,7 @@ module Templating =
         //    li ["About" => EndPoint.About]
         //]
 
-        let attr'menu'style = Attr.Create "class" "hiddenmenu"
+        let attr'menu'style = Attr.Create "class" "divhidden"
 
         let attr'menu'styles = Seq.append [attr'menu'style] []
 
@@ -55,6 +59,16 @@ module Templating =
             )
         )
 
+    let StoryView ctx action title body =
+        Content.Page(
+            StoryTemplate.Doc(
+                title = title,
+                menubar = MenuBar ctx action,
+                body = body
+            )
+        )
+
+
 
 module Site =
     open WebSharper.UI.Next.Html
@@ -69,7 +83,7 @@ module Site =
 
     let HomePage ctx =
         Templating.Main ctx EndPoint.Home "Home" [
-            h1 [text "Say Hi to the server!"]
+            //h1 [text "Say Hi to the server!"]
             div [client <@ Client.Main() @>]
         ]
 
@@ -79,6 +93,10 @@ module Site =
             p [text "This is a template WebSharper client-server application."]
         ]
 
+    let StoryPage ctx reference =
+        Templating.StoryView ctx EndPoint.Story "Story" [
+            div [client <@ StoryClient.Main(reference) @>]
+        ]
 
     [<Website>]
     let Main =
@@ -91,4 +109,5 @@ module Site =
                 result
             | EndPoint.Home -> HomePage ctx
             | EndPoint.About -> AboutPage ctx
+            | EndPoint.Story id -> StoryPage ctx id
         )

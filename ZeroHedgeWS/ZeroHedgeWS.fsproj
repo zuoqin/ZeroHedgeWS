@@ -42,15 +42,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Remoting.fs" />
-    <Compile Include="Client.fs" />
     <Compile Include="Controllers\ZeroHedgeAPI.fs" />
+    <Compile Include="Client.fs" />
+    <Compile Include="StoryClient.fs" />
     <Compile Include="Main.fs" />
-    <Content Include="Main.html" />
     <Content Include="Web.config" />
     <Content Include="Global.asax" />
     <Compile Include="Global.asax.fs" />
     <Content Include="Setup.fsx" />
     <Content Include="packages.config" />
+    <Content Include="Views\Main.html" />
+    <Content Include="Views\Story.html" />
     <Content Include="fonts\glyphicons-halflings-regular.woff2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

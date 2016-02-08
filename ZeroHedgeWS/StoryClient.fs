@@ -8,7 +8,7 @@ open WebSharper.UI.Next.Client
 open WebSharper.UI.Next.Html
 
 [<JavaScript>]
-module Client =
+module StoryClient =
 
     /// General function to send an AJAX request with a body.
     let Ajax (methodtype: string) (url: string) (serializedData: string) : Async<string> =
@@ -24,14 +24,10 @@ module Client =
                     Error = (fun (jqXHR, _, _) -> ko (System.Exception(jqXHR.ResponseText)))))
             |> ignore
 
-    let postList = ListModel.Create (fun i ->  string i.Reference) []
-    
-    let v'page = Var.Create 1
-
     let doc'header (post : Story) = 
         JavaScript.Console.Log post.Title
         let domNode = JQuery.Of( sprintf "%s%s%s" "<div>" post.Title "</div>").Get(0)
-        let href = sprintf "%s%s" "/story/" post.Reference
+        let href = sprintf "%s%s" "/story?ref=" post.Reference
         let a'attr'1 =  Attr.Create "href" href
         let a'attr'list = [ a'attr'1 ] :> seq<Attr>
 
@@ -66,34 +62,31 @@ module Client =
             ]
 
     /// Use Json.Serialize and Deserialize to send and receive data to and from the server.
-    let GetPageArticles (id : int) : Async<List<Story>> =
+    let GetStory (id : string) : Async<string> =
         async {
-                let pageURL = sprintf "/api/page/%d" id
+                let pageURL = sprintf "/api/story/%s" id
                 let! response = Ajax "GET" pageURL (null)
-                //JavaScript.Console.Log "Get zerohedge page"
-                return Json.Deserialize<List<Story>> response 
+                JavaScript.Console.Log "Get zerohedge story"                
+                return Json.Deserialize<string> response 
         }
 
-    let v'blog =
-        View.Do{
-            return 1 }
+    let Main (reference :string) =
 
-        |> View.MapAsync ( fun i -> async{            
-            return postList
-            }  )
-
-    let Main () =
         let attr'divid =  Attr.Create "id" "blogItems"
         let attr'divclass = Attr.Class "col-md-12"
         let attrs_div = Seq.append [|attr'divid|] [ attr'divclass]
 
+        let mutable body = ""
+        let mutable title = ""
+        let mutable introduction = ""
 
         async {
-            let! stories = GetPageArticles v'page.Value
-            stories
-            |> List.iter( fun x -> 
-                JavaScript.Console.Log x.Title
-                postList.Add x )
+            let! story = GetStory reference
+            
+            body <- story
+            //introduction <- story.Introduction
+            //title <- story.Title
+            JavaScript.Console.Log story
         }
         |> Async.Start
             
@@ -119,14 +112,7 @@ module Client =
         divAttr[attr.``class`` "container top-padding-med ng-scope"][
             //divAttr [attr.``class`` "panel-primary"] [
             divAttr attrs_div [
-                v'blog  
-                |> View.Map ( fun list -> 
-                    ListModel.View postList
-                    |> Doc.BindSeqCached (fun p -> 
-                        doc p
-                    )
-                )
-                |> Doc.EmbedView
+                Doc.TextNode body
             ]
 
             //]

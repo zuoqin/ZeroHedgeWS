@@ -11,6 +11,17 @@ open System.IO
 open System.Text
 open System.Net
 
+type Story =
+    {
+        Title : string;
+        Introduction : string;
+        Body : string;
+        Reference : string;
+        Published : string;
+        Updated : DateTime
+    }
+
+
 /// Type used for all JSON responses to indicate success or failure.
 //[<NamedUnionCases "result">]
 //type Result<'T> =
@@ -30,15 +41,15 @@ module ZeroHedgeAPI =
         | [<EndPoint "GET /story"; Query "id">]
             GetStory of id: string
 
-    and Story =
-        {
-            Title : string;
-            Introduction : string;
-            Body : string;
-            Reference : string;
-            Published : string;
-            Updated : DateTime
-        }
+//    and Story =
+//        {
+//            Title : string;
+//            Introduction : string;
+//            Body : string;
+//            Reference : string;
+//            Published : string;
+//            Updated : DateTime
+//        }
 
     /// Type used for all JSON responses to indicate success or failure.
     [<NamedUnionCases "result">]
@@ -162,10 +173,10 @@ module ZeroHedgeAPI =
             let CurrentPage = parse1 id
             CurrentPage
 
-        let getStory (id: string) : Result<string> =
+        let getStory (id: string) : string =
             let article = loadStory id //{ Title = "ssfs"; Introduction = "gjgg"; Body = "jjjhgjh"; Reference = "jhgjhgj";
                           //  Published = "hjgjhgjh"; Updated = DateTime.Now }
-            Success article
+            article
 
 
 
