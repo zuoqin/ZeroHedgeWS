@@ -1,6 +1,6 @@
 (function()
 {
- var Global=this,Runtime=this.IntelliFactory.Runtime,jQuery,Exception,Concurrency,ZeroHedgeWS,Client,Json,Provider,Id,JSON,UI,Next,AttrProxy,AttrModule,Seq,List,Var1,console,Doc,ListModel1,View,PrintfHelpers,T,ListModel,View1,Var,StoryClient;
+ var Global=this,Runtime=this.IntelliFactory.Runtime,jQuery,Exception,Concurrency,ZeroHedgeWS,Client,Json,Provider,Id,JSON,UI,Next,AttrProxy,AttrModule,Seq,List,Var1,Doc,ListModel1,View,PrintfHelpers,T,ListModel,View1,Var,StoryClient;
  Runtime.Define(Global,{
   ZeroHedgeWS:{
    Client:{
@@ -37,7 +37,7 @@
      return Concurrency.Delay(function()
      {
       var x;
-      x="/api/page/"+Global.String(id);
+      x="./api/page/"+Global.String(id);
       return Concurrency.Bind(Client.Ajax("GET",x,null),function(_arg1)
       {
        var _;
@@ -48,27 +48,21 @@
     },
     Main:function(pageID)
     {
-     var _attr_divid,_attr_divclass,attrs_div,arg00,arg001,ats,arg002,arg10,_arg00_1;
+     var _attr_divid,_attr_divstyle,_attr_divclass,attrs_div,arg00,arg001,_attr_div_fixed1,_attr_div_fixed2,_attr_div_fixed,_attr_container1,_attr_container2,_attrs_container,_attr_container11,_attr_container21,_attrs_container1,ats,arg002,arg10,_arg00_1;
      _attr_divid=AttrProxy.Create("id","blogItems");
+     _attr_divstyle=AttrModule.Style("margin-top","55px");
      _attr_divclass=AttrModule.Class("col-md-12");
-     attrs_div=Seq.append([_attr_divid],List.ofArray([_attr_divclass]));
+     attrs_div=Seq.append([_attr_divid,_attr_divstyle],List.ofArray([_attr_divclass]));
      arg00=Client["v'page"]();
      Var1.Set(arg00,pageID);
      arg001=Concurrency.Delay(function()
      {
-      var x;
-      x=Client.GetPageArticles(Var1.Get(Client["v'page"]()));
-      return Concurrency.Bind(x,function(_arg1)
+      return Concurrency.Bind(Client.GetPageArticles(Var1.Get(Client["v'page"]())),function(_arg1)
       {
        var action;
-       action=function(x1)
+       action=function(x)
        {
-        var a,a1;
-        a=x1.Title;
-        console?console.log(a):undefined;
-        a1=x1.Reference;
-        console?console.log(a1):undefined;
-        return Client.postList().Add(x1);
+        return Client.postList().Add(x);
        };
        Seq.iter(action,_arg1);
        return Concurrency.Return(null);
@@ -77,6 +71,15 @@
      Concurrency.Start(arg001,{
       $:0
      });
+     _attr_div_fixed1=AttrProxy.Create("role","navigation");
+     _attr_div_fixed2=AttrProxy.Create("class","navbar navbar-inverse navbar-fixed-top");
+     _attr_div_fixed=Seq.append([_attr_div_fixed1],List.ofArray([_attr_div_fixed2]));
+     _attr_container1=AttrProxy.Create("class","container");
+     _attr_container2=AttrModule.Style("margin-top","100px");
+     _attrs_container=Seq.append([_attr_container1],List.ofArray([_attr_container2]));
+     _attr_container11=AttrProxy.Create("class","container");
+     _attr_container21=AttrModule.Style("margin-top","100px");
+     _attrs_container1=Seq.append([_attr_container11],List.ofArray([_attr_container21]));
      ats=List.ofArray([AttrProxy.Create("class","container top-padding-med ng-scope")]);
      arg002=function()
      {
@@ -98,10 +101,7 @@
     },
     "doc'body":function(post)
     {
-     var _attr_container1,_attr_container2,_attrs_container,_attr_title1,_attr_title2,_attrs_title,domNode,_,arg20;
-     _attr_container1=AttrProxy.Create("class","container");
-     _attr_container2=AttrModule.Style("margin-top","100px");
-     _attrs_container=Seq.append([_attr_container1],List.ofArray([_attr_container2]));
+     var _attr_title1,_attr_title2,_attrs_title,domNode,_,arg20;
      _attr_title1=AttrProxy.Create("placeholder","Title");
      _attr_title2=AttrModule.Class("form-control");
      _attrs_title=Seq.append([_attr_title1],List.ofArray([_attr_title2]));
@@ -112,16 +112,14 @@
     },
     "doc'header":function(post)
     {
-     var a,domNode,_,_1,href,_a_attr_1,_a_attr_list;
-     a=post.Title;
-     console?console.log(a):undefined;
+     var domNode,_,_1,href,_a_attr_1,_a_attr_list;
      _=post.Title;
      domNode=jQuery(PrintfHelpers.toSafe("<div>")+PrintfHelpers.toSafe(_)+PrintfHelpers.toSafe("</div>")).get(0);
      _1=post.Reference;
-     href=PrintfHelpers.toSafe("/story/")+PrintfHelpers.toSafe(_1);
+     href=PrintfHelpers.toSafe("./story/")+PrintfHelpers.toSafe(_1);
      _a_attr_1=AttrProxy.Create("href",href);
      _a_attr_list=List.ofArray([_a_attr_1]);
-     return Doc.Element("div",List.ofArray([AttrModule.Class("panel-heading")]),List.ofArray([Doc.Element("a",_a_attr_list,List.ofArray([Doc.Static(domNode)]))]));
+     return Doc.Element("div",List.ofArray([AttrModule.Class("panel-heading")]),List.ofArray([Doc.Element("h3",List.ofArray([AttrProxy.Create("class","panel-title")]),List.ofArray([Doc.Element("a",_a_attr_list,List.ofArray([Doc.Static(domNode)]))]))]));
     },
     postList:Runtime.Field(function()
     {
@@ -188,13 +186,9 @@
      return Concurrency.Delay(function()
      {
       var pageURL;
-      pageURL="/api/story/"+PrintfHelpers.toSafe(id);
+      pageURL="./api/story/"+PrintfHelpers.toSafe(id);
       return Concurrency.Bind(StoryClient.Ajax("GET",pageURL,null),function(_arg1)
       {
-       if(console)
-        {
-         console.log("Get zerohedge story");
-        }
        Provider.get_Default();
        return Concurrency.Return((Id())(JSON.parse(_arg1)));
       });
@@ -218,10 +212,6 @@
        jQuery("#bodyid").children().remove();
        domNode=jQuery(PrintfHelpers.toSafe("<div>")+PrintfHelpers.toSafe(_arg1)+PrintfHelpers.toSafe("</div>")).get(0);
        jQuery("#bodyid").append(domNode);
-       if(console)
-        {
-         console.log(_arg1);
-        }
        return Concurrency.Return(null);
       });
      }),{
@@ -249,9 +239,7 @@
     },
     "doc'header":function(post)
     {
-     var a,domNode,_,_1,href,_a_attr_1,_a_attr_list;
-     a=post.Title;
-     console?console.log(a):undefined;
+     var domNode,_,_1,href,_a_attr_1,_a_attr_list;
      _=post.Title;
      domNode=jQuery(PrintfHelpers.toSafe("<div>")+PrintfHelpers.toSafe(_)+PrintfHelpers.toSafe("</div>")).get(0);
      _1=post.Reference;
@@ -281,7 +269,6 @@
   Seq=Runtime.Safe(Global.WebSharper.Seq);
   List=Runtime.Safe(Global.WebSharper.List);
   Var1=Runtime.Safe(Next.Var1);
-  console=Runtime.Safe(Global.console);
   Doc=Runtime.Safe(Next.Doc);
   ListModel1=Runtime.Safe(Next.ListModel1);
   View=Runtime.Safe(Next.View);

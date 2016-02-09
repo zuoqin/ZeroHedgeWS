@@ -25,7 +25,7 @@ module StoryClient =
             |> ignore
 
     let doc'header (post : Story) = 
-        JavaScript.Console.Log post.Title
+        //JavaScript.Console.Log post.Title
         let domNode = JQuery.Of( sprintf "%s%s%s" "<div>" post.Title "</div>").Get(0)
         let href = sprintf "%s%s" "/story?ref=" post.Reference
         let a'attr'1 =  Attr.Create "href" href
@@ -64,9 +64,9 @@ module StoryClient =
     /// Use Json.Serialize and Deserialize to send and receive data to and from the server.
     let GetStory (id : string) : Async<string> =
         async {
-                let pageURL = sprintf "/api/story/%s" id
+                let pageURL = sprintf "./api/story/%s" id
                 let! response = Ajax "GET" pageURL (null)
-                JavaScript.Console.Log "Get zerohedge story"                
+                //JavaScript.Console.Log "Get zerohedge story"                
                 return Json.Deserialize<string> response 
         }
 
@@ -88,7 +88,7 @@ module StoryClient =
             JQuery.JQuery.Of("#bodyid").Children().Remove().Ignore
             let domNode = JQuery.Of( sprintf "%s%s%s" "<div>" story "</div>").Get(0)
             JQuery.JQuery.Of("#bodyid").Append( domNode :?> Dom.Element ).Ignore
-            JavaScript.Console.Log story
+            //JavaScript.Console.Log story
         }
         |> Async.Start
             

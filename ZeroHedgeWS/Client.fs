@@ -29,24 +29,21 @@ module Client =
     let v'page = Var.Create 1
 
     let doc'header (post : Story) = 
-        JavaScript.Console.Log post.Title
+        //JavaScript.Console.Log post.Title
         let domNode = JQuery.Of( sprintf "%s%s%s" "<div>" post.Title "</div>").Get(0)
-        let href = sprintf "%s%s" "/story/" post.Reference
+        let href = sprintf "%s%s" "./story/" post.Reference
         let a'attr'1 =  Attr.Create "href" href
         let a'attr'list = [ a'attr'1 ] :> seq<Attr>
 
         divAttr[Attr.Class "panel-heading"][
-            aAttr a'attr'list [
-                Doc.Static(domNode :?> Dom.Element)
-            ]
-            
+            h3Attr [attr.``class`` "panel-title"] [
+                aAttr a'attr'list [
+                    Doc.Static(domNode :?> Dom.Element)
+                ]
+            ]            
         ]
 
     let doc'body (post : Story) = 
-        let attr'container1 =  Attr.Create "class" "container"
-        let attr'container2 = Attr.Style "margin-top" "100px"
-        let attrs'container = Seq.append [| attr'container1|] [ attr'container2]
-
         let attr'title1 =  Attr.Create "placeholder" "Title"
         let attr'title2 = Attr.Class "form-control"
         let attrs'title = Seq.append [| attr'title1|] [ attr'title2]
@@ -68,7 +65,7 @@ module Client =
     /// Use Json.Serialize and Deserialize to send and receive data to and from the server.
     let GetPageArticles (id : int) : Async<List<Story>> =
         async {
-                let pageURL = sprintf "/api/page/%d" id
+                let pageURL = sprintf "./api/page/%d" id
                 let! response = Ajax "GET" pageURL (null)
                 //JavaScript.Console.Log "Get zerohedge page"
                 return Json.Deserialize<List<Story>> response 
@@ -84,39 +81,35 @@ module Client =
 
     let Main (pageID : int) =
         let attr'divid =  Attr.Create "id" "blogItems"
+        let attr'divstyle = Attr.Style "margin-top" "55px"
         let attr'divclass = Attr.Class "col-md-12"
-        let attrs_div = Seq.append [|attr'divid|] [ attr'divclass]
+        let attrs_div = Seq.append [|attr'divid; attr'divstyle |] [ attr'divclass]
         Var.Set v'page pageID
 
         async {
             let! stories = GetPageArticles v'page.Value
             stories
             |> List.iter( fun x -> 
-                JavaScript.Console.Log x.Title
-                JavaScript.Console.Log x.Reference
+                //JavaScript.Console.Log x.Title
+                //JavaScript.Console.Log x.Reference
                 postList.Add x )
         }
         |> Async.Start
             
         
+        let attr'div'fixed1 =  Attr.Create "role" "navigation"
+        let attr'div'fixed2 =  Attr.Create "class" "navbar navbar-inverse navbar-fixed-top"
+        let attr'div'fixed = Seq.append [|attr'div'fixed1|] [ attr'div'fixed2]
         
+        let attr'container1 =  Attr.Create "class" "container"
+        let attr'container2 = Attr.Style "margin-top" "100px"
+        let attrs'container = Seq.append [| attr'container1|] [ attr'container2]
 
-        
 
-//        let rvInput = Var.Create ""
-//        let submit = Submitter.CreateOption rvInput.View
-//        let vReversed =
-//            submit.View.MapAsync(function
-//                | None -> async { return "" }
-//                | Some input -> Server.DoSomething input
-//            )
-//        div [
-//            Doc.Input [] rvInput
-//            Doc.Button "Send" [] submit.Trigger
-//            hr []
-//            h4Attr [attr.``class`` "text-muted"] [text "The server responded:"]
-//            divAttr [attr.``class`` "jumbotron"] [h1 [textView vReversed]]
-//        ]
+        let attr'container1 =  Attr.Create "class" "container"
+        let attr'container2 = Attr.Style "margin-top" "100px"
+        let attrs'container = Seq.append [| attr'container1|] [ attr'container2]
+
         divAttr[attr.``class`` "container top-padding-med ng-scope"][
             //divAttr [attr.``class`` "panel-primary"] [
             divAttr attrs_div [

@@ -10,6 +10,7 @@ open WebSharper.UI.Next.Server
 type EndPoint =
     | [<EndPoint "/">] Home
     | [<EndPoint "/about">] About
+    | [<EndPoint "/page">] Page of id : int
     | [<EndPoint "/story">] Story of id : string
     | [<EndPoint "/api">] Api of id: ApiEndPoint
 
@@ -106,6 +107,7 @@ module Site =
                 let result = ApiContent(ctx)(id)
                 result
             | EndPoint.Home -> HomePage( ctx, 0 )
+            | EndPoint.Page id -> HomePage( ctx ,id )
             | EndPoint.About -> AboutPage ctx
             | EndPoint.Story id -> StoryPage ctx id
         )
