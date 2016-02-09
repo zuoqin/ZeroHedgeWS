@@ -81,10 +81,9 @@ module Site =
         | GetStory id ->            
             Content.Json (ZeroHedgeAPI.ApplicationLogic.getStory id)
 
-    let HomePage ctx =
+    let HomePage( ctx, pageID : int ) =
         Templating.Main ctx EndPoint.Home "Home" [
-            //h1 [text "Say Hi to the server!"]
-            div [client <@ Client.Main() @>]
+            div [client <@ Client.Main(pageID) @>]
         ]
 
     let AboutPage ctx =
@@ -100,14 +99,13 @@ module Site =
 
     [<Website>]
     let Main =
-        //let Sitelet1 = Sitelet.Infer ZeroHedgeAPI.ApiContent
 
         Application.MultiPage (fun ctx endpoint ->
             match endpoint with
             | EndPoint.Api id -> 
                 let result = ApiContent(ctx)(id)
                 result
-            | EndPoint.Home -> HomePage ctx
+            | EndPoint.Home -> HomePage( ctx, 0 )
             | EndPoint.About -> AboutPage ctx
             | EndPoint.Story id -> StoryPage ctx id
         )

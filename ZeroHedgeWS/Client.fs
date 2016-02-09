@@ -82,17 +82,18 @@ module Client =
             return postList
             }  )
 
-    let Main () =
+    let Main (pageID : int) =
         let attr'divid =  Attr.Create "id" "blogItems"
         let attr'divclass = Attr.Class "col-md-12"
         let attrs_div = Seq.append [|attr'divid|] [ attr'divclass]
-
+        Var.Set v'page pageID
 
         async {
             let! stories = GetPageArticles v'page.Value
             stories
             |> List.iter( fun x -> 
                 JavaScript.Console.Log x.Title
+                JavaScript.Console.Log x.Reference
                 postList.Add x )
         }
         |> Async.Start

@@ -46,33 +46,39 @@
       });
      });
     },
-    Main:function()
+    Main:function(pageID)
     {
-     var _attr_divid,_attr_divclass,attrs_div,arg00,ats,arg001,arg10,_arg00_1;
+     var _attr_divid,_attr_divclass,attrs_div,arg00,arg001,ats,arg002,arg10,_arg00_1;
      _attr_divid=AttrProxy.Create("id","blogItems");
      _attr_divclass=AttrModule.Class("col-md-12");
      attrs_div=Seq.append([_attr_divid],List.ofArray([_attr_divclass]));
-     arg00=Concurrency.Delay(function()
+     arg00=Client["v'page"]();
+     Var1.Set(arg00,pageID);
+     arg001=Concurrency.Delay(function()
      {
-      return Concurrency.Bind(Client.GetPageArticles(Var1.Get(Client["v'page"]())),function(_arg1)
+      var x;
+      x=Client.GetPageArticles(Var1.Get(Client["v'page"]()));
+      return Concurrency.Bind(x,function(_arg1)
       {
        var action;
-       action=function(x)
+       action=function(x1)
        {
-        var a;
-        a=x.Title;
+        var a,a1;
+        a=x1.Title;
         console?console.log(a):undefined;
-        return Client.postList().Add(x);
+        a1=x1.Reference;
+        console?console.log(a1):undefined;
+        return Client.postList().Add(x1);
        };
        Seq.iter(action,_arg1);
        return Concurrency.Return(null);
       });
      });
-     Concurrency.Start(arg00,{
+     Concurrency.Start(arg001,{
       $:0
      });
      ats=List.ofArray([AttrProxy.Create("class","container top-padding-med ng-scope")]);
-     arg001=function()
+     arg002=function()
      {
       var _arg00_,_arg10_;
       _arg00_=function(p)
@@ -83,7 +89,7 @@
       return Doc.Convert(_arg00_,_arg10_);
      };
      arg10=Client["v'blog"]();
-     _arg00_1=View.Map(arg001,arg10);
+     _arg00_1=View.Map(arg002,arg10);
      return Doc.Element("div",ats,List.ofArray([Doc.Element("div",attrs_div,List.ofArray([Doc.EmbedView(_arg00_1)]))]));
     },
     doc:function(post)
@@ -196,18 +202,22 @@
     },
     Main:function(reference)
     {
-     var _attr_divid,_attr_divclass,attrs_div,body,title,introduction;
+     var _attr_divid,_attr_divclass,attrs_div,body,title,introduction,_v_body;
      _attr_divid=AttrProxy.Create("id","blogItems");
      _attr_divclass=AttrModule.Class("col-md-12");
      attrs_div=Seq.append([_attr_divid],List.ofArray([_attr_divclass]));
-     body=[""];
+     body="";
      title="";
      introduction="";
+     _v_body=Var.Create(body);
      Concurrency.Start(Concurrency.Delay(function()
      {
       return Concurrency.Bind(StoryClient.GetStory(reference),function(_arg1)
       {
-       body[0]=_arg1;
+       var domNode;
+       jQuery("#bodyid").children().remove();
+       domNode=jQuery(PrintfHelpers.toSafe("<div>")+PrintfHelpers.toSafe(_arg1)+PrintfHelpers.toSafe("</div>")).get(0);
+       jQuery("#bodyid").append(domNode);
        if(console)
         {
          console.log(_arg1);
@@ -217,7 +227,7 @@
      }),{
       $:0
      });
-     return Doc.Element("div",List.ofArray([AttrProxy.Create("class","container top-padding-med ng-scope")]),List.ofArray([Doc.Element("div",attrs_div,List.ofArray([Doc.TextNode(body[0])]))]));
+     return Doc.Element("div",List.ofArray([AttrProxy.Create("class","container top-padding-med ng-scope")]),List.ofArray([Doc.Element("div",List.ofArray([AttrProxy.Create("id","bodyid")]),List.ofArray([Doc.TextNode("")]))]));
     },
     doc:function(post)
     {

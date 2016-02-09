@@ -80,40 +80,21 @@ module StoryClient =
         let mutable title = ""
         let mutable introduction = ""
 
+        let v'body = Var.Create body
+
         async {
             let! story = GetStory reference
             
-            body <- story
-            //introduction <- story.Introduction
-            //title <- story.Title
+            JQuery.JQuery.Of("#bodyid").Children().Remove().Ignore
+            let domNode = JQuery.Of( sprintf "%s%s%s" "<div>" story "</div>").Get(0)
+            JQuery.JQuery.Of("#bodyid").Append( domNode :?> Dom.Element ).Ignore
             JavaScript.Console.Log story
         }
         |> Async.Start
             
         
-        
-
-        
-
-//        let rvInput = Var.Create ""
-//        let submit = Submitter.CreateOption rvInput.View
-//        let vReversed =
-//            submit.View.MapAsync(function
-//                | None -> async { return "" }
-//                | Some input -> Server.DoSomething input
-//            )
-//        div [
-//            Doc.Input [] rvInput
-//            Doc.Button "Send" [] submit.Trigger
-//            hr []
-//            h4Attr [attr.``class`` "text-muted"] [text "The server responded:"]
-//            divAttr [attr.``class`` "jumbotron"] [h1 [textView vReversed]]
-//        ]
         divAttr[attr.``class`` "container top-padding-med ng-scope"][
-            //divAttr [attr.``class`` "panel-primary"] [
-            divAttr attrs_div [
-                Doc.TextNode body
+            divAttr [attr.``id`` "bodyid"] [
+              Doc.TextNode ""
             ]
-
-            //]
         ]

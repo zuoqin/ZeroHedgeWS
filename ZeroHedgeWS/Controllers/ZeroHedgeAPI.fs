@@ -61,7 +61,8 @@ module ZeroHedgeAPI =
 
 
     module ApplicationLogic =
-
+        let storiesmap = new Dictionary<string, Story>()
+        let pagesmap = new Dictionary<int, List<Story>>()
         let mutable ind5 = 0
         let DownloadURL (uri : string)=
             let s = "";
@@ -94,75 +95,97 @@ module ZeroHedgeAPI =
         
         let loadStory (refBase64 : string) : string =
 
-            let base64EncodedBytes = System.Convert.FromBase64String(refBase64);
-            let markup = DownloadURL(Encoding.UTF8.GetString(base64EncodedBytes))
+            let (bResult,theStory) = storiesmap.TryGetValue refBase64 
+            if bResult && theStory.Body.Length > 0 then
+                theStory.Body
+            else
+                let base64EncodedBytes = System.Convert.FromBase64String(refBase64);
+                let markup = DownloadURL(Encoding.UTF8.GetString(base64EncodedBytes))
 
-            let mutable ind1 = markup.IndexOf("<h1 class=\"title\">", 0)
-            ind1 <- markup.IndexOf("<div class=\"content\">", ind1)
-            ind1 <- (ind1+21)
-            let ind2 = markup.IndexOf("<div class=\"fivestar-static-form-item\">", ind1)
-            let body = markup.Substring(ind1, ind2 - ind1)
-            body;
+                let mutable ind1 = markup.IndexOf("<h1 class=\"title\">", 0)
+                ind1 <- markup.IndexOf("<div class=\"content\">", ind1)
+                ind1 <- (ind1+21)
+                let ind2 = markup.IndexOf("<div class=\"fivestar-static-form-item\">", ind1)
+                let body = markup.Substring(ind1, ind2 - ind1)
+                
+                let newStory = { Title = theStory.Title; 
+                    Introduction = theStory.Introduction; Body = body; Reference = theStory.Reference;
+                    Published = theStory.Published; Updated = DateTime.Now}
+                
+                let bResult = storiesmap.Remove(refBase64)
+                let bResult = storiesmap.Add(refBase64, newStory)
+                body;
 
         let parse1 (id:int) : List<Story> =
+            
 
-            let myWebClient = new WebClient()
+            let (bResult, thePage) = pagesmap.TryGetValue(id)
+            if bResult = true then
+                thePage
+            else
+                let myWebClient = new WebClient()
 
-            //let  myDataBuffer = fetchAsync( sprintf "http://www.zerohedge.com/?page=%d" id )
+                //let  myDataBuffer = fetchAsync( sprintf "http://www.zerohedge.com/?page=%d" id )
 
-            let markup = DownloadURL( sprintf "http://www.zerohedge.com/?page=%d" id )
+                let markup = DownloadURL( sprintf "http://www.zerohedge.com/?page=%d" id )
 
-            let (j, ind1) = (ref 0, ref 100)
-            let articles = new List<Story>()
-            while(!j < 100 && !ind1 > 0) do
-                ind1 := markup.IndexOf("<div class=\"picture\">", ind5);
-                if ind1.Value > 0 then
-                    let mutable ind2 = markup.IndexOf("<h2 class=\"title\"><a href=", ind1.Value)
-                    ind2 <- (ind2 + 27)
+                let (j, ind1) = (ref 0, ref 100)
+                let articles = new List<Story>()
+                while(!j < 100 && !ind1 > 0) do
+                    ind1 := markup.IndexOf("<div class=\"picture\">", ind5);
+                    if ind1.Value > 0 then
+                        let mutable ind2 = markup.IndexOf("<h2 class=\"title\"><a href=", ind1.Value)
+                        ind2 <- (ind2 + 27)
 
-                    let mutable ind3 = markup.IndexOf("\">", ind2)
+                        let mutable ind3 = markup.IndexOf("\">", ind2)
 
-                    let ref1 = markup.Substring(ind2, ind3 - ind2)
-                    ind3 <- (ind3 + 2)
+                        let mutable ref1 = markup.Substring(ind2, ind3 - ind2)
+                        ind3 <- (ind3 + 2)
 
-                    let ind4 = markup.IndexOf("</a>", ind3)
-                    let title = markup.Substring(ind3, ind4 - ind3)
+                        let ind4 = markup.IndexOf("</a>", ind3)
+                        let title = markup.Substring(ind3, ind4 - ind3)
 
-                    ind2 <- markup.IndexOf(" on ", ind4)
-                    ind2 <- (ind2 + 4)
-                    ind3 <- markup.IndexOf("</span>", ind2)
-                    let published = markup.Substring(ind2, ind3 - ind2)
+                        ind2 <- markup.IndexOf(" on ", ind4)
+                        ind2 <- (ind2 + 4)
+                        ind3 <- markup.IndexOf("</span>", ind2)
+                        let mutable published = markup.Substring(ind2, ind3 - ind2)
 
-                    ind5 <- markup.IndexOf("<p>", ind4)
-                    let mutable ind6 = 0
+                        ind5 <- markup.IndexOf("<p>", ind4)
+                        let mutable ind6 = 0
 
-                    if markup.Substring(ind5 + 3, 3).CompareTo("<a ") = 0 then
-                        ind5 <- markup.IndexOf("<p>", ind5 + 5)
-                        ind6 <- ( ind5 + 3 )
-                        ind5 <- markup.IndexOf("</p>", ind6)
+                        if markup.Substring(ind5 + 3, 3).CompareTo("<a ") = 0 then
+                            ind5 <- markup.IndexOf("<p>", ind5 + 5)
+                            ind6 <- ( ind5 + 3 )
+                            ind5 <- markup.IndexOf("</p>", ind6)
 
-                    elif markup.IndexOf("<img", ind5) < markup.IndexOf("</p>", ind5) then
-                        ind6 <- markup.IndexOf("/>", ind5)
-                        ind6 <- (ind6 + 2)
-                        ind5 <- markup.IndexOf("<div class=\"clear-block\"></div>", ind6)
-                    else
-                        ind6 <- ind5
-                        ind5 <- markup.IndexOf("<div class=\"clear-block\"></div>", ind6)
+                        elif markup.IndexOf("<img", ind5) < markup.IndexOf("</p>", ind5) then
+                            ind6 <- markup.IndexOf("/>", ind5)
+                            ind6 <- (ind6 + 2)
+                            ind5 <- markup.IndexOf("<div class=\"clear-block\"></div>", ind6)
+                        else
+                            ind6 <- ind5
+                            ind5 <- markup.IndexOf("<div class=\"clear-block\"></div>", ind6)
 
-                    let body = markup.Substring(ind6, ind5 - ind6)
+                        let body = markup.Substring(ind6, ind5 - ind6)
 
-                    let refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
+                        let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
+                        let mutable base64Ref = System.Convert.ToBase64String(refBase64)
+                        let article = { Title = title; Introduction = body; Body = "";
+                            Reference = base64Ref;
+                            Published = published; Updated = DateTime.Now }
+                    
+                    
+                        let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
+                        if bResult = false then
+                            storiesmap.Add(base64Ref, article)
 
-                    let article = { Title = title; Introduction = body; Body = body;
-                        Reference = System.Convert.ToBase64String(refBase64);
-                        Published = published; Updated = DateTime.Now }
-                    articles.Add( article )
+                        articles.Add( article )
+                        printfn "kjjkhkj"
+                    // end of if
                     printfn "kjjkhkj"
-                // end of if
-                printfn "kjjkhkj"
-            // end of while
-            printfn "kjjkhkj"
-            articles
+                // end of while                
+                pagesmap.Add(id, articles)
+                articles
 
 
 
