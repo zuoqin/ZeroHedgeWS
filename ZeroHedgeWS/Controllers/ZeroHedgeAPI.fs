@@ -11,6 +11,9 @@ open System.IO
 open System.Text
 open System.Net
 open System.Threading
+open System.Web
+
+open FSharp.Data
 
 type Story =
     {
@@ -27,50 +30,19 @@ type Page =
         updated : DateTime;
         stories : List<Story>
     }
-/// Type used for all JSON responses to indicate success or failure.
-//[<NamedUnionCases "result">]
-//type Result<'T> =
-//    /// JSON: {"result": "success", /* fields of 'T... */}
-//    | [<Name "success">] Success of 'T
-//    /// JSON: {"result": "failure", "message": "error message..."}
-//    | [<Name "failure">] Failure of message: string
+
+
 
 module ZeroHedgeAPI =
-
-    /// The type of actions, ie. REST API entry points.
-    type Action =
-        /// GET /page?id=123
-        | [<EndPoint "GET /page"; Query "id">]
-            GetPage of id: int
-        /// GET /story?hkhkkj
-        | [<EndPoint "GET /story"; Query "id">]
-            GetStory of id: string
-
-//    and Story =
-//        {
-//            Title : string;
-//            Introduction : string;
-//            Body : string;
-//            Reference : string;
-//            Published : string;
-//            Updated : DateTime
-//        }
-
-    /// Type used for all JSON responses to indicate success or failure.
-    [<NamedUnionCases "result">]
-    type Result<'T> =
-        /// JSON: {"result": "success", /* fields of 'T... */}
-        | [<Name "success">] Success of 'T
-        /// JSON: {"result": "failure", "message": "error message..."}
-        | [<Name "failure">] Failure of message: string
 
 
     module ApplicationLogic =
         let storiesmap = new Dictionary<string, Story>()
         let pagesmap = new Dictionary<int, Page>()
-        
+        let requestsmap = new Dictionary<string, Page>()
+
+
         let DownloadURL (uri : string)=
-            //let s = "";
             let request = HttpWebRequest.Create(uri)  :?> HttpWebRequest 
 
             // Set some reasonable limits on resources used by this request
@@ -87,6 +59,49 @@ module ZeroHedgeAPI =
             let response = request.GetResponse()
 
 
+            // Get the stream associated with the response.
+            let receiveStream = response.GetResponseStream();
+            
+            let buf = [| for i in 0..8192 -> byte(0)|]
+            let mutable count = 1
+            let mutable sb = new StringBuilder()
+            let mutable tmpString = ""
+            while count > 0 do
+                count <- receiveStream.Read(buf, 0, buf.Length);
+                if count > 0 then                    
+                    tmpString <- Encoding.UTF8.GetString(buf, 0, count)
+                    sb.Append( tmpString ) |> ignore
+
+            response.Close()
+            receiveStream.Close()
+            sb.ToString()
+
+        let PostURL (uri : string, keys : string)=
+            let request = HttpWebRequest.Create(uri)  :?> HttpWebRequest 
+
+            // Set some reasonable limits on resources used by this request
+            request.AutomaticDecompression <- DecompressionMethods.GZip
+            request.Method <- "POST"
+            request.Accept <- "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+            request.Headers.Add("Accept-Encoding", "gzip,deflate,sdch")
+            request.Headers.Add("Accept-Language", "ru,en-US;q=0.8,en;q=0.6,zh-CN;q=0.4,zh;q=0.2")
+            request.UserAgent <- "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36"
+            request.ContentType <- "application/x-www-form-urlencoded"
+            request.ServicePoint.Expect100Continue <- false
+            // Set credentials to use for this request.
+            //request.Credentials <- CredentialCache.DefaultCredentials;
+
+            let postData = keys;
+            let bodyString = "keys=" + HttpUtility.UrlEncode(postData)            
+            let bytedata = Encoding.UTF8.GetBytes(bodyString)
+            //request.ContentLength <- int64(bytedata.Length)
+            
+            
+            let newStream = request.GetRequestStream ();
+            newStream.Write(bytedata,0,bytedata.Length);
+            newStream.Close();
+
+            let response = request.GetResponse()
             // Get the stream associated with the response.
             let receiveStream = response.GetResponseStream();
             
@@ -175,7 +190,84 @@ module ZeroHedgeAPI =
                 let bResult = storiesmap.Add(refBase64, newStory)
                 body;
 
-        let parse1 (id:int) : List<Story> =
+        let LoadSearchPage (keys : string): List<Story> =
+            let (bResult, SearchArticles) = requestsmap.TryGetValue(keys)
+            if bResult = true && (DateTime.Now - SearchArticles.updated).TotalMinutes < 10.0 &&
+                SearchArticles.stories.Count > 0 then
+                SearchArticles.stories
+            else
+                let markup1 = PostURL( sprintf( "http://www.zerohedge.com/search/apachesolr_search/" ), keys )
+                //let markup1 = DownloadURL( sprintf( "http://localhost/Test01/testws.html" ) )
+                let markup = markup1.ToString()
+                let articles = new List<Story>()
+
+                let mutable ind2 = markup.IndexOf("<dl class=\"search-results apachesolr_search-results\">", 0);
+             
+                let ind_end = markup.IndexOf("</dl>");
+                while(ind2 > 0) do                
+                    ind2 <- markup.IndexOf("<dt class=\"title\"", ind2)
+                    let mutable title = ""
+                    let mutable ref1 = ""
+                    let mutable introduction = ""
+                    let mutable published = ""
+                    if ind2 < ind_end && ind2 <> -1 then
+                        ind2 <- markup.IndexOf("<a href=\"", ind2)
+                        ind2 <- (ind2 + 9)
+                        let mutable ind3 = markup.IndexOf("\">", ind2)
+
+                        ref1 <- markup.Substring(ind2, ind3 - ind2)
+
+                        ind2 <- (ind3 + 2)
+
+                        ind3 <- markup.IndexOf("</a>", ind3)
+
+                        title <- markup.Substring(ind2, ind3 - ind2)
+
+                        ind2 <- markup.IndexOf("<p class=\"search-snippet\"", ind3)
+                        if ind2 < ind_end then
+                            ind2 <- (ind2 + 27)
+                            ind3 <- markup.IndexOf("</p>", ind2)
+                            introduction <- markup.Substring(ind2, ind3 - ind2)
+
+                        ind2 <- markup.IndexOf("<p class=\"search-info\"", ind3)
+                        if ind2 < ind_end then
+                            ind2 <- markup.IndexOf("</a>", ind2)
+                            if ind2 < ind_end then
+                                ind2 <- (ind2 + 7)
+                                ind3 <- (ind2 + 18)
+                                published <- markup.Substring(ind2, ind3 - ind2)
+
+
+                    let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
+                    let mutable base64Ref = System.Convert.ToBase64String(refBase64)
+                    let article = { Title = title; Introduction = introduction; Body = "";
+                        Reference = base64Ref;
+                        Published = published; Updated = DateTime.Now }
+                    
+                    
+                    let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
+                    if bResult = false then
+                        storiesmap.Add(base64Ref, article)
+
+                    if published.Length > 0 && introduction.Length > 0 then
+                        articles.Add( article )
+
+
+                if articles.Count > 0 then
+                    let newPage = { updated = DateTime.Now; stories = articles }
+                    let bResult = requestsmap.Remove(keys)
+                    requestsmap.Add(keys, newPage)
+
+                    articles
+                else
+                    if bResult = false then
+                        null
+                    else
+                        SearchArticles.stories
+
+
+
+        let LoadPage (id:int) : List<Story> =
             
 
             let (bResult, thePage) = pagesmap.TryGetValue(id)
@@ -269,20 +361,14 @@ module ZeroHedgeAPI =
         let stories = new Dictionary<string, Story>()
 
         let getPage (id: int) : List<Story> =
-            let CurrentPage = parse1 id
+            let CurrentPage = LoadPage id
             CurrentPage
 
         let getStory (id: string) : string =
-            let article = loadStory id //{ Title = "ssfs"; Introduction = "gjgg"; Body = "jjjhgjh"; Reference = "jhgjhgj";
-                          //  Published = "hjgjhgjh"; Updated = DateTime.Now }
+            let article = loadStory id
             article
 
-
-
-    let ApiContent (ctx: Context<Action>) (action: Action)  =
-        match action with
-        | GetPage id ->
-            Content.Json (ApplicationLogic.getPage id)
-        | GetStory id ->
-            Content.Json (ApplicationLogic.getStory id)
+        let postSearch (keys: string) =
+            let articles = (LoadSearchPage keys) |> Seq.toList //|> List.take 10
+            articles
 

@@ -1,16 +1,175 @@
-﻿
+﻿/*Clearing Floats*/
+.cf:before, .cf:after{
+    content:"";
+    display:table;
+}
+
+.cf:after{
+    clear:both;
+}
+
+.cf{
+    zoom:1;
+}    
+/* Form wrapper styling */
+.form-wrapper {
+    background: #444;
+    background: rgba(0,0,0,.2);
+    border-radius: 10px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.4) inset, 0 1px 0 rgba(255,255,255,.2);
+}
+
+/* Form text input */
+
+.form-wrapper input {
+    width: 300px;
+    height: 35px;
+    padding: 10px 5px;
+    margin-top: 5px;
+    margin-left: 15px;
+    margin-bottom: 5px;
+    float: left;   
+    font: bold 15px 'lucida sans', 'trebuchet MS', 'Tahoma';
+    border: 0;
+    background: #eee;
+    border-radius: 3px 0 0 3px;     
+}
+
+.form-wrapper input:focus {
+    outline: 0;
+    background: #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,.8) inset;
+}
+
+.form-wrapper input::-webkit-input-placeholder {
+   color: #999;
+   font-weight: normal;
+   font-style: italic;
+}
+
+.form-wrapper input:-moz-placeholder {
+    color: #999;
+    font-weight: normal;
+    font-style: italic;
+}
+
+.form-wrapper input:-ms-input-placeholder {
+    color: #999;
+    font-weight: normal;
+    font-style: italic;
+}   
+
+/* Form submit button */
+.form-wrapper button {
+    overflow: visible;
+    position: relative;
+    float: right;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    height: 35px;
+    width: 110px;
+    font: bold 15px/40px 'lucida sans', 'trebuchet MS', 'Tahoma';
+    color: #fff;
+    text-transform: uppercase;
+    background: #d83c3c;
+    border-radius: 0 3px 3px 0;     
+    text-shadow: 0 -1px 0 rgba(0, 0 ,0, .3);
+}  
+
+.form-wrapper button:hover{    
+    background: #e54040;
+}  
+
+.form-wrapper button:active,
+.form-wrapper button:focus{  
+    background: #c42f2f;
+    outline: 0;  
+}
+
+.form-wrapper button:before { /* left arrow */
+    content: '';
+    position: absolute;
+    border-width: 8px 8px 8px 0;
+    border-style: solid solid solid none;
+    border-color: transparent rgb(216, 60, 60) transparent;
+    top: 12px;
+    left: -6px;
+}
+
+.form-wrapper button:hover:before{
+    border-right-color: rgb(229, 64, 64);
+}
+
+.form-wrapper button:focus:before,
+.form-wrapper button:active:before{
+        border-right-color: rgb(196, 47, 47);
+}     
+
+.form-wrapper button::-moz-focus-inner { /* remove extra button spacing for Mozilla Firefox */
+    border: 0;
+    padding: 0;
+}   
+
+
+
+
 @media (min-width: 1200px) {
     .container {
         width: 100% !important;
-        padding-left: !important;
+        padding-left: 1px !important;
+	padding-right: 1px !important;
     }
 }
+
+.tftextinput2{
+        margin-top: 14px;
+        padding: 5px 15px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size:14px;
+        color:rgb(102, 102, 102);
+        border:1px solid rgb(0, 118, 163); border-right:0px;
+        border-top-left-radius: 5px 5px;
+        border-bottom-left-radius: 5px 5px;
+    }
+
+.tfbutton2 {
+        margin: 0;
+        padding: 5px 7px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size:14px;
+        font-weight:bold;
+        outline: none;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        color: rgb(255, 255, 255);
+        border: solid 1px #0076a3; border-right:0px;
+        background: rgb(0, 149, 205);
+        background: -webkit-gradient(linear, left top, left bottom, from(rgb(0, 173, 238)), to(rgb(0, 120, 165)));
+        background: -moz-linear-gradient(top,  rgb(0, 173, 238),  rgb(0, 120, 165));
+        border-top-right-radius: 5px 5px;
+        border-bottom-right-radius: 5px 5px;
+    }
+
+.tfbutton2:hover {
+        text-decoration: none;
+        background: rgb(0, 126, 173);
+        background: -webkit-gradient(linear, left top, left bottom, from(rgb(0, 149, 204)), to(rgb(0, 103, 142)));
+        background: -moz-linear-gradient(top,  rgb(0, 149, 204),  rgb(0, 103, 142));
+    }
+
+/* Fixes submit button height problem in Firefox */
+.tfbutton2::-moz-focus-inner {
+      border: 0;
+    }
 
 
 @media (min-width: 768px) {
     .container {
         width: 100% !important;
-        padding-left: 10px !important;
+        padding-left: 1px !important;
+	padding-right: 1px !important;
     }
    .col-sm-12 {
        padding: 0px !important;
@@ -20,6 +179,9 @@
 .divhidden {
     display: none;
 }
+
+.panel{
+margin-bottom: 5px}
 
 .divshown {
     display: inherit;
@@ -174,7 +336,7 @@ nav ul li:hover button {
 }
 
 .mainsearch {
-    padding: 2px;
+    margin-top: 14px;
 }
 
 .mainsettingsbtn {

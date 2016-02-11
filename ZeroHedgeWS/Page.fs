@@ -17,7 +17,6 @@ type EndPoint =
 and ApiEndPoint =
     | [<EndPoint "GET /page">] GetPage of int
     | [<EndPoint "GET /story">] GetStory of string
-    | [<EndPoint "POST /search">] PostSearch of string
 
 //and StoryPoint =
 //    | [<Query("id")>] Story of string
@@ -29,7 +28,6 @@ module Templating =
 
     type MainTemplate = Templating.Template<"Views\Main.html">
     type StoryTemplate = Templating.Template<"Views\Story.html">
-    type PageTemplate = Templating.Template<"Views\Page.html">
 
     // Compute a menubar where the menu item for the given endpoint is active
     let MenuBar (ctx: Context<EndPoint>) endpoint : Doc list =
@@ -71,14 +69,6 @@ module Templating =
             )
         )
 
-    let PageView ctx action title body search =
-        Content.Page(
-            PageTemplate.Doc(
-                title = title,
-                search = search,
-                body = body
-            )
-        )
 
 
 module Site =
@@ -91,9 +81,6 @@ module Site =
                 Content.Json(result.ToArray())
         | GetStory id ->            
             Content.Json (ZeroHedgeAPI.ApplicationLogic.getStory id)
-
-        | PostSearch keys ->
-            Content.Json (ZeroHedgeAPI.ApplicationLogic.postSearch keys)
 
     let HomePage( ctx, pageID : int ) =
         Templating.Main ctx EndPoint.Home "Home" [
@@ -111,13 +98,6 @@ module Site =
             div [client <@ StoryClient.Main(reference) @>]
         ]
 
-    let PagePage( ctx, id : int ) =
-        let attr'div'right1 =  Attr.Create "role" "navigation"
-        let attr'div'right2 =  Attr.Create "class" "pull-right"
-        let attrs'div'right = Seq.append [|attr'div'right1|] [ attr'div'right2]
-        Templating.PageView ctx EndPoint.Page "Page" [div [client <@ PageClient.Main(id) @>]] [divAttr attrs'div'right [client <@ PageClient.Search @>]]
-
-
     [<Website>]
     let Main =
 
@@ -127,7 +107,7 @@ module Site =
                 let result = ApiContent(ctx)(id)
                 result
             | EndPoint.Home -> HomePage( ctx, 0 )
-            | EndPoint.Page id -> PagePage( ctx ,id )
+            | EndPoint.Page id -> HomePage( ctx ,id )
             | EndPoint.About -> AboutPage ctx
             | EndPoint.Story id -> StoryPage ctx id
         )
