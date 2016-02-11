@@ -45,6 +45,7 @@
     <Compile Include="Controllers\ZeroHedgeAPI.fs" />
     <Compile Include="Client.fs" />
     <Compile Include="PageClient.fs" />
+    <Compile Include="SearchClient.fs" />
     <Compile Include="StoryClient.fs" />
     <Compile Include="Main.fs" />
     <Content Include="Web.config" />
@@ -54,6 +55,7 @@
     <Content Include="packages.config" />
     <Content Include="Views\Main.html" />
     <Content Include="Views\Page.html" />
+    <Content Include="Views\Search.html" />
     <Content Include="Views\Story.html" />
     <Content Include="fonts\glyphicons-halflings-regular.woff2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -213,8 +215,9 @@
       </FlavorProperties>
       <FlavorProperties Guid="{349c5851-65df-11da-9384-00065b846f21}" User="">
         <WebProjectProperties>
-          <StartPageUrl>page/0</StartPageUrl>
-          <StartAction>SpecificPage</StartAction>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
           <AspNetDebugging>True</AspNetDebugging>
           <SilverlightDebugging>False</SilverlightDebugging>
           <NativeDebugging>False</NativeDebugging>

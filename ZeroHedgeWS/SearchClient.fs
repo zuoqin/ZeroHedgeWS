@@ -8,7 +8,7 @@ open WebSharper.UI.Next.Client
 open WebSharper.UI.Next.Html
 
 [<JavaScript>]
-module PageClient =
+module SearchClient =
 
     /// General function to send an AJAX request with a body.
     let Ajax (methodtype: string) (url: string) (serializedData: string) : Async<string> =
@@ -70,16 +70,14 @@ module PageClient =
         async {
                 let pageURL = sprintf "./api/page/%d" id
                 let! response = Ajax "GET" pageURL (null)
-                //JavaScript.Console.Log "Get zerohedge page"
                 return Json.Deserialize<List<Story>> response 
         }
 
-    let SearchArticles (keys : string) : Async<Story list> =
+    let SearchArticles (keys : string, page : int) : Async<Story list> =
         async {
                 
-                let pageURL = sprintf "./api/search/%s" keys
-                let! response = Ajax "POST" pageURL (null)
-                //JavaScript.Console.Log "Get zerohedge page"
+                let pageURL = sprintf "./api/search/%s/%d" keys page
+                let! response = Ajax "GET" pageURL (null)
                 return Json.Deserialize<List<Story>> response 
         }
 
@@ -93,11 +91,50 @@ module PageClient =
             }  )
 
 
+
+    let AddNewSearchButton (page : int, keys:string) =
+        let homeRef = sprintf "./"
+        let newRef = sprintf "./search/%s/%d" keys page
+        let newTitle = sprintf "Page %d" page
+
+        let attr'href'1 =  Attr.Create "href" newRef
+        let attrs'href = Seq.append [|attr'href'1;  |] [ ]
+
+        let attr'home'href'1 =  Attr.Create "href" homeRef
+        let attrs'home'href = Seq.append [|attr'home'href'1;  |] [ ]
+
+        match page with
+        | 0 ->
+            li [ 
+                aAttr attrs'home'href [
+                    Doc.TextNode "Home"
+                ]
+            ]
+        | _ -> 
+            li [
+                aAttr attrs'href [
+                    Doc.TextNode newTitle
+                ]
+            ]
+        
+    let SearchPagination (keys : string)=
+        let list1 = [0..9]
+        List.map (fun x -> (x, keys)) list1
+            |> List.map AddNewSearchButton
+ 
     // Search buttom HTML: we show it on each Stories page at top right corner
+    let Search( keys: string ) =
+        Var.Set v'search keys
 
+        let newRef1 = sprintf "./search/%s/1" keys
 
-    let Search =
-        //JavaScript.Console.Log "Inside Search build HTML"
+        let attr'href1'1 =  Attr.Create "href" newRef1
+        let attrs'href1 = Seq.append [|attr'href1'1;  |] [ ]
+
+        let attr'div'right'1 = Attr.Create "role" "navigation"
+        let attr'div'right'2 = Attr.Create "class" "pull-right"
+        let attrs'div'right = Seq.append [|attr'div'right'1 |] [ attr'div'right'2]
+
         let attr'ul1 =  Attr.Create "id" "utilitiesbar"
         let attr'ul2 = Attr.Class "nav navbar-nav sm sm-collapsible"
         let attrs_ul = Seq.append [|attr'ul1 |] [ attr'ul2]
@@ -118,39 +155,100 @@ module PageClient =
 
 
         let attr'srch'btn1 =  Attr.Create "type" "submit"
-        //let attr'srch'btn1 =  Attr.Create "background" "transparent"
-        //let attr'srch'btn2 =  Attr.Create "value" " > "
-        //let attr'srch'btn3 =  Attr.Create "class" "tfbutton2"
         let attrs'srch'btn = Seq.append [|attr'srch'btn1;  |] [ ]
+        
 
-        nav [
-            ulAttr [] [
-                li [
-                    formAttr attrs'form [
-                        Doc.Input attrs'input'1 v'search
-                        Doc.Button
-                        <| "Search"
-                        <| attrs'srch'btn
-                        <| fun _ -> 
-                            let keyEncode = JS.EncodeURIComponent(v'search.Value)
-                            let newLocation = sprintf "./search/%s/1" keyEncode
-                            JS.Window.Location.Href <-newLocation
-                    ]
+
+        divAttr [attr.``class`` "navbar-collapse collapse"][
+            ulAttr [attr.``class`` "nav navbar-nav" ] [
+                for x in  SearchPagination(keys) do
+                    yield x :> Doc
+
+//                li [
+//                    aAttr attrs'href1 [
+//                        Doc.TextNode "Page 1"
+//                    ]
+//                ]
+//                li [
+//                    aAttr attrs'href1 [
+//                        Doc.TextNode "Page 2"
+//                    ]
+//                ]
+//                li [
+//                    aAttr attrs'href1 [
+//                        Doc.TextNode "Page 3"
+//                    ]
+//                ]
+//                li [
+//                    aAttr attrs'href1 [
+//                        Doc.TextNode "Page 4"
+//                    ]
+//                ]
+//                li [
+//                    aAttr attrs'href1 [
+//                        Doc.TextNode "Page 5"
+//                    ]
+//                ]
+//                li [
+//                    aAttr attrs'href1 [
+//                        Doc.TextNode "Page 6"
+//                    ]
+//                ]
+//                li [
+//                    aAttr attrs'href1 [
+//                        Doc.TextNode "Page 7"
+//                    ]
+//                ]
+//                li [
+//                    aAttr attrs'href1 [
+//                        Doc.TextNode "Page 8"
+//                    ]
+//                ]
+//                li [
+//                    aAttr attrs'href1 [
+//                        Doc.TextNode "Page 9"
+//                    ]
+//                ]
+            ]
+            divAttr attrs'div'right [
+                nav [
+                    ulAttr [] [
+                        li [
+                            formAttr attrs'form [
+                                Doc.Input attrs'input'1 v'search
+                                Doc.Button
+                                <| "Search"
+                                <| attrs'srch'btn
+                                <| fun _ ->
+                                    async {
+                                        postList.Clear()                                
+                                        let! stories = SearchArticles( JS.EncodeURIComponent(v'search.Value), 1 )
+                                        stories
+                                        |> List.iter( fun x -> 
+                                            //JavaScript.Console.Log x.Introduction
+                                            //JavaScript.Console.Log x.Reference
+                                            postList.Add x )
+                                    }
+                                    |> Async.Start
+
+                            ]
                     
 
+                        ]
+                    ]   
                 ]
-            ]   
+            ]        
         ]
 
-    let Main (pageID : int) =
+    let Main (keys : string, page :int) =
         let attr'divid =  Attr.Create "id" "blogItems"
         let attr'divstyle = Attr.Style "margin-top" "60px"
         let attr'divclass = Attr.Class "col-md-12"
         let attrs_div = Seq.append [|attr'divid; attr'divstyle |] [ attr'divclass]
-        Var.Set v'page pageID
+        Var.Set v'search keys
 
         async {
-            let! stories = GetPageArticles v'page.Value
+            let! stories = SearchArticles( v'search.Value, page )
             stories
             |> List.iter( fun x -> 
                 //JavaScript.Console.Log x.Title

@@ -92,7 +92,7 @@ module ZeroHedgeAPI =
             //request.Credentials <- CredentialCache.DefaultCredentials;
 
             let postData = keys;
-            let bodyString = "keys=" + HttpUtility.UrlEncode(postData)            
+            let bodyString = "keys=" + postData //HttpUtility.UrlEncode(postData)            
             let bytedata = Encoding.UTF8.GetBytes(bodyString)
             //request.ContentLength <- int64(bytedata.Length)
             
@@ -190,7 +190,7 @@ module ZeroHedgeAPI =
                 let bResult = storiesmap.Add(refBase64, newStory)
                 body;
 
-        let LoadSearchPage (keys : string): List<Story> =
+        let PostSearchPage (keys : string): List<Story> =
             let (bResult, SearchArticles) = requestsmap.TryGetValue(keys)
             if bResult = true && (DateTime.Now - SearchArticles.updated).TotalMinutes < 10.0 &&
                 SearchArticles.stories.Count > 0 then
@@ -357,6 +357,66 @@ module ZeroHedgeAPI =
                         thePage.stories
 
 
+
+        let LoadSearchPage (keys: string, page:int) : List<Story> =
+            let markup1 = DownloadURL( sprintf "http://www.zerohedge.com/search/apachesolr_search?page=%d&keys=%s" page keys )
+            let markup = markup1.ToString()
+            let articles = new List<Story>()
+
+            let mutable ind2 = markup.IndexOf("<dl class=\"search-results apachesolr_search-results\">", 0);
+             
+            let ind_end = markup.IndexOf("</dl>");
+            while(ind2 > 0) do                
+                ind2 <- markup.IndexOf("<dt class=\"title\"", ind2)
+                let mutable title = ""
+                let mutable ref1 = ""
+                let mutable introduction = ""
+                let mutable published = ""
+                if ind2 < ind_end && ind2 <> -1 then
+                    ind2 <- markup.IndexOf("<a href=\"", ind2)
+                    ind2 <- (ind2 + 9)
+                    let mutable ind3 = markup.IndexOf("\">", ind2)
+
+                    ref1 <- markup.Substring(ind2, ind3 - ind2)
+
+                    ind2 <- (ind3 + 2)
+
+                    ind3 <- markup.IndexOf("</a>", ind3)
+
+                    title <- markup.Substring(ind2, ind3 - ind2)
+
+                    ind2 <- markup.IndexOf("<p class=\"search-snippet\"", ind3)
+                    if ind2 < ind_end then
+                        ind2 <- (ind2 + 27)
+                        ind3 <- markup.IndexOf("</p>", ind2)
+                        introduction <- markup.Substring(ind2, ind3 - ind2)
+
+                    ind2 <- markup.IndexOf("<p class=\"search-info\"", ind3)
+                    if ind2 < ind_end then
+                        ind2 <- markup.IndexOf("</a>", ind2)
+                        if ind2 < ind_end then
+                            ind2 <- (ind2 + 7)
+                            ind3 <- (ind2 + 18)
+                            published <- markup.Substring(ind2, ind3 - ind2)
+
+
+                let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
+                let mutable base64Ref = System.Convert.ToBase64String(refBase64)
+                let article = { Title = title; Introduction = introduction; Body = "";
+                    Reference = base64Ref;
+                    Published = published; Updated = DateTime.Now }
+                    
+                    
+                let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
+                if bResult = false then
+                    storiesmap.Add(base64Ref, article)
+
+                if published.Length > 0 && introduction.Length > 0 then
+                    articles.Add( article )
+
+            articles
+
+
         /// The stories database
         let stories = new Dictionary<string, Story>()
 
@@ -369,6 +429,9 @@ module ZeroHedgeAPI =
             article
 
         let postSearch (keys: string) =
-            let articles = (LoadSearchPage keys) |> Seq.toList //|> List.take 10
+            let articles = (PostSearchPage keys) |> Seq.toList
             articles
 
+        let getSearch (keys: string, page : int) =
+            let articles = LoadSearchPage (keys, page) |> Seq.toList
+            articles
