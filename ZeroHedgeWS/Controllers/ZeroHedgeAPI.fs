@@ -91,26 +91,26 @@ module ZeroHedgeAPI =
             // Set credentials to use for this request.
             //request.Credentials <- CredentialCache.DefaultCredentials;
 
-            let postData = keys;
+            let postData = keys.Replace("%20", "+")
             let bodyString = "keys=" + postData //HttpUtility.UrlEncode(postData)            
             let bytedata = Encoding.UTF8.GetBytes(bodyString)
             //request.ContentLength <- int64(bytedata.Length)
             
             
-            let newStream = request.GetRequestStream ();
-            newStream.Write(bytedata,0,bytedata.Length);
-            newStream.Close();
+            let newStream = request.GetRequestStream ()
+            newStream.Write(bytedata,0,bytedata.Length)
+            newStream.Close()
 
             let response = request.GetResponse()
             // Get the stream associated with the response.
-            let receiveStream = response.GetResponseStream();
+            let receiveStream = response.GetResponseStream()
             
             let buf = [| for i in 0..8192 -> byte(0)|]
             let mutable count = 1
             let mutable sb = new StringBuilder()
             let mutable tmpString = ""
             while count > 0 do
-                count <- receiveStream.Read(buf, 0, buf.Length);
+                count <- receiveStream.Read(buf, 0, buf.Length)
                 if count > 0 then                    
                     tmpString <- Encoding.UTF8.GetString(buf, 0, count)
                     sb.Append( tmpString ) |> ignore
@@ -359,7 +359,8 @@ module ZeroHedgeAPI =
 
 
         let LoadSearchPage (keys: string, page:int) : List<Story> =
-            let markup1 = DownloadURL( sprintf "http://www.zerohedge.com/search/apachesolr_search?page=%d&keys=%s" page keys )
+            let keyDecode = keys //HttpUtility.UrlDecode(keys).Replace(" ", "+")
+            let markup1 = DownloadURL( sprintf "http://www.zerohedge.com/search/apachesolr_search/%s?page=%d" keyDecode page )
             let markup = markup1.ToString()
             let articles = new List<Story>()
 

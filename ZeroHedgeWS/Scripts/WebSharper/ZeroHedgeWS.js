@@ -271,7 +271,7 @@
      {
       var keyEncode,newLocation;
       keyEncode=Global.encodeURIComponent(Var1.Get(PageClient["v'search"]()));
-      newLocation="./search/"+PrintfHelpers.toSafe(keyEncode)+"/1";
+      newLocation="./search/"+PrintfHelpers.toSafe(keyEncode)+"/0";
       window.location.href=newLocation;
       return;
      };
@@ -279,20 +279,6 @@
      arg20=List.ofArray([Doc.Element("ul",attrs_ul,List.ofArray([Doc.Element("li",[],arg201)]))]);
      return Doc.Element("nav",[],arg20);
     }),
-    SearchArticles:function(keys)
-    {
-     return Concurrency.Delay(function()
-     {
-      var x;
-      x="./api/search/"+PrintfHelpers.toSafe(keys);
-      return Concurrency.Bind(PageClient.Ajax("POST",x,null),function(_arg1)
-      {
-       var _;
-       _=Provider.get_Default();
-       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0]])))())(JSON.parse(_arg1)));
-      });
-     });
-    },
     doc:function(post)
     {
      return Doc.Element("div",List.ofArray([AttrModule.Class("panel panel-primary")]),List.ofArray([PageClient["doc'header"](post),PageClient["doc'body"](post)]));
@@ -445,32 +431,19 @@
      };
      return Concurrency.FromContinuations(arg00);
     },
-    GetPageArticles:function(id)
-    {
-     return Concurrency.Delay(function()
-     {
-      var x;
-      x="./api/page/"+Global.String(id);
-      return Concurrency.Bind(SearchClient.Ajax("GET",x,null),function(_arg1)
-      {
-       var _;
-       _=Provider.get_Default();
-       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0]])))())(JSON.parse(_arg1)));
-      });
-     });
-    },
     Main:function(keys,page)
     {
-     var _attr_divid,_attr_divstyle,_attr_divclass,attrs_div,arg00,arg001,_attr_div_fixed1,_attr_div_fixed2,_attr_div_fixed,_attr_container1,_attr_container2,_attrs_container,_attr_container11,_attr_container21,_attrs_container1,ats,arg002,arg10,_arg00_1;
+     var _attr_divid,_attr_divstyle,_attr_divclass,attrs_div,keyDecode,arg00,arg001,_attr_div_fixed1,_attr_div_fixed2,_attr_div_fixed,_attr_container1,_attr_container2,_attrs_container,_attr_container11,_attr_container21,_attrs_container1,ats,arg002,arg10,_arg00_1;
      _attr_divid=AttrProxy.Create("id","blogItems");
      _attr_divstyle=AttrModule.Style("margin-top","60px");
      _attr_divclass=AttrModule.Class("col-md-12");
      attrs_div=Seq.append([_attr_divid,_attr_divstyle],List.ofArray([_attr_divclass]));
+     keyDecode=Global.decodeURIComponent(keys);
      arg00=SearchClient["v'search"]();
-     Var1.Set(arg00,keys);
+     Var1.Set(arg00,keyDecode);
      arg001=Concurrency.Delay(function()
      {
-      return Concurrency.Bind(SearchClient.SearchArticles(Var1.Get(SearchClient["v'search"]()),page),function(_arg1)
+      return page===0?Concurrency.Bind(SearchClient.PostSearch(Var1.Get(SearchClient["v'search"]())),function(_arg1)
       {
        var action;
        action=function(x)
@@ -478,6 +451,15 @@
         return SearchClient.postList().Add(x);
        };
        Seq.iter(action,_arg1);
+       return Concurrency.Return(null);
+      }):Concurrency.Bind(SearchClient.SearchArticles(Var1.Get(SearchClient["v'search"]()),page),function(_arg2)
+      {
+       var action;
+       action=function(x)
+       {
+        return SearchClient.postList().Add(x);
+       };
+       Seq.iter(action,_arg2);
        return Concurrency.Return(null);
       });
      });
@@ -507,6 +489,20 @@
      arg10=SearchClient["v'blog"]();
      _arg00_1=View.Map(arg002,arg10);
      return Doc.Element("div",ats,List.ofArray([Doc.Element("div",attrs_div,List.ofArray([Doc.EmbedView(_arg00_1)]))]));
+    },
+    PostSearch:function(keys)
+    {
+     return Concurrency.Delay(function()
+     {
+      var x;
+      x="./api/search/"+PrintfHelpers.toSafe(keys);
+      return Concurrency.Bind(SearchClient.Ajax("POST",x,null),function(_arg1)
+      {
+       var _;
+       _=Provider.get_Default();
+       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0]])))())(JSON.parse(_arg1)));
+      });
+     });
     },
     Search:function(keys)
     {
@@ -548,7 +544,7 @@
       arg001=Concurrency.Delay(function()
       {
        SearchClient.postList().Clear();
-       return Concurrency.Bind(SearchClient.SearchArticles(Global.encodeURIComponent(Var1.Get(SearchClient["v'search"]())),1),function(_arg11)
+       return Concurrency.Bind(SearchClient.PostSearch(Global.encodeURIComponent(Var1.Get(SearchClient["v'search"]()))),function(_arg11)
        {
         var action;
         action=function(x1)

@@ -66,12 +66,15 @@ module SearchClient =
             ]
 
     /// Use Json.Serialize and Deserialize to send and receive data to and from the server.
-    let GetPageArticles (id : int) : Async<List<Story>> =
+    let PostSearch (keys : string) : Async<Story list> =
         async {
-                let pageURL = sprintf "./api/page/%d" id
-                let! response = Ajax "GET" pageURL (null)
+                
+                let pageURL = sprintf "./api/search/%s" keys
+                let! response = Ajax "POST" pageURL (null)
+                //JavaScript.Console.Log "Get zerohedge page"
                 return Json.Deserialize<List<Story>> response 
         }
+
 
     let SearchArticles (keys : string, page : int) : Async<Story list> =
         async {
@@ -169,52 +172,6 @@ module SearchClient =
             ulAttr [attr.``class`` "nav navbar-nav" ] [
                 for x in  SearchPagination(keys) do
                     yield x :> Doc
-
-//                li [
-//                    aAttr attrs'href1 [
-//                        Doc.TextNode "Page 1"
-//                    ]
-//                ]
-//                li [
-//                    aAttr attrs'href1 [
-//                        Doc.TextNode "Page 2"
-//                    ]
-//                ]
-//                li [
-//                    aAttr attrs'href1 [
-//                        Doc.TextNode "Page 3"
-//                    ]
-//                ]
-//                li [
-//                    aAttr attrs'href1 [
-//                        Doc.TextNode "Page 4"
-//                    ]
-//                ]
-//                li [
-//                    aAttr attrs'href1 [
-//                        Doc.TextNode "Page 5"
-//                    ]
-//                ]
-//                li [
-//                    aAttr attrs'href1 [
-//                        Doc.TextNode "Page 6"
-//                    ]
-//                ]
-//                li [
-//                    aAttr attrs'href1 [
-//                        Doc.TextNode "Page 7"
-//                    ]
-//                ]
-//                li [
-//                    aAttr attrs'href1 [
-//                        Doc.TextNode "Page 8"
-//                    ]
-//                ]
-//                li [
-//                    aAttr attrs'href1 [
-//                        Doc.TextNode "Page 9"
-//                    ]
-//                ]
             ]
             divAttr attrs'div'right [
                 nav [
@@ -228,7 +185,9 @@ module SearchClient =
                                 <| fun _ ->
                                     async {
                                         postList.Clear()                                
-                                        let! stories = SearchArticles( JS.EncodeURIComponent(v'search.Value), 1 )
+                                        let! stories =
+                                            PostSearch( 
+                                                JS.EncodeURIComponent(v'search.Value) )
                                         stories
                                         |> List.iter( fun x -> 
                                             //JavaScript.Console.Log x.Introduction
@@ -251,15 +210,22 @@ module SearchClient =
         let attr'divstyle = Attr.Style "margin-top" "60px"
         let attr'divclass = Attr.Class "col-md-12"
         let attrs_div = Seq.append [|attr'divid; attr'divstyle |] [ attr'divclass]
-        Var.Set v'search keys
+        let keyDecode = JS.DecodeURIComponent(keys)
+        Var.Set v'search keyDecode
 
         async {
-            let! stories = SearchArticles( v'search.Value, page )
-            stories
-            |> List.iter( fun x -> 
-                //JavaScript.Console.Log x.Title
-                //JavaScript.Console.Log x.Reference
+
+            match page with
+            | 0 ->
+                let! stories = PostSearch v'search.Value
+                stories
+                |> List.iter( fun x -> 
                 postList.Add x )
+            | _ -> 
+                let! stories = SearchArticles( v'search.Value, page )
+                stories
+                |> List.iter( fun x -> 
+                    postList.Add x )
         }
         |> Async.Start
             

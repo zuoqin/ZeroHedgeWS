@@ -74,15 +74,6 @@ module PageClient =
                 return Json.Deserialize<List<Story>> response 
         }
 
-    let SearchArticles (keys : string) : Async<Story list> =
-        async {
-                
-                let pageURL = sprintf "./api/search/%s" keys
-                let! response = Ajax "POST" pageURL (null)
-                //JavaScript.Console.Log "Get zerohedge page"
-                return Json.Deserialize<List<Story>> response 
-        }
-
 
     let v'blog =
         View.Do{
@@ -131,7 +122,7 @@ module PageClient =
                         <| attrs'srch'btn
                         <| fun _ -> 
                             let keyEncode = JS.EncodeURIComponent(v'search.Value)
-                            let newLocation = sprintf "./search/%s/1" keyEncode
+                            let newLocation = sprintf "./search/%s/0" keyEncode
                             JS.Window.Location.Href <-newLocation
                     ]
                     
