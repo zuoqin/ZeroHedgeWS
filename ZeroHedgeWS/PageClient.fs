@@ -97,10 +97,8 @@ module PageClient =
 
 
     let Search =
-        //JavaScript.Console.Log "Inside Search build HTML"
-        let attr'ul1 =  Attr.Create "id" "utilitiesbar"
-        let attr'ul2 = Attr.Class "nav navbar-nav sm sm-collapsible"
-        let attrs_ul = Seq.append [|attr'ul1 |] [ attr'ul2]
+        let attr'ul1 =  Attr.Create "style" "margin-left:0px; padding: 0px;"        
+        let attrs_ul = Seq.append [|attr'ul1 |] [ ]
         
         let attr'input'1'1 =  Attr.Create "placeholder" "Search"
         let attr'input'1'2 =  Attr.Create "type" "text"
@@ -124,7 +122,7 @@ module PageClient =
         let attrs'srch'btn = Seq.append [|attr'srch'btn1;  |] [ ]
 
         nav [
-            ulAttr [] [
+            ulAttr attrs_ul [
                 li [
                     formAttr attrs'form [
                         Doc.Input attrs'input'1 v'search

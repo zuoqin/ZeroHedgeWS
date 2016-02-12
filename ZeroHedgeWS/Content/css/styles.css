@@ -22,7 +22,6 @@
 /* Form text input */
 
 .form-wrapper input {
-    width: 300px;
     height: 35px;
     padding: 10px 5px;
     margin-top: 5px;
@@ -68,7 +67,7 @@
     padding: 0;
     cursor: pointer;
     height: 35px;
-    width: 110px;
+    width: 80px;
     font: bold 15px/40px 'lucida sans', 'trebuchet MS', 'Tahoma';
     color: #fff;
     text-transform: uppercase;
@@ -118,9 +117,23 @@
     .container {
         width: 100% !important;
         padding-left: 1px !important;
-	padding-right: 1px !important;
+	    padding-right: 1px !important;
     }
-}
+    .form-wrapper input {
+        width: 300px !important;
+    }
+   #page6li {
+       display: inherit !important;
+   }
+   #page7li {
+       display: inherit !important;
+   }
+   #page8li {
+       display: inherit !important;
+   }
+   #page9li {
+       display: inherit !important;
+   }}
 
 .tftextinput2{
         margin-top: 14px;
@@ -174,6 +187,21 @@
    .col-sm-12 {
        padding: 0px !important;
    }
+   #page6li {
+       display: none;
+   }
+   #page7li {
+       display: none;
+   }
+   #page8li {
+       display: none;
+   }
+   #page9li {
+       display: none;
+   }
+   .form-wrapper input {
+        width: 200px;
+    }
 }
 
 .divhidden {
@@ -312,16 +340,6 @@ nav ul li:hover button {
     box-shadow: 0px 0px 10px #000;
 }
 
-
-@media (min-width: 1200px) {
-    .container {
-        width: 100%;
-        padding-left: 10px;
-    }
-    .ngscope {
-        padding: 0px;
-    }
-}
 
 .btnlogout {
     background: url("logoutbtn.jpg") no-repeat;

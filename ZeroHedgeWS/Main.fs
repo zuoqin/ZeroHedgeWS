@@ -106,7 +106,7 @@ module Site =
         let attrs'div'right = Seq.append [|attr'div'right1|] [ attr'div'right2]
 
 
-        Templating.MainView ctx EndPoint.Home "Home"
+        Templating.MainView ctx EndPoint.Home "Zero Hedge | Home"
             [
                 div [client <@ PageClient.Main(0) @>]
             ]
@@ -124,7 +124,7 @@ module Site =
             ]
 
     let StoryPage ctx reference =
-        Templating.StoryView ctx EndPoint.Story "Story" [
+        Templating.StoryView ctx EndPoint.Story "Zero Hedge" [
             div [client <@ StoryClient.Main(reference) @>]
         ]
 
@@ -132,7 +132,7 @@ module Site =
         let attr'div'right1 =  Attr.Create "role" "navigation"
         let attr'div'right2 =  Attr.Create "class" "pull-right"
         let attrs'div'right = Seq.append [|attr'div'right1|] [ attr'div'right2]
-        Templating.PageView ctx EndPoint.Page "Page"
+        Templating.PageView ctx EndPoint.Page "Zero Hedge"
             [
                 div [client <@ PageClient.Main(id) @>]
             ] 
@@ -143,7 +143,7 @@ module Site =
     let SearchPage( ctx, keys : string, page : int ) =
         let attr'div'container1 =  Attr.Create "class" "container"
         let attrs'div'container = Seq.append  [ attr'div'container1] []
-        Templating.SearchView ctx EndPoint.Page "Page"
+        Templating.SearchView ctx EndPoint.Page "Zero Hedge | Search"
             [
                 div [client <@ SearchClient.Main(keys, page) @>]
             ]

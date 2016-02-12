@@ -110,6 +110,13 @@ module SearchClient =
                     Doc.TextNode "Home"
                 ]
             ]
+        | 6 | 7 | 8 | 9 -> 
+            let idAttr = sprintf "page%dli" page
+            liAttr [attr.``id`` idAttr ] [
+                aAttr attrs'href [
+                    Doc.TextNode newTitle
+                ]
+            ]
         | _ -> 
             li [
                 aAttr attrs'href [
@@ -135,9 +142,8 @@ module SearchClient =
         let attr'div'right'2 = Attr.Create "class" "pull-right"
         let attrs'div'right = Seq.append [|attr'div'right'1 |] [ attr'div'right'2]
 
-        let attr'ul1 =  Attr.Create "id" "utilitiesbar"
-        let attr'ul2 = Attr.Class "nav navbar-nav sm sm-collapsible"
-        let attrs_ul = Seq.append [|attr'ul1 |] [ attr'ul2]
+        let attr'ul1 =  Attr.Create "style" "margin-left:0px; padding: 0px;"        
+        let attrs_ul = Seq.append [|attr'ul1 |] [ ]
         
         let attr'input'1'1 =  Attr.Create "placeholder" "Search"
         let attr'input'1'2 =  Attr.Create "type" "text"
@@ -212,7 +218,7 @@ module SearchClient =
             ]
             divAttr attrs'div'right [
                 nav [
-                    ulAttr [] [
+                    ulAttr attrs_ul [
                         li [
                             formAttr attrs'form [
                                 Doc.Input attrs'input'1 v'search

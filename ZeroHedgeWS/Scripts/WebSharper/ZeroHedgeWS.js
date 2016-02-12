@@ -246,10 +246,11 @@
     },
     Search:Runtime.Field(function()
     {
-     var _attr_ul1,_attr_ul2,attrs_ul,_attr_input_1_1,_attr_input_1_2,_attr_input_1_4,_attrs_input_1,_attr_input_2_1,_attr_input_2_2,_attr_input_2_3,_attrs_input_2,_attr_form_1,_attrs_form,_attr_srch_btn1,_attrs_srch_btn,arg20,ats,arg201,_arg20_;
-     _attr_ul1=AttrProxy.Create("id","utilitiesbar");
-     _attr_ul2=AttrModule.Class("nav navbar-nav sm sm-collapsible");
-     attrs_ul=Seq.append([_attr_ul1],List.ofArray([_attr_ul2]));
+     var _attr_ul1,attrs_ul,_attr_input_1_1,_attr_input_1_2,_attr_input_1_4,_attrs_input_1,_attr_input_2_1,_attr_input_2_2,_attr_input_2_3,_attrs_input_2,_attr_form_1,_attrs_form,_attr_srch_btn1,_attrs_srch_btn,arg20,arg201,_arg20_;
+     _attr_ul1=AttrProxy.Create("style","margin-left:0px; padding: 0px;");
+     attrs_ul=Seq.append([_attr_ul1],Runtime.New(T,{
+      $:0
+     }));
      _attr_input_1_1=AttrProxy.Create("placeholder","Search");
      _attr_input_1_2=AttrProxy.Create("type","text");
      _attr_input_1_4=AttrProxy.Create("maxlength","120");
@@ -266,9 +267,6 @@
      _attrs_srch_btn=Seq.append([_attr_srch_btn1],Runtime.New(T,{
       $:0
      }));
-     ats=Runtime.New(T,{
-      $:0
-     });
      _arg20_=function()
      {
       var keyEncode,newLocation;
@@ -278,7 +276,7 @@
       return;
      };
      arg201=List.ofArray([Doc.Element("form",_attrs_form,List.ofArray([Doc.Input(_attrs_input_1,PageClient["v'search"]()),Doc.Button("Search",_attrs_srch_btn,_arg20_)]))]);
-     arg20=List.ofArray([Doc.Element("ul",ats,List.ofArray([Doc.Element("li",[],arg201)]))]);
+     arg20=List.ofArray([Doc.Element("ul",attrs_ul,List.ofArray([Doc.Element("li",[],arg201)]))]);
      return Doc.Element("nav",[],arg20);
     }),
     SearchArticles:function(keys)
@@ -363,7 +361,7 @@
    SearchClient:{
     AddNewSearchButton:function(page,keys)
     {
-     var newRef,x,_attr_href_1,_attrs_href,_attr_home_href_1,_attrs_home_href,_,arg20,arg201;
+     var newRef,x,_attr_href_1,_attrs_href,_attr_home_href_1,_attrs_home_href,_,arg20,_1,idAttr,idAttr1,idAttr2,idAttr3,arg201;
      newRef="./search/"+PrintfHelpers.toSafe(keys)+"/"+Global.String(page);
      x="Page "+Global.String(page);
      _attr_href_1=AttrProxy.Create("href",newRef);
@@ -381,8 +379,41 @@
       }
      else
       {
-       arg201=List.ofArray([Doc.Element("a",_attrs_href,List.ofArray([Doc.TextNode(x)]))]);
-       _=Doc.Element("li",[],arg201);
+       if(page===6)
+        {
+         idAttr="page"+Global.String(page)+"li";
+         _1=Doc.Element("li",List.ofArray([AttrProxy.Create("id",idAttr)]),List.ofArray([Doc.Element("a",_attrs_href,List.ofArray([Doc.TextNode(x)]))]));
+        }
+       else
+        {
+         if(page===7)
+          {
+           idAttr1="page"+Global.String(page)+"li";
+           _1=Doc.Element("li",List.ofArray([AttrProxy.Create("id",idAttr1)]),List.ofArray([Doc.Element("a",_attrs_href,List.ofArray([Doc.TextNode(x)]))]));
+          }
+         else
+          {
+           if(page===8)
+            {
+             idAttr2="page"+Global.String(page)+"li";
+             _1=Doc.Element("li",List.ofArray([AttrProxy.Create("id",idAttr2)]),List.ofArray([Doc.Element("a",_attrs_href,List.ofArray([Doc.TextNode(x)]))]));
+            }
+           else
+            {
+             if(page===9)
+              {
+               idAttr3="page"+Global.String(page)+"li";
+               _1=Doc.Element("li",List.ofArray([AttrProxy.Create("id",idAttr3)]),List.ofArray([Doc.Element("a",_attrs_href,List.ofArray([Doc.TextNode(x)]))]));
+              }
+             else
+              {
+               arg201=List.ofArray([Doc.Element("a",_attrs_href,List.ofArray([Doc.TextNode(x)]))]);
+               _1=Doc.Element("li",[],arg201);
+              }
+            }
+          }
+        }
+       _=_1;
       }
      return _;
     },
@@ -479,7 +510,7 @@
     },
     Search:function(keys)
     {
-     var arg00,x,_attr_href1_1,_attrs_href1,_attr_div_right_1,_attr_div_right_2,_attrs_div_right,_attr_ul1,_attr_ul2,attrs_ul,_attr_input_1_1,_attr_input_1_2,_attr_input_1_4,_attrs_input_1,_attr_input_2_1,_attr_input_2_2,_attr_input_2_3,_attrs_input_2,_attr_form_1,_attrs_form,_attr_srch_btn1,_attrs_srch_btn,ats,arg20,ats1,arg201,_arg20_;
+     var arg00,x,_attr_href1_1,_attrs_href1,_attr_div_right_1,_attr_div_right_2,_attrs_div_right,_attr_ul1,attrs_ul,_attr_input_1_1,_attr_input_1_2,_attr_input_1_4,_attrs_input_1,_attr_input_2_1,_attr_input_2_2,_attr_input_2_3,_attrs_input_2,_attr_form_1,_attrs_form,_attr_srch_btn1,_attrs_srch_btn,ats,arg20,arg201,_arg20_;
      arg00=SearchClient["v'search"]();
      Var1.Set(arg00,keys);
      x="./search/"+PrintfHelpers.toSafe(keys)+"/1";
@@ -490,9 +521,10 @@
      _attr_div_right_1=AttrProxy.Create("role","navigation");
      _attr_div_right_2=AttrProxy.Create("class","pull-right");
      _attrs_div_right=Seq.append([_attr_div_right_1],List.ofArray([_attr_div_right_2]));
-     _attr_ul1=AttrProxy.Create("id","utilitiesbar");
-     _attr_ul2=AttrModule.Class("nav navbar-nav sm sm-collapsible");
-     attrs_ul=Seq.append([_attr_ul1],List.ofArray([_attr_ul2]));
+     _attr_ul1=AttrProxy.Create("style","margin-left:0px; padding: 0px;");
+     attrs_ul=Seq.append([_attr_ul1],Runtime.New(T,{
+      $:0
+     }));
      _attr_input_1_1=AttrProxy.Create("placeholder","Search");
      _attr_input_1_2=AttrProxy.Create("type","text");
      _attr_input_1_4=AttrProxy.Create("maxlength","120");
@@ -510,9 +542,6 @@
       $:0
      }));
      ats=List.ofArray([AttrProxy.Create("class","navbar-collapse collapse")]);
-     ats1=Runtime.New(T,{
-      $:0
-     });
      _arg20_=function()
      {
       var arg001;
@@ -535,7 +564,7 @@
       });
      };
      arg201=List.ofArray([Doc.Element("form",_attrs_form,List.ofArray([Doc.Input(_attrs_input_1,SearchClient["v'search"]()),Doc.Button("Search",_attrs_srch_btn,_arg20_)]))]);
-     arg20=List.ofArray([Doc.Element("ul",ats1,List.ofArray([Doc.Element("li",[],arg201)]))]);
+     arg20=List.ofArray([Doc.Element("ul",attrs_ul,List.ofArray([Doc.Element("li",[],arg201)]))]);
      return Doc.Element("div",ats,List.ofArray([Doc.Element("ul",List.ofArray([AttrProxy.Create("class","nav navbar-nav")]),Seq.toList(Seq.delay(function()
      {
       return Seq.map(function(x1)
