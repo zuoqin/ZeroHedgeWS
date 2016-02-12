@@ -84,16 +84,75 @@ module PageClient =
             }  )
 
 
+    let AddNewPageButton (page : int) =
+        let homeRef = sprintf "./"
+        let newRef = sprintf "./page/%d" page
+        let newTitle = sprintf "Page %d" page
+
+        let attr'href'1 =  Attr.Create "href" newRef
+        let attrs'href = Seq.append [|attr'href'1;  |] [ ]
+
+        let attr'home'href'1 =  Attr.Create "href" homeRef
+        let attrs'home'href = Seq.append [|attr'home'href'1;  |] [ ]
+
+
+        let attr'page'button'1 =  Attr.Create "class" "pageButton"
+        let attr'page'button'2 =  Attr.Create "id" "pageButton"
+        let attrs'page'button = Seq.append [|attr'page'button'1;  |] [ ]
+
+
+
+        match page with
+        | x when (x < 10) && (x > 0) ->
+            let idAttr = sprintf "page%dli" page
+            liAttr [attr.``id`` idAttr ] [
+                Doc.Button
+                <| ("Page " + page.ToString())
+                <| attrs'page'button
+                <| fun _ -> 
+                    async {
+                        let! stories = GetPageArticles x
+                        postList.Clear()
+                        stories
+                        |> List.iter( fun x -> 
+                            postList.Add x )
+                    }
+                    |> Async.Start
+            ]
+        | _ -> 
+            li [
+                Doc.Button
+                <| "Home"
+                <| attrs'page'button
+                <| fun _ -> 
+                    async {
+                        let! stories = GetPageArticles 0
+                        postList.Clear()
+                        stories
+                        |> List.iter( fun x -> 
+                            postList.Add x )
+                    }
+                    |> Async.Start
+            ]
+
+
+    let SitePagination =
+        let list1 = [0..9]
+        List.map (fun x -> (x)) list1
+            |> List.map AddNewPageButton
+
+
     // Search buttom HTML: we show it on each Stories page at top right corner
-
-
     let Search =
         let attr'ul1 =  Attr.Create "style" "margin-left:0px; padding: 0px;"        
         let attrs_ul = Seq.append [|attr'ul1 |] [ ]
         
+        let attr'div'right'1 = Attr.Create "role" "navigation"
+        let attr'div'right'2 = Attr.Create "class" "pull-right"
+        let attrs'div'right = Seq.append [|attr'div'right'1 |] [ attr'div'right'2]
+
         let attr'input'1'1 =  Attr.Create "placeholder" "Search"
         let attr'input'1'2 =  Attr.Create "type" "text"
-        //let attr'input'1'3 =  Attr.Create "class" "tftextinput2"
         let attr'input'1'4 =  Attr.Create "maxlength" "120"
         let attrs'input'1 = Seq.append [|attr'input'1'1;attr'input'1'2 |] [ attr'input'1'4]
 
@@ -107,30 +166,35 @@ module PageClient =
 
 
         let attr'srch'btn1 =  Attr.Create "type" "submit"
-        //let attr'srch'btn1 =  Attr.Create "background" "transparent"
-        //let attr'srch'btn2 =  Attr.Create "value" " > "
-        //let attr'srch'btn3 =  Attr.Create "class" "tfbutton2"
         let attrs'srch'btn = Seq.append [|attr'srch'btn1;  |] [ ]
 
-        nav [
-            ulAttr attrs_ul [
-                li [
-                    formAttr attrs'form [
-                        Doc.Input attrs'input'1 v'search
-                        Doc.Button
-                        <| "Search"
-                        <| attrs'srch'btn
-                        <| fun _ -> 
-                            let keyEncode = JS.EncodeURIComponent(v'search.Value)
-                            let newLocation = sprintf "./search/%s/0" keyEncode
-                            JS.Window.Location.Href <-newLocation
-                    ]
+
+        divAttr [attr.``class`` "navbar-collapse collapse"][
+            ulAttr [attr.``class`` "nav navbar-nav" ] [
+                for x in  SitePagination do
+                    yield x :> Doc
+            ]
+            divAttr attrs'div'right [
+                nav [
+                    ulAttr attrs_ul [
+                        li [
+                            formAttr attrs'form [
+                                Doc.Input attrs'input'1 v'search
+                                Doc.Button
+                                <| "Search"
+                                <| attrs'srch'btn
+                                <| fun _ -> 
+                                    let keyEncode = JS.EncodeURIComponent(v'search.Value)
+                                    let newLocation = sprintf "./search/%s/0" keyEncode
+                                    JS.Window.Location.Href <-newLocation
+                            ]
                     
 
+                        ]
+                    ]   
                 ]
-            ]   
+            ]
         ]
-
     let Main (pageID : int) =
         let attr'divid =  Attr.Create "id" "blogItems"
         let attr'divstyle = Attr.Style "margin-top" "60px"

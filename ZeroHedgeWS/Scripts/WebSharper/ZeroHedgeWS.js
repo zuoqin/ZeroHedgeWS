@@ -1,6 +1,6 @@
 (function()
 {
- var Global=this,Runtime=this.IntelliFactory.Runtime,jQuery,Exception,Concurrency,ZeroHedgeWS,Client,Json,Provider,Id,JSON,UI,Next,AttrProxy,AttrModule,Seq,List,Var1,Doc,ListModel1,View,PrintfHelpers,T,ListModel,View1,Var,PageClient,window,SearchClient,Operators,StoryClient;
+ var Global=this,Runtime=this.IntelliFactory.Runtime,jQuery,Exception,Concurrency,ZeroHedgeWS,Client,Json,Provider,Id,JSON,UI,Next,AttrProxy,AttrModule,Seq,List,Var1,Doc,ListModel1,View,PrintfHelpers,T,ListModel,View1,Var,String,PageClient,window,Operators,SearchClient,StoryClient;
  Runtime.Define(Global,{
   ZeroHedgeWS:{
    Client:{
@@ -153,6 +153,80 @@
     })
    },
    PageClient:{
+    AddNewPageButton:function(page)
+    {
+     var x,x1,_attr_href_1,_attrs_href,_attr_home_href_1,_attrs_home_href,_attr_page_button_1,_attr_page_button_2,_attrs_page_button,_,x2,ats,caption,_arg20_,arg20,_arg20_1;
+     x="./page/"+Global.String(page);
+     x1="Page "+Global.String(page);
+     _attr_href_1=AttrProxy.Create("href",x);
+     _attrs_href=Seq.append([_attr_href_1],Runtime.New(T,{
+      $:0
+     }));
+     _attr_home_href_1=AttrProxy.Create("href","./");
+     _attrs_home_href=Seq.append([_attr_home_href_1],Runtime.New(T,{
+      $:0
+     }));
+     _attr_page_button_1=AttrProxy.Create("class","pageButton");
+     _attr_page_button_2=AttrProxy.Create("id","pageButton");
+     _attrs_page_button=Seq.append([_attr_page_button_1],Runtime.New(T,{
+      $:0
+     }));
+     if(page<10?page>0:false)
+      {
+       x2="page"+Global.String(page)+"li";
+       ats=List.ofArray([AttrProxy.Create("id",x2)]);
+       caption="Page "+String(page);
+       _arg20_=function()
+       {
+        var arg00;
+        arg00=Concurrency.Delay(function()
+        {
+         return Concurrency.Bind(PageClient.GetPageArticles(page),function(_arg11)
+         {
+          var action;
+          PageClient.postList().Clear();
+          action=function(x3)
+          {
+           return PageClient.postList().Add(x3);
+          };
+          Seq.iter(action,_arg11);
+          return Concurrency.Return(null);
+         });
+        });
+        return Concurrency.Start(arg00,{
+         $:0
+        });
+       };
+       _=Doc.Element("li",ats,List.ofArray([Doc.Button(caption,_attrs_page_button,_arg20_)]));
+      }
+     else
+      {
+       _arg20_1=function()
+       {
+        var arg00;
+        arg00=Concurrency.Delay(function()
+        {
+         return Concurrency.Bind(PageClient.GetPageArticles(0),function(_arg21)
+         {
+          var action;
+          PageClient.postList().Clear();
+          action=function(x3)
+          {
+           return PageClient.postList().Add(x3);
+          };
+          Seq.iter(action,_arg21);
+          return Concurrency.Return(null);
+         });
+        });
+        return Concurrency.Start(arg00,{
+         $:0
+        });
+       };
+       arg20=List.ofArray([Doc.Button("Home",_attrs_page_button,_arg20_1)]);
+       _=Doc.Element("li",[],arg20);
+      }
+     return _;
+    },
     Ajax:function(methodtype,url,serializedData)
     {
      var arg00;
@@ -246,11 +320,14 @@
     },
     Search:Runtime.Field(function()
     {
-     var _attr_ul1,attrs_ul,_attr_input_1_1,_attr_input_1_2,_attr_input_1_4,_attrs_input_1,_attr_input_2_1,_attr_input_2_2,_attr_input_2_3,_attrs_input_2,_attr_form_1,_attrs_form,_attr_srch_btn1,_attrs_srch_btn,arg20,arg201,_arg20_;
+     var _attr_ul1,attrs_ul,_attr_div_right_1,_attr_div_right_2,_attrs_div_right,_attr_input_1_1,_attr_input_1_2,_attr_input_1_4,_attrs_input_1,_attr_input_2_1,_attr_input_2_2,_attr_input_2_3,_attrs_input_2,_attr_form_1,_attrs_form,_attr_srch_btn1,_attrs_srch_btn,ats,arg20,arg201,_arg20_;
      _attr_ul1=AttrProxy.Create("style","margin-left:0px; padding: 0px;");
      attrs_ul=Seq.append([_attr_ul1],Runtime.New(T,{
       $:0
      }));
+     _attr_div_right_1=AttrProxy.Create("role","navigation");
+     _attr_div_right_2=AttrProxy.Create("class","pull-right");
+     _attrs_div_right=Seq.append([_attr_div_right_1],List.ofArray([_attr_div_right_2]));
      _attr_input_1_1=AttrProxy.Create("placeholder","Search");
      _attr_input_1_2=AttrProxy.Create("type","text");
      _attr_input_1_4=AttrProxy.Create("maxlength","120");
@@ -267,6 +344,7 @@
      _attrs_srch_btn=Seq.append([_attr_srch_btn1],Runtime.New(T,{
       $:0
      }));
+     ats=List.ofArray([AttrProxy.Create("class","navbar-collapse collapse")]);
      _arg20_=function()
      {
       var keyEncode,newLocation;
@@ -277,7 +355,26 @@
      };
      arg201=List.ofArray([Doc.Element("form",_attrs_form,List.ofArray([Doc.Input(_attrs_input_1,PageClient["v'search"]()),Doc.Button("Search",_attrs_srch_btn,_arg20_)]))]);
      arg20=List.ofArray([Doc.Element("ul",attrs_ul,List.ofArray([Doc.Element("li",[],arg201)]))]);
-     return Doc.Element("nav",[],arg20);
+     return Doc.Element("div",ats,List.ofArray([Doc.Element("ul",List.ofArray([AttrProxy.Create("class","nav navbar-nav")]),Seq.toList(Seq.delay(function()
+     {
+      return Seq.map(function(x)
+      {
+       return x;
+      },PageClient.SitePagination());
+     }))),Doc.Element("div",_attrs_div_right,List.ofArray([Doc.Element("nav",[],arg20)]))]));
+    }),
+    SitePagination:Runtime.Field(function()
+    {
+     var list1,list;
+     list1=Seq.toList(Operators.range(0,9));
+     list=List.map(function(x)
+     {
+      return x;
+     },list1);
+     return List.map(function(page)
+     {
+      return PageClient.AddNewPageButton(page);
+     },list);
     }),
     doc:function(post)
     {
@@ -789,10 +886,11 @@
   ListModel=Runtime.Safe(Next.ListModel);
   View1=Runtime.Safe(Next.View1);
   Var=Runtime.Safe(Next.Var);
+  String=Runtime.Safe(Global.String);
   PageClient=Runtime.Safe(ZeroHedgeWS.PageClient);
   window=Runtime.Safe(Global.window);
-  SearchClient=Runtime.Safe(ZeroHedgeWS.SearchClient);
   Operators=Runtime.Safe(Global.WebSharper.Operators);
+  SearchClient=Runtime.Safe(ZeroHedgeWS.SearchClient);
   return StoryClient=Runtime.Safe(ZeroHedgeWS.StoryClient);
  });
  Runtime.OnLoad(function()
@@ -807,6 +905,7 @@
   PageClient["v'page"]();
   PageClient["v'blog"]();
   PageClient.postList();
+  PageClient.SitePagination();
   PageClient.Search();
   Client["v'page"]();
   Client["v'blog"]();

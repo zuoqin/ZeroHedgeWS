@@ -1,4 +1,19 @@
-﻿/*Clearing Floats*/
+﻿.pageButton {
+    background-color: transparent;
+    color: #9d9d9d;
+    border: none;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.pageButton:hover {
+    color: white;
+}
+
+/*Clearing Floats*/
 .cf:before, .cf:after{
     content:"";
     display:table;

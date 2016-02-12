@@ -129,15 +129,14 @@ module Site =
         ]
 
     let PagePage( ctx, id : int ) =
-        let attr'div'right1 =  Attr.Create "role" "navigation"
-        let attr'div'right2 =  Attr.Create "class" "pull-right"
-        let attrs'div'right = Seq.append [|attr'div'right1|] [ attr'div'right2]
+        let attr'div'container1 =  Attr.Create "class" "container"
+        let attrs'div'container = Seq.append  [ attr'div'container1] []
         Templating.PageView ctx EndPoint.Page "Zero Hedge"
             [
                 div [client <@ PageClient.Main(id) @>]
             ] 
             [
-                divAttr attrs'div'right [client <@ PageClient.Search @>]
+                divAttr attrs'div'container [client <@ PageClient.Search @>]
             ]
 
     let SearchPage( ctx, keys : string, page : int ) =
