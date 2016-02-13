@@ -84,6 +84,19 @@ module PageClient =
             }  )
 
 
+    let OnPageButtonClick (page : int)= 
+        async {
+            JS.Window.SessionStorage.SetItem("page", page.ToString())
+            let! stories = GetPageArticles page
+            postList.Clear()
+            stories
+            |> List.iter( fun x -> 
+                postList.Add x )
+        }
+        |> Async.Start
+
+
+
     let AddNewPageButton (page : int) =
         let homeRef = sprintf "./"
         let newRef = sprintf "./page/%d" page
@@ -110,14 +123,7 @@ module PageClient =
                 <| ("Page " + page.ToString())
                 <| attrs'page'button
                 <| fun _ -> 
-                    async {
-                        let! stories = GetPageArticles x
-                        postList.Clear()
-                        stories
-                        |> List.iter( fun x -> 
-                            postList.Add x )
-                    }
-                    |> Async.Start
+                    OnPageButtonClick x
             ]
         | _ -> 
             li [
@@ -125,14 +131,7 @@ module PageClient =
                 <| "Home"
                 <| attrs'page'button
                 <| fun _ -> 
-                    async {
-                        let! stories = GetPageArticles 0
-                        postList.Clear()
-                        stories
-                        |> List.iter( fun x -> 
-                            postList.Add x )
-                    }
-                    |> Async.Start
+                    OnPageButtonClick 0
             ]
 
 
@@ -170,9 +169,11 @@ module PageClient =
 
 
         divAttr [attr.``class`` "navbar-collapse collapse"][
-            ulAttr [attr.``class`` "nav navbar-nav" ] [
-                for x in  SitePagination do
-                    yield x :> Doc
+            divAttr [attr.``align`` "left"] [
+                ulAttr [attr.``class`` "nav navbar-nav" ] [
+                    for x in  SitePagination do
+                        yield x :> Doc
+                ]
             ]
             divAttr attrs'div'right [
                 nav [
@@ -200,7 +201,12 @@ module PageClient =
         let attr'divstyle = Attr.Style "margin-top" "60px"
         let attr'divclass = Attr.Class "col-md-12"
         let attrs_div = Seq.append [|attr'divid; attr'divstyle |] [ attr'divclass]
-        Var.Set v'page pageID
+
+        let sessionPage = JS.Window.SessionStorage.GetItem("page")
+        let mutable newPageID = pageID
+        if sessionPage <> null  && sessionPage.Length > 0 then
+            newPageID <- JS.ParseInt(sessionPage)
+        Var.Set v'page newPageID
 
         async {
             let! stories = GetPageArticles v'page.Value

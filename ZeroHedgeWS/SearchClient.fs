@@ -94,38 +94,79 @@ module SearchClient =
             }  )
 
 
+    let OnSearchPageBtnClick (page : int)= 
+        async {
+            JS.Window.SessionStorage.SetItem("searchpage", page.ToString())
+            let! stories = SearchArticles( v'search.Value, page )
+            postList.Clear()
+            stories
+            |> List.iter( fun x -> 
+                postList.Add x )
+        }
+        |> Async.Start
 
     let AddNewSearchButton (page : int, keys:string) =
-        let homeRef = sprintf "./"
-        let newRef = sprintf "./search/%s/%d" keys page
-        let newTitle = sprintf "Page %d" page
+        let homeRef = sprintf "./page/0"
+        //let newRef = sprintf "./search/%s/%d" keys page
+        //let newTitle = sprintf "Page %d" page
 
-        let attr'href'1 =  Attr.Create "href" newRef
-        let attrs'href = Seq.append [|attr'href'1;  |] [ ]
+        //let attr'href'1 =  Attr.Create "href" newRef
+        //let attrs'href = Seq.append [|attr'href'1;  |] [ ]
 
-        let attr'home'href'1 =  Attr.Create "href" homeRef
-        let attrs'home'href = Seq.append [|attr'home'href'1;  |] [ ]
+//        let attr'home'href'1 =  Attr.Create "href" homeRef
+//        let attrs'home'href = Seq.append [|attr'home'href'1;  |] [ ]
+//
+        let attr'page'button'1 =  Attr.Create "class" "pageButton"
+        let attr'page'button'2 =  Attr.Create "id" "pageButton"
+        let attrs'page'button = Seq.append [|attr'page'button'1;  |] [ ]
+
 
         match page with
         | 0 ->
             li [ 
-                aAttr attrs'home'href [
+                aAttr [attr.``href`` homeRef] [
                     Doc.TextNode "Home"
                 ]
             ]
-        | 6 | 7 | 8 | 9 -> 
+        | x when (x < 10) && (x > 0) ->
             let idAttr = sprintf "page%dli" page
             liAttr [attr.``id`` idAttr ] [
-                aAttr attrs'href [
-                    Doc.TextNode newTitle
-                ]
+                Doc.Button
+                <| ("Page " + page.ToString())
+                <| attrs'page'button
+                <| fun _ -> 
+                    OnSearchPageBtnClick (x-1)
             ]
         | _ -> 
             li [
-                aAttr attrs'href [
-                    Doc.TextNode newTitle
-                ]
+                Doc.Button
+                <| "Home"
+                <| attrs'page'button
+                <| fun _ -> 
+                    OnSearchPageBtnClick 0
             ]
+
+
+//        match page with
+//        | 0 ->
+//            li [ 
+//                aAttr attrs'home'href [
+//                    Doc.TextNode "Home"
+//                ]
+//            ]
+//        | 6 | 7 | 8 | 9 -> 
+//            let idAttr = sprintf "page%dli" page
+//            liAttr [attr.``id`` idAttr ] [
+//                aAttr attrs'href [
+//                    Doc.TextNode newTitle
+//                ]
+//            ]
+//        | _ -> 
+//            li [
+//                aAttr attrs'href [
+//                    Doc.TextNode newTitle
+//                ]
+//            ]
         
     let SearchPagination (keys : string)=
         let list1 = [0..9]
@@ -205,7 +246,7 @@ module SearchClient =
             ]        
         ]
 
-    let Main (keys : string, page :int) =
+    let Main (keys : string, pageID :int) =
         let attr'divid =  Attr.Create "id" "blogItems"
         let attr'divstyle = Attr.Style "margin-top" "60px"
         let attr'divclass = Attr.Class "col-md-12"
@@ -213,16 +254,22 @@ module SearchClient =
         let keyDecode = JS.DecodeURIComponent(keys)
         Var.Set v'search keyDecode
 
+        let sessionPage = JS.Window.SessionStorage.GetItem("searchpage")
+        let mutable newPageID = pageID
+        if sessionPage <> null  && sessionPage.Length > 0 then
+            newPageID <- JS.ParseInt(sessionPage)        
+
+        JavaScript.Console.Log( "Search Page = " + newPageID.ToString() )
         async {
 
-            match page with
+            match newPageID with
             | 0 ->
                 let! stories = PostSearch v'search.Value
                 stories
                 |> List.iter( fun x -> 
                 postList.Add x )
             | _ -> 
-                let! stories = SearchArticles( v'search.Value, page )
+                let! stories = SearchArticles( v'search.Value, newPageID )
                 stories
                 |> List.iter( fun x -> 
                     postList.Add x )

@@ -31,6 +31,11 @@ type Page =
         stories : List<Story>
     }
 
+type SearchPageIndex =
+    {
+        keys : string;
+        page : int
+    }
 
 
 module ZeroHedgeAPI =
@@ -39,7 +44,7 @@ module ZeroHedgeAPI =
     module ApplicationLogic =
         let storiesmap = new Dictionary<string, Story>()
         let pagesmap = new Dictionary<int, Page>()
-        let requestsmap = new Dictionary<string, Page>()
+        let requestsmap = new Dictionary<SearchPageIndex, Page>()
 
 
         let DownloadURL (uri : string)=
@@ -172,6 +177,10 @@ module ZeroHedgeAPI =
                     ind2 <- markup.IndexOf("<div class=\"comment-content\">", ind1)
                     if ind2 = -1 || ind2 > markup.IndexOf("<a href=\"/users/", ind1) then
                         ind2 <- markup.IndexOf("<a href=\"/users/", ind1)
+                        if ind2 = -1 then
+                            ind2 <- markup.IndexOf("<div class=\"clear-block clear\">", ind1)
+                
+
 
                 let mutable body = markup.Substring(ind1, ind2 - ind1)
                 body <- replaceLinks body
@@ -191,7 +200,8 @@ module ZeroHedgeAPI =
                 body;
 
         let PostSearchPage (keys : string): List<Story> =
-            let (bResult, SearchArticles) = requestsmap.TryGetValue(keys)
+            let newSearchIndex = { keys = keys; page = 0}
+            let (bResult, SearchArticles) = requestsmap.TryGetValue(newSearchIndex)
             if bResult = true && (DateTime.Now - SearchArticles.updated).TotalMinutes < 10.0 &&
                 SearchArticles.stories.Count > 0 then
                 SearchArticles.stories
@@ -255,8 +265,8 @@ module ZeroHedgeAPI =
 
                 if articles.Count > 0 then
                     let newPage = { updated = DateTime.Now; stories = articles }
-                    let bResult = requestsmap.Remove(keys)
-                    requestsmap.Add(keys, newPage)
+                    let bResult = requestsmap.Remove(newSearchIndex)
+                    requestsmap.Add(newSearchIndex, newPage)
 
                     articles
                 else
@@ -359,63 +369,81 @@ module ZeroHedgeAPI =
 
 
         let LoadSearchPage (keys: string, page:int) : List<Story> =
-            let keyDecode = keys //HttpUtility.UrlDecode(keys).Replace(" ", "+")
-            let markup1 = DownloadURL( sprintf "http://www.zerohedge.com/search/apachesolr_search/%s?page=%d" keyDecode page )
-            let markup = markup1.ToString()
-            let articles = new List<Story>()
+            let newSearchIndex = { keys = keys; page = page}
+            let (bResult, SearchArticles) = requestsmap.TryGetValue(newSearchIndex)
+            if bResult = true && (DateTime.Now - SearchArticles.updated).TotalMinutes < 10.0 &&
+                SearchArticles.stories.Count > 0 then
+                SearchArticles.stories
+            else
+                let keyDecode = keys //HttpUtility.UrlDecode(keys).Replace(" ", "+")
+                let markup1 = DownloadURL( sprintf "http://www.zerohedge.com/search/apachesolr_search/%s?page=%d" keyDecode page )
+                let markup = markup1.ToString()
+                let articles = new List<Story>()
 
-            let mutable ind2 = markup.IndexOf("<dl class=\"search-results apachesolr_search-results\">", 0);
+                let mutable ind2 = markup.IndexOf("<dl class=\"search-results apachesolr_search-results\">", 0);
              
-            let ind_end = markup.IndexOf("</dl>");
-            while(ind2 > 0) do                
-                ind2 <- markup.IndexOf("<dt class=\"title\"", ind2)
-                let mutable title = ""
-                let mutable ref1 = ""
-                let mutable introduction = ""
-                let mutable published = ""
-                if ind2 < ind_end && ind2 <> -1 then
-                    ind2 <- markup.IndexOf("<a href=\"", ind2)
-                    ind2 <- (ind2 + 9)
-                    let mutable ind3 = markup.IndexOf("\">", ind2)
+                let ind_end = markup.IndexOf("</dl>");
+                while(ind2 > 0) do                
+                    ind2 <- markup.IndexOf("<dt class=\"title\"", ind2)
+                    let mutable title = ""
+                    let mutable ref1 = ""
+                    let mutable introduction = ""
+                    let mutable published = ""
+                    if ind2 < ind_end && ind2 <> -1 then
+                        ind2 <- markup.IndexOf("<a href=\"", ind2)
+                        ind2 <- (ind2 + 9)
+                        let mutable ind3 = markup.IndexOf("\">", ind2)
 
-                    ref1 <- markup.Substring(ind2, ind3 - ind2)
+                        ref1 <- markup.Substring(ind2, ind3 - ind2)
 
-                    ind2 <- (ind3 + 2)
+                        ind2 <- (ind3 + 2)
 
-                    ind3 <- markup.IndexOf("</a>", ind3)
+                        ind3 <- markup.IndexOf("</a>", ind3)
 
-                    title <- markup.Substring(ind2, ind3 - ind2)
+                        title <- markup.Substring(ind2, ind3 - ind2)
 
-                    ind2 <- markup.IndexOf("<p class=\"search-snippet\"", ind3)
-                    if ind2 < ind_end then
-                        ind2 <- (ind2 + 27)
-                        ind3 <- markup.IndexOf("</p>", ind2)
-                        introduction <- markup.Substring(ind2, ind3 - ind2)
-
-                    ind2 <- markup.IndexOf("<p class=\"search-info\"", ind3)
-                    if ind2 < ind_end then
-                        ind2 <- markup.IndexOf("</a>", ind2)
+                        ind2 <- markup.IndexOf("<p class=\"search-snippet\"", ind3)
                         if ind2 < ind_end then
-                            ind2 <- (ind2 + 7)
-                            ind3 <- (ind2 + 18)
-                            published <- markup.Substring(ind2, ind3 - ind2)
+                            ind2 <- (ind2 + 27)
+                            ind3 <- markup.IndexOf("</p>", ind2)
+                            introduction <- markup.Substring(ind2, ind3 - ind2)
+
+                        ind2 <- markup.IndexOf("<p class=\"search-info\"", ind3)
+                        if ind2 < ind_end then
+                            ind2 <- markup.IndexOf("</a>", ind2)
+                            if ind2 < ind_end then
+                                ind2 <- (ind2 + 7)
+                                ind3 <- (ind2 + 18)
+                                published <- markup.Substring(ind2, ind3 - ind2)
 
 
-                let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
-                let mutable base64Ref = System.Convert.ToBase64String(refBase64)
-                let article = { Title = title; Introduction = introduction; Body = "";
-                    Reference = base64Ref;
-                    Published = published; Updated = DateTime.Now }
+                    let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
+                    let mutable base64Ref = System.Convert.ToBase64String(refBase64)
+                    let article = { Title = title; Introduction = introduction; Body = "";
+                        Reference = base64Ref;
+                        Published = published; Updated = DateTime.Now }
                     
                     
-                let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
-                if bResult = false then
-                    storiesmap.Add(base64Ref, article)
+                    let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
+                    if bResult = false then
+                        storiesmap.Add(base64Ref, article)
 
-                if published.Length > 0 && introduction.Length > 0 then
-                    articles.Add( article )
+                    if published.Length > 0 && introduction.Length > 0 then
+                        articles.Add( article )
 
-            articles
+                if articles.Count > 0 then
+                    let newPage = { updated = DateTime.Now; stories = articles }
+                    let bResult = requestsmap.Remove(newSearchIndex)
+                    requestsmap.Add(newSearchIndex, newPage)
+
+                    articles
+                else
+                    if bResult = false then
+                        null
+                    else
+                        SearchArticles.stories
+
+
 
 
         /// The stories database

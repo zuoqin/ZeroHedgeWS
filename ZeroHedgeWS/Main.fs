@@ -101,9 +101,9 @@ module Site =
 
 
     let HomePage (ctx :Context<EndPoint>) =
-        let attr'div'right1 =  Attr.Create "role" "navigation"
-        let attr'div'right2 =  Attr.Create "class" "pull-right"
-        let attrs'div'right = Seq.append [|attr'div'right1|] [ attr'div'right2]
+        let attr'topmenu'1 =  Attr.Create "role" "navigation"
+        let attr'topmenu'2 =  Attr.Create "class" "navbar navbar-inverse navbar-fixed-top"
+        let attrs'topmenu = Seq.append [|attr'topmenu'1|] [ attr'topmenu'2]
 
 
         Templating.MainView ctx EndPoint.Home "Zero Hedge | Home"
@@ -111,7 +111,7 @@ module Site =
                 div [client <@ PageClient.Main(0) @>]
             ]
             [
-                divAttr attrs'div'right [client <@ PageClient.Search @>]
+                divAttr attrs'topmenu [client <@ PageClient.Search @>]
             ]
 
     let AboutPage ctx =
