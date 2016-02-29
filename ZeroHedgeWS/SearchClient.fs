@@ -224,19 +224,9 @@ module SearchClient =
                                 <| "Search"
                                 <| attrs'srch'btn
                                 <| fun _ ->
-                                    async {
-                                        postList.Clear()                                
-                                        let! stories =
-                                            PostSearch( 
-                                                JS.EncodeURIComponent(v'search.Value) )
-                                        stories
-                                        |> List.iter( fun x -> 
-                                            //JavaScript.Console.Log x.Introduction
-                                            //JavaScript.Console.Log x.Reference
-                                            postList.Add x )
-                                    }
-                                    |> Async.Start
-
+                                    let keyEncode = JS.EncodeURIComponent(v'search.Value)
+                                    let newLocation = sprintf "./search/%s/0" keyEncode
+                                    JS.Window.Location.Href <-newLocation
                             ]
                     
 
