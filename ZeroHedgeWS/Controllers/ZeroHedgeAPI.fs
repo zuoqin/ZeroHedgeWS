@@ -320,7 +320,10 @@ module ZeroHedgeAPI =
                             let mutable ind6 = 0
 
                             if markup.Substring(ind5 + 3, 3).CompareTo("<a ") = 0 then
-                                ind5 <- markup.IndexOf("<p>", ind5 + 5)
+                                ind6 <- markup.IndexOf("<p>", ind5 + 5)
+                                if ind6 < markup.IndexOf("</p>", ind5) then
+                                    ind5 <- markup.IndexOf("<p>", ind5 + 5);
+
                                 ind6 <- ( ind5 + 3 )
                                 ind5 <- markup.IndexOf("</p>", ind6)
 
