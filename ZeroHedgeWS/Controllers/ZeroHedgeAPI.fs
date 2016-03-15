@@ -41,6 +41,8 @@ module ZeroHedgeAPI =
     // asynchronious client messages for CRUD operations
     type CRUDBlogMessage = 
         | GetPage      of int * AsyncReplyChannel<List<Story>>
+        | GetStory     of string * AsyncReplyChannel<string>
+        | GetSearch    of string * int * AsyncReplyChannel<List<Story>>
 
 
     module ApplicationLogic =
@@ -162,7 +164,7 @@ module ZeroHedgeAPI =
                         result <- result.Replace(oldref, sprintf "%s%s" "http://www.zerohedge.com" oldref)
             result
         
-        let loadStory (refBase64 : string) : string =
+        let DownloadStory (refBase64 : string) : string =
 
             let (bResult,theStory) = storiesmap.TryGetValue refBase64 
             if bResult && theStory.Body.Length > 0 then
@@ -201,86 +203,96 @@ module ZeroHedgeAPI =
                 let bResult = storiesmap.Add(refBase64, newStory)
                 body;
 
-        let PostSearchPage (keys : string): List<Story> =
+
+        let DownloadAndParseSearchPage (keys : string): List<Story> =
             let newSearchIndex = { keys = keys; page = 0}
             let (bResult, SearchArticles) = requestsmap.TryGetValue(newSearchIndex)
-            if bResult = true && (DateTime.Now - SearchArticles.updated).TotalMinutes < 10.0 &&
-                SearchArticles.stories.Count > 0 then
-                SearchArticles.stories
-            else
-                let markup1 = PostURL( sprintf( "http://www.zerohedge.com/search/apachesolr_search/" ), keys )
-                //let markup1 = DownloadURL( sprintf( "http://localhost/Test01/testws.html" ) )
-                let markup = markup1.ToString()
-                let articles = new List<Story>()
+            let markup1 = PostURL( sprintf( "http://www.zerohedge.com/search/apachesolr_search/" ), keys )
+            let markup = markup1.ToString()
+            let articles = new List<Story>()
 
-                let mutable ind2 = markup.IndexOf("<dl class=\"search-results apachesolr_search-results\">", 0);
+            let mutable ind2 = markup.IndexOf("<dl class=\"search-results apachesolr_search-results\">", 0);
              
-                let ind_end = markup.IndexOf("</dl>");
-                while(ind2 > 0) do                
-                    ind2 <- markup.IndexOf("<dt class=\"title\"", ind2)
-                    let mutable title = ""
-                    let mutable ref1 = ""
-                    let mutable introduction = ""
-                    let mutable published = ""
-                    if ind2 < ind_end && ind2 <> -1 then
-                        ind2 <- markup.IndexOf("<a href=\"", ind2)
-                        ind2 <- (ind2 + 9)
-                        let mutable ind3 = markup.IndexOf("\">", ind2)
+            let ind_end = markup.IndexOf("</dl>");
+            while(ind2 > 0) do                
+                ind2 <- markup.IndexOf("<dt class=\"title\"", ind2)
+                let mutable title = ""
+                let mutable ref1 = ""
+                let mutable introduction = ""
+                let mutable published = ""
+                if ind2 < ind_end && ind2 <> -1 then
+                    ind2 <- markup.IndexOf("<a href=\"", ind2)
+                    ind2 <- (ind2 + 9)
+                    let mutable ind3 = markup.IndexOf("\">", ind2)
 
-                        ref1 <- markup.Substring(ind2, ind3 - ind2)
+                    ref1 <- markup.Substring(ind2, ind3 - ind2)
 
-                        ind2 <- (ind3 + 2)
+                    ind2 <- (ind3 + 2)
 
-                        ind3 <- markup.IndexOf("</a>", ind3)
+                    ind3 <- markup.IndexOf("</a>", ind3)
 
-                        title <- markup.Substring(ind2, ind3 - ind2)
+                    title <- markup.Substring(ind2, ind3 - ind2)
 
-                        ind2 <- markup.IndexOf("<p class=\"search-snippet\"", ind3)
+                    ind2 <- markup.IndexOf("<p class=\"search-snippet\"", ind3)
+                    if ind2 < ind_end then
+                        ind2 <- (ind2 + 27)
+                        ind3 <- markup.IndexOf("</p>", ind2)
+                        introduction <- markup.Substring(ind2, ind3 - ind2)
+
+                    ind2 <- markup.IndexOf("<p class=\"search-info\"", ind3)
+                    if ind2 < ind_end then
+                        ind2 <- markup.IndexOf("</a>", ind2)
                         if ind2 < ind_end then
-                            ind2 <- (ind2 + 27)
-                            ind3 <- markup.IndexOf("</p>", ind2)
-                            introduction <- markup.Substring(ind2, ind3 - ind2)
-
-                        ind2 <- markup.IndexOf("<p class=\"search-info\"", ind3)
-                        if ind2 < ind_end then
-                            ind2 <- markup.IndexOf("</a>", ind2)
-                            if ind2 < ind_end then
-                                ind2 <- (ind2 + 7)
-                                ind3 <- (ind2 + 18)
-                                published <- markup.Substring(ind2, ind3 - ind2)
+                            ind2 <- (ind2 + 7)
+                            ind3 <- (ind2 + 18)
+                            published <- markup.Substring(ind2, ind3 - ind2)
 
 
-                    let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
-                    let mutable base64Ref = System.Convert.ToBase64String(refBase64)
-                    let article = { Title = title; Introduction = introduction; Body = "";
-                        Reference = base64Ref;
-                        Published = published; Updated = DateTime.Now }
+                let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
+                let mutable base64Ref = System.Convert.ToBase64String(refBase64)
+                let article = { Title = title; Introduction = introduction; Body = "";
+                    Reference = base64Ref;
+                    Published = published; Updated = DateTime.Now }
                     
                     
-                    let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
-                    if bResult = false then
-                        storiesmap.Add(base64Ref, article)
+                let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
+                if bResult = false then
+                    storiesmap.Add(base64Ref, article)
 
-                    if published.Length > 0 && introduction.Length > 0 then
-                        articles.Add( article )
+                if published.Length > 0 && introduction.Length > 0 then
+                    articles.Add( article )
 
 
-                if articles.Count > 0 then
-                    let newPage = { updated = DateTime.Now; stories = articles }
-                    let bResult = requestsmap.Remove(newSearchIndex)
-                    requestsmap.Add(newSearchIndex, newPage)
+            if articles.Count > 0 then
+                let newPage = { updated = DateTime.Now; stories = articles }
+                let bResult = requestsmap.Remove(newSearchIndex)
+                requestsmap.Add(newSearchIndex, newPage)
 
-                    articles
+                articles
+            else
+                if bResult = false then
+                    null
                 else
-                    if bResult = false then
-                        null
-                    else
-                        SearchArticles.stories
+                    SearchArticles.stories
 
+
+        let DownloadPostSearchPage (keys : string): List<Story> =
+            let newSearchIndex = { keys = keys; page = 0}
+            let (bResult, SearchArticles) = requestsmap.TryGetValue(newSearchIndex)
+            if bResult = true then
+                if (DateTime.Now - SearchArticles.updated).TotalMinutes > 100.0 then
+                    DownloadAndParseSearchPage(keys)
+                else
+                    if SearchArticles.stories.Count > 0 then
+                        SearchArticles.stories
+                    else
+                        DownloadAndParseSearchPage(keys)
+            else
+                DownloadAndParseSearchPage(keys)
 
 
         let DownloadPage (id:int) : List<Story> =
-            PageMessage.doSomething
+            //PageMessage.doSomething
 
             let (bResult, thePage) = pagesmap.TryGetValue(id)
             if bResult = true && (DateTime.Now - thePage.updated).TotalMinutes < 10.0 &&
@@ -373,9 +385,9 @@ module ZeroHedgeAPI =
 
 
 
-        let LoadSearchPage (keys: string, page:int) : List<Story> =
+        let DownLoadSearchPage (keys: string, page:int) : List<Story> =
             if page = 0 then
-                PostSearchPage keys
+                DownloadPostSearchPage keys
             else
                 let newSearchIndex = { keys = keys; page = page}
                 let (bResult, SearchArticles) = requestsmap.TryGetValue(newSearchIndex)
@@ -459,7 +471,13 @@ module ZeroHedgeAPI =
                 | GetPage ( page'number, reply ) ->                      
                     let posts = DownloadPage page'number
                     reply.Reply posts
-                        
+                | GetStory ( reference, reply ) ->                      
+                    let story'content = DownloadStory reference
+                    reply.Reply story'content
+                | GetSearch ( keys, page, reply ) ->                      
+                    let search'results = DownLoadSearchPage( keys, page )
+                    reply.Reply search'results
+
 
                 return! loop () }
             loop () )        
@@ -467,28 +485,60 @@ module ZeroHedgeAPI =
         let read'page page'number =
             crud.PostAndAsyncReply( fun reply -> GetPage(page'number, reply) )
 
+        let load'search'page( keys: string, page:int) =
+            crud.PostAndAsyncReply( fun reply -> GetSearch(keys, page, reply) )
 
+        let read'story reference =
+            crud.PostAndAsyncReply( fun reply -> GetStory(reference, reply) )
         /// The stories database
         let stories = new Dictionary<string, Story>()
 
-        let getPage (id: int) : List<Story> =
+        let getPage (id: int) : Async<List<Story>> =
             async{
-                let! blog = read'page id
+                let (bResult, thePage) = pagesmap.TryGetValue(id)
+                if bResult = true then
+                    if thePage.stories.Count > 0 then
+                        if (DateTime.Now - thePage.updated).TotalMinutes > 10.0 then
+                            let res = crud.PostAndAsyncReply( fun reply -> GetPage(id, reply) )
+                            return thePage.stories
+                        else
+                            return thePage.stories
+                    else
+                        let! blog = read'page id
+                        return blog
+                else
+                    let! blog = read'page id
+                    return blog
+            }
+
+
+        let getStory (id: string) : Async<string> =
+            async{
+                let! blog = read'story id
                 return blog
             }
-            //let CurrentPage = DownloadPage id
-            
-            |> Async.RunSynchronously
-            //CurrentPage
 
-        let getStory (id: string) : string =
-            let article = loadStory id
-            article
-
+        let AsyncSearchSite (keys: string, page : int) =
+            async{
+                let newSearchIndex = { keys = keys; page = page}
+                let (bResult, SearchArticles) = requestsmap.TryGetValue(newSearchIndex)
+                if bResult = true then
+                    if SearchArticles.stories.Count > 0 then
+                        if (DateTime.Now - SearchArticles.updated).TotalHours > 10.0 then
+                            let res = crud.PostAndAsyncReply( fun reply -> GetSearch(keys, page, reply) )
+                            return SearchArticles.stories
+                        else
+                            return SearchArticles.stories
+                    else
+                        let! blog = load'search'page( keys, page)
+                        return blog
+                else
+                    let! blog = load'search'page( keys, page)
+                    return blog
+            }
         let postSearch (keys: string) =
-            let articles = (PostSearchPage keys) |> Seq.toList
-            articles
+            AsyncSearchSite( keys, 0 )
+
 
         let getSearch (keys: string, page : int) =
-            let articles = LoadSearchPage (keys, page) |> Seq.toList
-            articles
+            AsyncSearchSite( keys, page )

@@ -89,17 +89,32 @@ module Site =
     let ApiContent (ctx: Context<EndPoint>) (action: ApiEndPoint)  =
         match action with
         | GetPage id ->
-                let result = ZeroHedgeAPI.ApplicationLogic.getPage id
-                Content.Json(result.ToArray())
-        | GetStory id ->            
-            Content.Json (ZeroHedgeAPI.ApplicationLogic.getStory id)
+            async{
+                let! result = ZeroHedgeAPI.ApplicationLogic.getPage id
+                return Content.Json(result.ToArray())          
+            }
+        | GetStory id ->
+            //Content.Json (ZeroHedgeAPI.ApplicationLogic.getStory id)
+            async{
+                let! result = ZeroHedgeAPI.ApplicationLogic.getStory id
+                return Content.Json(result)          
+            }
 
         | PostSearch keys ->
-            Content.Json (ZeroHedgeAPI.ApplicationLogic.postSearch keys)
+            //Content.Json (ZeroHedgeAPI.ApplicationLogic.postSearch keys)
+            async{
+                let! result = ZeroHedgeAPI.ApplicationLogic.postSearch keys
+                return Content.Json(result.ToArray())          
+            }
+
         | GetSearch( keys, page ) ->
-            Content.Json (ZeroHedgeAPI.ApplicationLogic.getSearch( keys, page )) 
+            //Content.Json (ZeroHedgeAPI.ApplicationLogic.getSearch( keys, page )) 
+            async{
+                let! result = ZeroHedgeAPI.ApplicationLogic.getSearch(keys, page)
+                return Content.Json(result.ToArray())          
+            }
 
-
+        |>Async.RunSynchronously
     let HomePage (ctx :Context<EndPoint>) =
         let attr'topmenu'1 =  Attr.Create "role" "navigation"
         let attr'topmenu'2 =  Attr.Create "class" "navbar navbar-inverse navbar-fixed-top"
@@ -157,9 +172,7 @@ module Site =
         
         Application.MultiPage (fun ctx endpoint ->
             match endpoint with
-            | EndPoint.Api id -> 
-                let result = ApiContent(ctx)(id)
-                result
+            | EndPoint.Api id -> ApiContent(ctx)(id)
             | EndPoint.Home -> HomePage (ctx)
             | EndPoint.Page id -> PagePage( ctx ,id )
             | EndPoint.Search( keys, page) -> SearchPage( ctx , keys, page )

@@ -107,15 +107,7 @@ module SearchClient =
 
     let AddNewSearchButton (page : int, keys:string) =
         let homeRef = sprintf "./page/0"
-        //let newRef = sprintf "./search/%s/%d" keys page
-        //let newTitle = sprintf "Page %d" page
 
-        //let attr'href'1 =  Attr.Create "href" newRef
-        //let attrs'href = Seq.append [|attr'href'1;  |] [ ]
-
-//        let attr'home'href'1 =  Attr.Create "href" homeRef
-//        let attrs'home'href = Seq.append [|attr'home'href'1;  |] [ ]
-//
         let attr'page'button'1 =  Attr.Create "class" "pageButton"
         let attr'page'button'2 =  Attr.Create "id" "pageButton"
         let attrs'page'button = Seq.append [|attr'page'button'1;  |] [ ]
@@ -145,28 +137,6 @@ module SearchClient =
                 <| fun _ -> 
                     OnSearchPageBtnClick 0
             ]
-
-
-//        match page with
-//        | 0 ->
-//            li [ 
-//                aAttr attrs'home'href [
-//                    Doc.TextNode "Home"
-//                ]
-//            ]
-//        | 6 | 7 | 8 | 9 -> 
-//            let idAttr = sprintf "page%dli" page
-//            liAttr [attr.``id`` idAttr ] [
-//                aAttr attrs'href [
-//                    Doc.TextNode newTitle
-//                ]
-//            ]
-//        | _ -> 
-//            li [
-//                aAttr attrs'href [
-//                    Doc.TextNode newTitle
-//                ]
-//            ]
         
     let SearchPagination (keys : string)=
         let list1 = [0..9]
@@ -176,11 +146,6 @@ module SearchClient =
     // Search buttom HTML: we show it on each Stories page at top right corner
     let Search( keys: string ) =
         Var.Set v'search keys
-
-        let newRef1 = sprintf "./search/%s/1" keys
-
-        let attr'href1'1 =  Attr.Create "href" newRef1
-        let attrs'href1 = Seq.append [|attr'href1'1;  |] [ ]
 
         let attr'div'right'1 = Attr.Create "role" "navigation"
         let attr'div'right'2 = Attr.Create "class" "pull-right"
@@ -292,6 +257,4 @@ module SearchClient =
                 )
                 |> Doc.EmbedView
             ]
-
-            //]
         ]
