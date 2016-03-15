@@ -5,8 +5,6 @@ open System.Collections.Generic
 open WebSharper
 open WebSharper.Sitelets
 
-open System
-open System.Collections.Generic
 open System.IO
 open System.Text
 open System.Net
@@ -14,6 +12,7 @@ open System.Threading
 open System.Web
 
 open FSharp.Data
+
 
 type Story =
     {
@@ -39,6 +38,9 @@ type SearchPageIndex =
 
 
 module ZeroHedgeAPI =
+    // asynchronious client messages for CRUD operations
+    type CRUDBlogMessage = 
+        | GetPage      of int * AsyncReplyChannel<List<Story>>
 
 
     module ApplicationLogic =
@@ -277,8 +279,8 @@ module ZeroHedgeAPI =
 
 
 
-        let LoadPage (id:int) : List<Story> =
-            
+        let DownloadPage (id:int) : List<Story> =
+            PageMessage.doSomething
 
             let (bResult, thePage) = pagesmap.TryGetValue(id)
             if bResult = true && (DateTime.Now - thePage.updated).TotalMinutes < 10.0 &&
@@ -450,14 +452,34 @@ module ZeroHedgeAPI =
                             SearchArticles.stories
 
 
+        let crud = MailboxProcessor.Start(fun agent ->             
+            let rec loop () : Async<unit> = async {
+                let! msg = agent.Receive()
+                match msg with 
+                | GetPage ( page'number, reply ) ->                      
+                    let posts = DownloadPage page'number
+                    reply.Reply posts
+                        
+
+                return! loop () }
+            loop () )        
+
+        let read'page page'number =
+            crud.PostAndAsyncReply( fun reply -> GetPage(page'number, reply) )
 
 
         /// The stories database
         let stories = new Dictionary<string, Story>()
 
         let getPage (id: int) : List<Story> =
-            let CurrentPage = LoadPage id
-            CurrentPage
+            async{
+                let! blog = read'page id
+                return blog
+            }
+            //let CurrentPage = DownloadPage id
+            
+            |> Async.RunSynchronously
+            //CurrentPage
 
         let getStory (id: string) : string =
             let article = loadStory id
