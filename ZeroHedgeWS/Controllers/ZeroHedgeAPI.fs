@@ -311,7 +311,7 @@ module ZeroHedgeAPI =
                     let mutable ind5 = 0
                     let markup1 = DownloadURL( sprintf "http://www.zerohedge.com/?page=%d" id )
                     let markup = markup1.ToString()
-                    while(!j < 100 && !ind1 > 0) do
+                    while(!j < 100 && !ind1 > 0 && ind5 >= 0) do
                         ind1 := markup.IndexOf("<div class=\"picture\">", ind5);
                         if ind1.Value > 0 then
                             let mutable ind2 = markup.IndexOf("<h2 class=\"title\"><a href=", ind1.Value)
@@ -349,10 +349,13 @@ module ZeroHedgeAPI =
                                 ind6 <- ind5
                                 ind5 <- markup.IndexOf("<div class=\"clear-block\"></div>", ind6)
 
-                            let mutable body = markup.Substring(ind6, ind5 - ind6)
-                            body <- replaceLinks body
-                            body <- replaceLinksBack body
-
+                            let mutable body = ""
+                            if ind5 > 0 && ind6 > 0 then
+                                body <- markup.Substring(ind6, ind5 - ind6)
+                                body <- replaceLinks body
+                                body <- replaceLinksBack body
+                            else
+                                body <- ""
                             let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
                             let mutable base64Ref = System.Convert.ToBase64String(refBase64)
                             let article = { Title = title; Introduction = body; Body = "";

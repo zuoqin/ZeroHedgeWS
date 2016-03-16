@@ -94,27 +94,24 @@ module Site =
                 return Content.Json(result.ToArray())          
             }
         | GetStory id ->
-            //Content.Json (ZeroHedgeAPI.ApplicationLogic.getStory id)
             async{
                 let! result = ZeroHedgeAPI.ApplicationLogic.getStory id
                 return Content.Json(result)          
             }
 
         | PostSearch keys ->
-            //Content.Json (ZeroHedgeAPI.ApplicationLogic.postSearch keys)
             async{
                 let! result = ZeroHedgeAPI.ApplicationLogic.postSearch keys
-                return Content.Json(result.ToArray())          
+                return Content.Json(result.ToArray())
             }
 
         | GetSearch( keys, page ) ->
-            //Content.Json (ZeroHedgeAPI.ApplicationLogic.getSearch( keys, page )) 
             async{
                 let! result = ZeroHedgeAPI.ApplicationLogic.getSearch(keys, page)
                 return Content.Json(result.ToArray())          
             }
+        |> Async.RunSynchronously
 
-        |>Async.RunSynchronously
     let HomePage (ctx :Context<EndPoint>) =
         let attr'topmenu'1 =  Attr.Create "role" "navigation"
         let attr'topmenu'2 =  Attr.Create "class" "navbar navbar-inverse navbar-fixed-top"
