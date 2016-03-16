@@ -2,6 +2,10 @@
 
 open System
 open System.Collections.Generic
+
+open Akka.FSharp
+open Akka.Actor
+
 open WebSharper
 open WebSharper.Sitelets
 
@@ -38,17 +42,43 @@ type SearchPageIndex =
 
 
 module ZeroHedgeAPI =
+
+
+    type EchoActor() =
+        inherit UntypedActor()
+            override this.OnReceive (msg:obj) = 
+                printfn "Received message %A" msg
+                Console.WriteLine msg
+
     // asynchronious client messages for CRUD operations
     type CRUDBlogMessage = 
         | GetPage      of int * AsyncReplyChannel<List<Story>>
         | GetStory     of string * AsyncReplyChannel<string>
         | GetSearch    of string * int * AsyncReplyChannel<List<Story>>
 
+    // asynchronious client messages for AKKA operations
+    type AKKAMessage = 
+        | GetPageX      of SearchPageIndex
+        | GetStoryX     of string
+
 
     module ApplicationLogic =
+
+        let AkkaSystem = System.create "zerohedge" (Configuration.load())
+
+
         let storiesmap = new Dictionary<string, Story>()
         let pagesmap = new Dictionary<int, Page>()
         let requestsmap = new Dictionary<SearchPageIndex, Page>()
+
+
+
+
+
+        let createActor =
+            // Use Props() to create actor from type definition
+            let echoActor = AkkaSystem.ActorOf(Props(typedefof<EchoActor>), "echo")
+            echoActor
 
 
         let DownloadURL (uri : string)=
@@ -466,6 +496,28 @@ module ZeroHedgeAPI =
                         else
                             SearchArticles.stories
 
+        let aref =
+            spawn AkkaSystem "my-actor"
+                (fun mailbox ->
+                    let rec loop() = actor {
+                        let! msg = mailbox.Receive()
+                        let sender = mailbox.Sender()
+
+                        match msg with 
+                        | GetPageX(search) ->
+                            DownloadPage search.page |> ignore
+                        | GetStoryX(reference) ->                      
+                            let story = DownloadStory reference
+                            sender <! story
+//                        | GetSearch ( keys, page, reply ) ->                      
+//                            let search'results = DownLoadSearchPage( keys, page )
+//                            reply.Reply search'results
+                        // handle an incoming message
+                        //| _ ->  failwith "unknown message"
+                        return! loop()
+                    }
+                    loop())
+
 
         let crud = MailboxProcessor.Start(fun agent ->             
             let rec loop () : Async<unit> = async {
@@ -485,14 +537,35 @@ module ZeroHedgeAPI =
                 return! loop () }
             loop () )        
 
-        let read'page page'number =
+        let read'page'2 page'number =
             crud.PostAndAsyncReply( fun reply -> GetPage(page'number, reply) )
+
+        let read'page page =
+            //crud.PostAndAsyncReply( fun reply -> GetPage(page'number, reply) )
+
+            let request = { keys = ""; page = page }
+            aref <! GetPageX(request) 
 
         let load'search'page( keys: string, page:int) =
             crud.PostAndAsyncReply( fun reply -> GetSearch(keys, page, reply) )
 
         let read'story reference =
-            crud.PostAndAsyncReply( fun reply -> GetStory(reference, reply) )
+            //crud.PostAndAsyncReply( fun reply -> GetStory(reference, reply) )
+            let mutable response = ""
+            try
+                let request = reference
+                let task = (aref <? GetStoryX(request))
+                response <- Async.RunSynchronously (task)
+                
+            with 
+                | :? System.AggregateException ->
+                    printfn "ask: AggregateException!"
+                | :? TimeoutException ->
+                    printfn "ask: timeout!"
+
+            response
+
+
         /// The stories database
         let stories = new Dictionary<string, Story>()
 
@@ -501,24 +574,30 @@ module ZeroHedgeAPI =
                 let (bResult, thePage) = pagesmap.TryGetValue(id)
                 if bResult = true then
                     if thePage.stories.Count > 0 then
-                        if (DateTime.Now - thePage.updated).TotalMinutes > 10.0 then
-                            let res = crud.PostAndAsyncReply( fun reply -> GetPage(id, reply) )
+                        if (DateTime.Now - thePage.updated).TotalSeconds > 3.0 then
+                            //let res = crud.PostAndAsyncReply( fun reply -> GetPage(id, reply) )
+                            read'page id
                             return thePage.stories
                         else
                             return thePage.stories
                     else
-                        let! blog = read'page id
+                        let! blog = read'page'2 id
                         return blog
+                        //return thePage.stories
                 else
-                    let! blog = read'page id
+                    let! blog = read'page'2 id
                     return blog
+                    //return thePage.stories
             }
 
 
         let getStory (id: string) : Async<string> =
             async{
-                let! blog = read'story id
+                //let! blog = read'story id
+                let blog = read'story id
                 return blog
+
+                
             }
 
         let AsyncSearchSite (keys: string, page : int) =
