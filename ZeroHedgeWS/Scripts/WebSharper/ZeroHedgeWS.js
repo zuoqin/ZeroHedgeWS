@@ -42,7 +42,7 @@
       {
        var _;
        _=Provider.get_Default();
-       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0]])))())(JSON.parse(_arg1)));
+       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0],["isLoading",Id,0]])))())(JSON.parse(_arg1)));
       });
      });
     },
@@ -230,7 +230,7 @@
       {
        var _;
        _=Provider.get_Default();
-       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0]])))())(JSON.parse(_arg1)));
+       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0],["isLoading",Id,0]])))())(JSON.parse(_arg1)));
       });
      });
     },
@@ -595,7 +595,7 @@
       {
        var _;
        _=Provider.get_Default();
-       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0]])))())(JSON.parse(_arg1)));
+       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0],["isLoading",Id,0]])))())(JSON.parse(_arg1)));
       });
      });
     },
@@ -656,7 +656,7 @@
       {
        var _;
        _=Provider.get_Default();
-       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0]])))())(JSON.parse(_arg1)));
+       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0],["isLoading",Id,0]])))())(JSON.parse(_arg1)));
       });
      });
     },
@@ -774,8 +774,13 @@
     {
      return Concurrency.Delay(function()
      {
-      var pageURL;
-      pageURL="./api/story/"+PrintfHelpers.toSafe(id);
+      var id1,pageURL;
+      id1=Global.decodeURIComponent(id);
+      if(console)
+       {
+        console.log(id1);
+       }
+      pageURL="./api/story/"+PrintfHelpers.toSafe(id1);
       return Concurrency.Bind(StoryClient.Ajax("GET",pageURL,null),function(_arg1)
       {
        Provider.get_Default();

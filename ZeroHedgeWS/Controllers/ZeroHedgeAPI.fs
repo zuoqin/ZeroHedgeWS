@@ -15,8 +15,6 @@ open System.Net
 open System.Threading
 open System.Web
 
-open FSharp.Data
-
 
 type Story =
     {
@@ -25,13 +23,15 @@ type Story =
         Body : string;
         Reference : string;
         Published : string;
-        Updated : DateTime
+        Updated : DateTime;
+        isLoading : bool
     }
 
 type Page =
     {
         updated : DateTime;
-        stories : List<Story>
+        stories : List<Story>;
+        isLoading: bool
     }
 
 type SearchPageIndex =
@@ -197,9 +197,19 @@ module ZeroHedgeAPI =
         let DownloadStory (refBase64 : string) : string =
 
             let (bResult,theStory) = storiesmap.TryGetValue refBase64 
-            if bResult && theStory.Body.Length > 0 then
+            if bResult && (theStory.Body.Length > 0 || theStory.isLoading) then
                 theStory.Body
             else
+                let mutable newStory = { Title = ""; 
+                    Introduction = ""; Body = ""; Reference = refBase64;
+                    Published = ""; Updated = DateTime.Now; isLoading = true}
+                if bResult = true then
+                    newStory <- { Title = theStory.Title; 
+                    Introduction = theStory.Introduction; Body = ""; Reference = theStory.Reference;
+                    Published = theStory.Published; Updated = DateTime.Now; isLoading = true}
+
+                
+                Console.WriteLine( sprintf "retrieving URL: %s"  refBase64)
                 let base64EncodedBytes = System.Convert.FromBase64String(refBase64);
                 let markup1 = DownloadURL(Encoding.UTF8.GetString(base64EncodedBytes))
                 let markup = markup1.ToString()
@@ -219,15 +229,12 @@ module ZeroHedgeAPI =
                 let mutable body = markup.Substring(ind1, ind2 - ind1)
                 body <- replaceLinks body
                 body <- replaceLinksBack body
-                let mutable newStory = { Title = ""; 
-                    Introduction = ""; Body = body; Reference = refBase64;
-                    Published = ""; Updated = DateTime.Now}
-                
 
-                if bResult = true then
-                    newStory <- { Title = theStory.Title; 
-                    Introduction = theStory.Introduction; Body = body; Reference = theStory.Reference;
-                    Published = theStory.Published; Updated = DateTime.Now}
+                newStory <- { Title = newStory.Title; 
+                Introduction = newStory.Introduction; Body = body; Reference = newStory.Reference;
+                Published = newStory.Published; Updated = DateTime.Now; isLoading = false}                
+
+
                 
                 let bResult = storiesmap.Remove(refBase64)
                 let bResult = storiesmap.Add(refBase64, newStory)
@@ -282,7 +289,7 @@ module ZeroHedgeAPI =
                 let mutable base64Ref = System.Convert.ToBase64String(refBase64)
                 let article = { Title = title; Introduction = introduction; Body = "";
                     Reference = base64Ref;
-                    Published = published; Updated = DateTime.Now }
+                    Published = published; Updated = DateTime.Now; isLoading = false }
                     
                     
                 let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
@@ -294,7 +301,7 @@ module ZeroHedgeAPI =
 
 
             if articles.Count > 0 then
-                let newPage = { updated = DateTime.Now; stories = articles }
+                let newPage = { updated = DateTime.Now; stories = articles; isLoading = false }
                 let bResult = requestsmap.Remove(newSearchIndex)
                 requestsmap.Add(newSearchIndex, newPage)
 
@@ -326,9 +333,10 @@ module ZeroHedgeAPI =
 
             let (bResult, thePage) = pagesmap.TryGetValue(id)
             if bResult = true && (DateTime.Now - thePage.updated).TotalMinutes < 10.0 &&
-                thePage.stories.Count > 0 then
+                (thePage.stories.Count > 0 || thePage.isLoading) then
                 thePage.stories
             else
+                
                 let myWebClient = new WebClient()
 
                 
@@ -390,7 +398,7 @@ module ZeroHedgeAPI =
                             let mutable base64Ref = System.Convert.ToBase64String(refBase64)
                             let article = { Title = title; Introduction = body; Body = "";
                                 Reference = base64Ref;
-                                Published = published; Updated = DateTime.Now }
+                                Published = published; Updated = DateTime.Now; isLoading = false }
                     
                     
                             let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
@@ -405,7 +413,7 @@ module ZeroHedgeAPI =
                     else
                         Thread.Sleep (10000)
                 if articles.Count > 0 then
-                    let newPage = { updated = DateTime.Now; stories = articles }
+                    let newPage = { updated = DateTime.Now; stories = articles; isLoading = false }
                     let bResult = pagesmap.Remove(id)
                     pagesmap.Add(id, newPage)
 
@@ -474,7 +482,7 @@ module ZeroHedgeAPI =
                         let mutable base64Ref = System.Convert.ToBase64String(refBase64)
                         let article = { Title = title; Introduction = introduction; Body = "";
                             Reference = base64Ref;
-                            Published = published; Updated = DateTime.Now }
+                            Published = published; Updated = DateTime.Now; isLoading = false }
                     
                     
                         let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
@@ -485,7 +493,7 @@ module ZeroHedgeAPI =
                             articles.Add( article )
 
                     if articles.Count > 0 then
-                        let newPage = { updated = DateTime.Now; stories = articles }
+                        let newPage = { updated = DateTime.Now; stories = articles; isLoading = false }
                         let bResult = requestsmap.Remove(newSearchIndex)
                         requestsmap.Add(newSearchIndex, newPage)
 
@@ -574,17 +582,30 @@ module ZeroHedgeAPI =
                 let (bResult, thePage) = pagesmap.TryGetValue(id)
                 if bResult = true then
                     if thePage.stories.Count > 0 then
-                        if (DateTime.Now - thePage.updated).TotalSeconds > 3.0 then
-                            //let res = crud.PostAndAsyncReply( fun reply -> GetPage(id, reply) )
-                            read'page id
+                        if (DateTime.Now - thePage.updated).TotalSeconds > 10.0 then
+                            if thePage.isLoading = false then
+                                //let res = crud.PostAndAsyncReply( fun reply -> GetPage(id, reply) )
+                                let newPage = { updated = DateTime.Now; stories = thePage.stories; isLoading = true }
+                                let bResult = pagesmap.Remove(id)
+                                pagesmap.Add(id, newPage)
+                                read'page id
                             return thePage.stories
                         else
                             return thePage.stories
                     else
+                        let stories = new List<Story>()
+                        let newPage = { updated = DateTime(1900,1,1); stories = stories; isLoading = true }
+                        let bResult = pagesmap.Remove(id)
+                        pagesmap.Add(id, newPage)
+
                         let! blog = read'page'2 id
                         return blog
                         //return thePage.stories
                 else
+                    let stories = new List<Story>()
+                    let newPage = { updated = DateTime(1900,1,1); stories = stories; isLoading = true }
+                    let bResult = pagesmap.Remove(id)
+                    pagesmap.Add(id, newPage)
                     let! blog = read'page'2 id
                     return blog
                     //return thePage.stories
@@ -593,11 +614,11 @@ module ZeroHedgeAPI =
 
         let getStory (id: string) : Async<string> =
             async{
-                //let! blog = read'story id
-                let blog = read'story id
-                return blog
-
+                let sURL = Uri.UnescapeDataString id // Encoding.UTF8.GetString( System.Web.HttpServerUtility.UrlDecode( id))
                 
+                Console.WriteLine( sprintf "1st retrieving URL: %s"  sURL)
+                let blog = read'story sURL
+                return blog                
             }
 
         let AsyncSearchSite (keys: string, page : int) =
@@ -615,6 +636,7 @@ module ZeroHedgeAPI =
                         let! blog = load'search'page( keys, page)
                         return blog
                 else
+                    
                     let! blog = load'search'page( keys, page)
                     return blog
             }

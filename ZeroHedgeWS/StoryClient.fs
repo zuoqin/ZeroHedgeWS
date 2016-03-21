@@ -64,7 +64,9 @@ module StoryClient =
     /// Use Json.Serialize and Deserialize to send and receive data to and from the server.
     let GetStory (id : string) : Async<string> =
         async {
-                let pageURL = sprintf "./api/story/%s" id
+                let id1 = JavaScript.JS.DecodeURIComponent id
+                JavaScript.Console.Log id1
+                let pageURL = sprintf "./api/story/%s" id1
                 let! response = Ajax "GET" pageURL (null)
                 //JavaScript.Console.Log "Get zerohedge story"                
                 return Json.Deserialize<string> response 

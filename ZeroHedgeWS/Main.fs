@@ -162,9 +162,6 @@ module Site =
                 divAttr attrs'div'container [client <@ SearchClient.Search( keys ) @>]
             ]
 
-
-
-    [<Website>]
     let Main =
         
         Application.MultiPage (fun ctx endpoint ->
@@ -176,3 +173,9 @@ module Site =
             | EndPoint.About -> AboutPage ctx
             | EndPoint.Story id -> StoryPage ctx id
         )
+
+
+    open Suave.Web
+    open WebSharper.Suave
+
+    do startWebServer defaultConfig (WebSharperAdapter.ToWebPart Main)

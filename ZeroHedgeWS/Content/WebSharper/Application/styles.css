@@ -1,0 +1,390 @@
+﻿.pageButton {
+    background-color: transparent;
+    color: #9d9d9d;
+    border: none;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.pageButton:hover {
+    color: white;
+}
+
+/*Clearing Floats*/
+.cf:before, .cf:after{
+    content:"";
+    display:table;
+}
+
+.cf:after{
+    clear:both;
+}
+
+.cf{
+    zoom:1;
+}    
+/* Form wrapper styling */
+.form-wrapper {
+    background: #444;
+    background: rgba(0,0,0,.2);
+    border-radius: 10px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.4) inset, 0 1px 0 rgba(255,255,255,.2);
+}
+
+/* Form text input */
+
+.form-wrapper input {
+    height: 35px;
+    padding: 10px 5px;
+    margin-top: 5px;
+    margin-left: 15px;
+    margin-bottom: 5px;
+    float: left;   
+    font: bold 15px 'lucida sans', 'trebuchet MS', 'Tahoma';
+    border: 0;
+    background: #eee;
+    border-radius: 3px 0 0 3px;     
+}
+
+.form-wrapper input:focus {
+    outline: 0;
+    background: #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,.8) inset;
+}
+
+.form-wrapper input::-webkit-input-placeholder {
+   color: #999;
+   font-weight: normal;
+   font-style: italic;
+}
+
+.form-wrapper input:-moz-placeholder {
+    color: #999;
+    font-weight: normal;
+    font-style: italic;
+}
+
+.form-wrapper input:-ms-input-placeholder {
+    color: #999;
+    font-weight: normal;
+    font-style: italic;
+}   
+
+/* Form submit button */
+.form-wrapper button {
+    overflow: visible;
+    position: relative;
+    float: right;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    height: 35px;
+    width: 80px;
+    font: bold 15px/40px 'lucida sans', 'trebuchet MS', 'Tahoma';
+    color: #fff;
+    text-transform: uppercase;
+    background: #d83c3c;
+    border-radius: 0 3px 3px 0;     
+    text-shadow: 0 -1px 0 rgba(0, 0 ,0, .3);
+}  
+
+.form-wrapper button:hover{    
+    background: #e54040;
+}  
+
+.form-wrapper button:active,
+.form-wrapper button:focus{  
+    background: #c42f2f;
+    outline: 0;  
+}
+
+.form-wrapper button:before { /* left arrow */
+    content: '';
+    position: absolute;
+    border-width: 8px 8px 8px 0;
+    border-style: solid solid solid none;
+    border-color: transparent rgb(216, 60, 60) transparent;
+    top: 12px;
+    left: -6px;
+}
+
+.form-wrapper button:hover:before{
+    border-right-color: rgb(229, 64, 64);
+}
+
+.form-wrapper button:focus:before,
+.form-wrapper button:active:before{
+        border-right-color: rgb(196, 47, 47);
+}     
+
+.form-wrapper button::-moz-focus-inner { /* remove extra button spacing for Mozilla Firefox */
+    border: 0;
+    padding: 0;
+}   
+
+
+
+
+@media (min-width: 1200px) {
+    .container {
+        width: 100% !important;
+        padding-left: 1px !important;
+	    padding-right: 1px !important;
+    }
+    .form-wrapper input {
+        width: 300px !important;
+    }
+   #page6li {
+       display: inherit !important;
+   }
+   #page7li {
+       display: inherit !important;
+   }
+   #page8li {
+       display: inherit !important;
+   }
+   #page9li {
+       display: inherit !important;
+   }}
+
+.tftextinput2{
+        margin-top: 14px;
+        padding: 5px 15px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size:14px;
+        color:rgb(102, 102, 102);
+        border:1px solid rgb(0, 118, 163); border-right:0px;
+        border-top-left-radius: 5px 5px;
+        border-bottom-left-radius: 5px 5px;
+    }
+
+.tfbutton2 {
+        margin: 0;
+        padding: 5px 7px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size:14px;
+        font-weight:bold;
+        outline: none;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        color: rgb(255, 255, 255);
+        border: solid 1px #0076a3; border-right:0px;
+        background: rgb(0, 149, 205);
+        background: -webkit-gradient(linear, left top, left bottom, from(rgb(0, 173, 238)), to(rgb(0, 120, 165)));
+        background: -moz-linear-gradient(top,  rgb(0, 173, 238),  rgb(0, 120, 165));
+        border-top-right-radius: 5px 5px;
+        border-bottom-right-radius: 5px 5px;
+    }
+
+.tfbutton2:hover {
+        text-decoration: none;
+        background: rgb(0, 126, 173);
+        background: -webkit-gradient(linear, left top, left bottom, from(rgb(0, 149, 204)), to(rgb(0, 103, 142)));
+        background: -moz-linear-gradient(top,  rgb(0, 149, 204),  rgb(0, 103, 142));
+    }
+
+/* Fixes submit button height problem in Firefox */
+.tfbutton2::-moz-focus-inner {
+      border: 0;
+    }
+
+
+@media (min-width: 768px) {
+    .container {
+        width: 100% !important;
+        padding-left: 1px !important;
+	padding-right: 1px !important;
+    }
+   .col-sm-12 {
+       padding: 0px !important;
+   }
+   #page6li {
+       display: none;
+   }
+   #page7li {
+       display: none;
+   }
+   #page8li {
+       display: none;
+   }
+   #page9li {
+       display: none;
+   }
+   .form-wrapper input {
+        width: 200px;
+    }
+}
+
+.divhidden {
+    display: none;
+}
+
+.panel{
+margin-bottom: 5px}
+
+.divshown {
+    display: inherit;
+}
+
+/* Sticky footer styles */
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 1px;
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 1px;
+    background-color: #f5f5f5;
+}
+.container .text-muted {
+    margin: 20px 0;
+}
+
+h1 {
+    color: #66A8E5;
+    margin-left: 10px;
+    margin-bottom:20px;
+    font:600 27px/33px Helvetica, sans-serif;
+}
+
+ol, ul {
+	list-style: none;
+}
+
+blockquote, q {
+	quotes: none;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/*navigation elements - horizontally*/
+/*nav ul li{
+    display:inline;    
+}*/
+
+.navbar-fixed-top {
+    padding-top: 1px;    
+}
+nav ul li button {
+     min-width:80px;
+     margin : 5px 5px 0 0;
+     /*background:none!important;*/
+     background-color:inherit;
+     border: 1px solid #e9f3f6;
+     padding:0!important;
+     font: inherit;
+     /*border is optional*/
+     cursor: pointer;
+}
+
+nav ul li:hover button {    
+    border: 1px solid #e1dcdc;
+    color:blue;
+} 
+
+/*current page navigation element*/
+.current-page-button {
+   background:#e1dcdc;   
+   border: 1px solid #e1dcdc;
+}
+
+.edit-post-input-area{
+    min-width:100%;
+    max-width:100%;
+    height:400px;
+    min-height:300px;
+}
+
+.post-header-block {
+    background: #e1dcdc;    
+    line-height: 1.1;
+    box-sizing: border-box;
+}
+.post-title-text-block {
+    font: 1.7em;
+    font-size:30px;
+    text-align:justify;
+    color: #66A8E5;
+}
+    p .post-content-block
+    {
+        margin-left:50px;
+    }
+.ul-top-blog {
+    margin-top: 60px;
+}
+.post-date-block {
+    text-align: right;
+}
+
+/* popup window*/
+.b-popup{
+    width:100%;
+    min-height:100%;
+    background-color: rgba(0,0,0,0.5);
+    overflow:hidden;
+    position:fixed;
+    top:0px;
+    padding : 20px;
+    text-align:center;
+}
+.b-popup .b-popup-content{
+    display:inline-block;
+    margin:40px auto 0px auto;
+    width:auto;    
+    height: auto;
+    max-width:70%;    
+    max-height:60%;
+    padding:20px;
+    background-color: #c5c5c5;
+    border-radius:5px;
+    box-shadow: 0px 0px 10px #000;
+}
+
+
+.btnlogout {
+    background: url("logoutbtn.jpg") no-repeat;
+    width: 90px;
+    height: 32px;
+    margin-left: 5px;
+}
+.btnlogin {
+    background: url("loginbtn.jpg") no-repeat;
+    width: 90px;
+    height: 32px;
+}
+
+.mainsearch {
+    margin-top: 14px;
+}
+
+.mainsettingsbtn {
+    padding: 2px;
+}
+
+@media (min-width: 768px) {
+    .container {
+        width: 100%;
+        padding-left: 10px;
+    }
+    .ngscope {
+        padding: 0px;
+    }
+   .col-sm-12 {
+       padding: 0px;
+   }
+}
