@@ -1,6 +1,6 @@
 (function()
 {
- var Global=this,Runtime=this.IntelliFactory.Runtime,Concurrency,Array,Arrays,Seq,UI,Next,Abbrev,Fresh,Collections,HashSetProxy,HashSet,JQueue,Unchecked,Slot1,An,AppendList1,Anims,requestAnimationFrame,Trans,Option,View,Lazy,Array1,Attrs,DomUtility,AttrModule,AttrProxy,List,AnimatedAttrNode,DynamicAttrNode,View1,document,Doc,Elt,Seq1,Docs,String,CheckedInput,Mailbox,Operators,T,jQuery,NodeSet,DocElemNode,DomNodes,Easing,Easings,Var1,RegExp,Var,FlowBuilder,Flow1,Input,DoubleInterpolation,Key,ListModels,RefImpl1,Storage1,ListModel,Model,encodeURIComponent,Strings,Route,decodeURIComponent,Routing,Router1,Trie1,Dictionary,window,Snap1,Async,Ref,ArrayStorage,LocalStorageBackend,JSON,Char,Submitter,Enumerator,ResizeArray,ResizeArrayProxy,MapModule,FSharpMap,RefImpl;
+ var Global=this,Runtime=this.IntelliFactory.Runtime,Concurrency,Array,Arrays,Seq,UI,Next,Abbrev,Fresh,Collections,HashSetProxy,HashSet,Unchecked,Slot1,An,AppendList1,Anims,requestAnimationFrame,Trans,Option,View,Lazy,Array1,Attrs,DomUtility,AttrModule,AttrProxy,List,AnimatedAttrNode,DynamicAttrNode,View1,document,Doc,Elt,Seq1,Docs,String,CheckedInput,Mailbox,Operators,T,jQuery,NodeSet,DocElemNode,DomNodes,Easing,Easings,Var1,RegExp,Var,FlowBuilder,Flow1,Input,DoubleInterpolation,Key,ListModels,RefImpl1,Storage1,ListModel,Model1,Model,encodeURIComponent,Strings,Route,decodeURIComponent,Routing,Router1,Trie1,Dictionary,window,Snap1,Async,Ref,ArrayStorage,LocalStorageBackend,JSON,Char,Submitter,Enumerator,ResizeArray,ResizeArrayProxy,MapModule,FSharpMap,RefImpl;
  Runtime.Define(Global,{
   WebSharper:{
    UI:{
@@ -114,30 +114,6 @@
         return arr;
        }
       },
-      JQueue:{
-       Add:function($x,$q)
-       {
-        var $0=this,$this=this;
-        return $q.push($x);
-       },
-       Count:function(q)
-       {
-        return q.length;
-       },
-       Dequeue:function($q)
-       {
-        var $0=this,$this=this;
-        return $q.shift();
-       },
-       Iter:function(f,q)
-       {
-        return Arrays.iter(f,JQueue.ToArray(q));
-       },
-       ToArray:function(q)
-       {
-        return q.slice();
-       }
-      },
       Mailbox:{
        StartProcessor:function(proc)
        {
@@ -148,11 +124,11 @@
         {
          return Concurrency.Combine(Concurrency.While(function()
          {
-          return JQueue.Count(mail)>0;
+          return mail.length>0;
          },Concurrency.Delay(function()
          {
           var msg;
-          msg=JQueue.Dequeue(mail);
+          msg=mail.shift();
           return Concurrency.Bind(proc(msg),function()
           {
            return Concurrency.Return(null);
@@ -180,7 +156,7 @@
         };
         post=function(msg)
         {
-         JQueue.Add(msg,mail);
+         mail.push(msg);
          return start(null);
         };
         return post;
@@ -212,11 +188,7 @@
         r.value=value;
         return r;
        }
-      }),
-      U:function()
-      {
-       return;
-      }
+      })
      },
      An:Runtime.Class({},{
       Append:function(_arg2,_arg1)
@@ -840,7 +812,7 @@
         if(xs1.$==1)
          {
           x=xs1.$0;
-          _=JQueue.Add(x,out);
+          _=out.push(x);
          }
         else
          {
@@ -858,7 +830,7 @@
               xs2=xs1.$0;
               _=Arrays.iter(function(v)
               {
-               return JQueue.Add(v,out);
+               return out.push(v);
               },xs2);
              }
             else
@@ -870,7 +842,7 @@
         return _;
        };
        loop(xs);
-       return JQueue.ToArray(out);
+       return out.slice(0);
       }
      },
      Array:{
@@ -1366,7 +1338,7 @@
          {
           n=node.$0;
           n.Init(elem);
-          _=JQueue.Add(n,nodes);
+          _=nodes.push(n);
          }
         else
          {
@@ -1389,7 +1361,7 @@
               if(node.$==4)
                {
                 cb=node.$0;
-                _=JQueue.Add(cb,oar);
+                _=oar.push(cb);
                }
               else
                {
@@ -1401,18 +1373,18 @@
         return _;
        };
        loop(tree.Tree);
-       arr=JQueue.ToArray(nodes);
+       arr=nodes.slice(0);
        return Runtime.DeleteEmptyFields({
         DynElem:elem,
         DynFlags:tree.Flags,
         DynNodes:arr,
-        OnAfterRender:(JQueue.Count(oar)===0?{
+        OnAfterRender:(oar.length===0?{
          $:0
         }:{
          $:1,
          $0:function(el)
          {
-          return JQueue.Iter(function(f)
+          return Seq.iter(function(f)
           {
            return f(el);
           },oar);
@@ -2582,7 +2554,7 @@
            if(doc.$==1)
             {
              e=doc.$0;
-             _=JQueue.Add(e.El,q);
+             _=q.push(e.El);
             }
            else
             {
@@ -2595,14 +2567,14 @@
                if(doc.$==5)
                 {
                  tn=doc.$0;
-                 _=JQueue.Add(tn,q);
+                 _=q.push(tn);
                 }
                else
                 {
                  if(doc.$==4)
                   {
                    t=doc.$0;
-                   _=JQueue.Add(t.Text,q);
+                   _=q.push(t.Text);
                   }
                  else
                   {
@@ -2620,7 +2592,7 @@
         loop(node.Children);
         return Runtime.New(DomNodes,{
          $:0,
-         $0:JQueue.ToArray(q)
+         $0:q.slice(0)
         });
        },
        Except:function(_arg2,_arg1)
@@ -2768,7 +2740,7 @@
            if(node.$==1)
             {
              el=node.$0;
-             JQueue.Add(el,q);
+             q.push(el);
              _=loop(el.Children);
             }
            else
@@ -2789,7 +2761,7 @@
         loop(doc);
         return Runtime.New(NodeSet,{
          $:0,
-         $0:HashSetProxy.New(JQueue.ToArray(q))
+         $0:HashSetProxy.New(q.slice(0))
         });
        },
        Intersect:function(_arg5,_arg4)
@@ -3171,7 +3143,7 @@
        r=Runtime.New(this,{});
        r.init=init;
        r.push=push;
-       r.value=Abbrev.U();
+       r.value=undefined;
        r.dirty=true;
        arg00=function(x)
        {
@@ -3435,12 +3407,6 @@
        return r;
       }
      }),
-     Flow:Runtime.Class({},{
-      get_Do:function()
-      {
-       return FlowBuilder.New();
-      }
-     }),
      Flow1:Runtime.Class({},{
       Bind:function(m,k)
       {
@@ -3519,6 +3485,10 @@
          };
         }
        };
+      },
+      get_Do:function()
+      {
+       return FlowBuilder.New();
       }
      }),
      FlowBuilder:Runtime.Class({
@@ -4061,7 +4031,9 @@
         Storage:storage,
         view:view
        });
-      },
+      }
+     }),
+     ListModel1:Runtime.Class({},{
       FromSeq:function(init)
       {
        var arg00;
@@ -4070,9 +4042,7 @@
         return x;
        };
        return ListModel.Create(arg00,init);
-      }
-     }),
-     ListModel1:Runtime.Class({},{
+      },
       Key:function(m)
       {
        return m.key;
@@ -4096,7 +4066,7 @@
      Model:Runtime.Class({
       get_View:function()
       {
-       return Model.View(this);
+       return Model1.View(this);
       }
      },{
       Create:function(proj,init)
@@ -4121,7 +4091,9 @@
         return x;
        };
        return Var1.Update(_var,arg10);
-      },
+      }
+     }),
+     Model1:Runtime.Class({},{
       View:function(_arg2)
       {
        var view;
@@ -4317,7 +4289,7 @@
        return List.ofArray(array);
       }
      },
-     RouteMap1:Runtime.Class({},{
+     RouteMap:Runtime.Class({},{
       Create:function(ser,des)
       {
        return{
@@ -4442,10 +4414,10 @@
         }
        });
        state={
-        Bodies:Abbrev.U(),
+        Bodies:undefined,
         CurrentRoute:currentRoute,
         CurrentSite:0,
-        Selection:Abbrev.U()
+        Selection:undefined
        };
        _arg00_1=function(prefix)
        {
@@ -5068,7 +5040,7 @@
           $:0,
           $0:v
          };
-         _=JQueue.Iter(function(k)
+         _=Seq.iter(function(k)
          {
           return k(v);
          },q);
@@ -5095,7 +5067,7 @@
            sn.State={
             $:1
            };
-           _=JQueue.Iter(function(k)
+           _=Seq.iter(function(k)
            {
             return k(null);
            },ks);
@@ -5108,7 +5080,7 @@
              sn.State={
               $:1
              };
-             _=JQueue.Iter(function(k)
+             _=Seq.iter(function(k)
              {
               return k(null);
              },ks1);
@@ -5134,7 +5106,7 @@
           $0:v,
           $1:q2
          };
-         _=JQueue.Iter(function(k)
+         _=Seq.iter(function(k)
          {
           return k(v);
          },q1);
@@ -5147,39 +5119,47 @@
       },
       Sequence:function(snaps)
       {
-       var res,snaps1,c,d,vs,obs,cont,action;
-       res=Snap1.Create();
-       snaps1=Arrays.ofSeq(snaps);
-       c=Arrays.length(snaps1);
-       d=[0];
-       vs=[[]];
-       obs=function()
-       {
-        d[0]=0;
-        vs[0]=[];
-        return Snap1.MarkObsolete(res);
-       };
-       cont=function()
-       {
-        return d[0]===c?Seq.forall(function(x)
+       var _,res,snaps1,c,d,vs,obs,cont,action;
+       if(Seq.isEmpty(snaps))
         {
-         return Snap1.IsForever(x);
-        },snaps1)?Snap1.MarkForever(res,vs[0]):Snap1.MarkReady(res,vs[0]):null;
-       };
-       action=function(i)
-       {
-        return function(s)
+         _=Snap1.CreateForever(Seq.empty());
+        }
+       else
         {
-         return Snap1.When(s,function(x)
+         res=Snap1.Create();
+         snaps1=Arrays.ofSeq(snaps);
+         c=Arrays.length(snaps1);
+         d=[0];
+         vs=[[]];
+         obs=function()
          {
-          vs[0][i]=x;
-          Ref.incr(d);
-          return cont(null);
-         },obs);
-        };
-       };
-       Arrays.iteri(action,snaps1);
-       return res;
+          d[0]=0;
+          vs[0]=[];
+          return Snap1.MarkObsolete(res);
+         };
+         cont=function()
+         {
+          return d[0]===c?Seq.forall(function(x)
+          {
+           return Snap1.IsForever(x);
+          },snaps1)?Snap1.MarkForever(res,vs[0]):Snap1.MarkReady(res,vs[0]):null;
+         };
+         action=function(i)
+         {
+          return function(s)
+          {
+           return Snap1.When(s,function(x)
+           {
+            vs[0][i]=x;
+            Ref.incr(d);
+            return cont(null);
+           },obs);
+          };
+         };
+         Arrays.iteri(action,snaps1);
+         _=res;
+        }
+       return _;
       },
       SnapshotOn:function(sn1,sn2)
       {
@@ -5287,7 +5267,7 @@
           {
            v=matchValue.$0;
            q=matchValue.$1;
-           JQueue.Add(obsolete,q);
+           q.push(obsolete);
            _=avail(v);
           }
          else
@@ -5296,8 +5276,8 @@
             {
              q2=matchValue.$1;
              q1=matchValue.$0;
-             JQueue.Add(avail,q1);
-             _=JQueue.Add(obsolete,q2);
+             q1.push(avail);
+             _=q2.push(obsolete);
             }
            else
             {
@@ -5475,10 +5455,6 @@
        r.view=View.SnapshotOn(init,arg10,arg20);
        return r;
       },
-      Trigger:function(s)
-      {
-       return s.Trigger();
-      },
       View:function(s)
       {
        return s.get_View();
@@ -5488,6 +5464,10 @@
       Input:function(s)
       {
        return s.get_Input();
+      },
+      Trigger:function(s)
+      {
+       return s.Trigger();
       }
      }),
      Trans:Runtime.Class({},{
@@ -5514,21 +5494,6 @@
       CanAnimateExit:function(tr)
       {
        return(tr.TFlags&4)!==0;
-      },
-      Create:function(ch)
-      {
-       return{
-        TChange:ch,
-        TEnter:function(t)
-        {
-         return An.Const(t);
-        },
-        TExit:function(t)
-        {
-         return An.Const(t);
-        },
-        TFlags:1
-       };
       },
       Trivial:function()
       {
@@ -5562,6 +5527,21 @@
         TEnter:tr.TEnter,
         TExit:tr.TExit,
         TFlags:TFlags
+       };
+      },
+      Create:function(ch)
+      {
+       return{
+        TChange:ch,
+        TEnter:function(t)
+        {
+         return An.Const(t);
+        },
+        TExit:function(t)
+        {
+         return An.Const(t);
+        },
+        TFlags:1
        };
       },
       Enter:function(f,tr)
@@ -5883,10 +5863,10 @@
        {
         return function(v)
         {
-         return JQueue.Add(v,all);
+         return all.push(v);
         };
        },trie);
-       return JQueue.ToArray(all);
+       return all.slice(0);
       },
       TrieBranch:function(xs)
       {
@@ -6113,6 +6093,16 @@
         _arg10_=observe(null);
         return Snap1.MapAsync(fn,_arg10_);
        });
+      },
+      MapAsync2:function(fn,v1,v2)
+      {
+       var arg00,arg10;
+       arg00=function(x)
+       {
+        return x;
+       };
+       arg10=View.Map2(fn,v1,v2);
+       return View.MapAsync(arg00,arg10);
       },
       MapCached:function(fn,_arg2)
       {
@@ -6415,7 +6405,6 @@
   Collections=Runtime.Safe(Global.WebSharper.Collections);
   HashSetProxy=Runtime.Safe(Collections.HashSetProxy);
   HashSet=Runtime.Safe(Abbrev.HashSet);
-  JQueue=Runtime.Safe(Abbrev.JQueue);
   Unchecked=Runtime.Safe(Global.WebSharper.Unchecked);
   Slot1=Runtime.Safe(Abbrev.Slot1);
   An=Runtime.Safe(Next.An);
@@ -6463,6 +6452,7 @@
   RefImpl1=Runtime.Safe(Next.RefImpl1);
   Storage1=Runtime.Safe(Next.Storage1);
   ListModel=Runtime.Safe(Next.ListModel);
+  Model1=Runtime.Safe(Next.Model1);
   Model=Runtime.Safe(Next.Model);
   encodeURIComponent=Runtime.Safe(Global.encodeURIComponent);
   Strings=Runtime.Safe(Global.WebSharper.Strings);

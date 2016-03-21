@@ -175,6 +175,12 @@ module Site =
         )
 
 
+//    open Suave.Web
+//    open WebSharper.Suave
+//
+//    do startWebServer defaultConfig (WebSharperAdapter.ToWebPart Main)
+
+
     open Suave.Web
     open WebSharper.Suave
     
@@ -190,12 +196,10 @@ module Site =
     open Suave.Filters
     open Suave.Http
 
-
-    let addr = IPAddress.Parse "0.0.0.0"
     let cfg =
       { defaultConfig with
           bindings =
-            [ HttpBinding.mk HTTP (IPAddress.Parse "0.0.0.0") 80us
+            [ HttpBinding.mk HTTP (IPAddress.Parse "0.0.0.0") 8083us
             ]
           listenTimeout = TimeSpan.FromMilliseconds 3000. }
 
