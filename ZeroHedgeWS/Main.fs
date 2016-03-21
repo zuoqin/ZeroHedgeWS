@@ -177,5 +177,26 @@ module Site =
 
     open Suave.Web
     open WebSharper.Suave
+    
+    open System
+    open System.Net
 
-    do startWebServer defaultConfig (WebSharperAdapter.ToWebPart Main)
+    open Suave.Operators
+    open Suave.Sockets.Control
+    open Suave.WebSocket
+    open Suave.Utils
+    open Suave.Files
+    open Suave.RequestErrors
+    open Suave.Filters
+    open Suave.Http
+
+
+    let addr = IPAddress.Parse "0.0.0.0"
+    let cfg =
+      { defaultConfig with
+          bindings =
+            [ HttpBinding.mk HTTP (IPAddress.Parse "0.0.0.0") 80us
+            ]
+          listenTimeout = TimeSpan.FromMilliseconds 3000. }
+
+    do startWebServer cfg (WebSharperAdapter.ToWebPart Main)
