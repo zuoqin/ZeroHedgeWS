@@ -4,7 +4,7 @@
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{72ef2e7a-0d2b-4f86-953b-2f3507c2c126}</ProjectGuid>
+    <ProjectGuid>{492ea003-2b37-4289-83a5-10ed323f9bab}</ProjectGuid>
     <WebSharperProject>Site</WebSharperProject>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
     <NuGetPackageImportStamp>
@@ -86,26 +86,16 @@
       <HintPath>..\packages\Akka.FSharp.1.0.6\lib\net45\Akka.FSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
+
     <Reference Include="FSharp.Core">
       <HintPath>..\packages\FSharp.Core.4.0.0.1\lib\net40\FSharp.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.Data">
-      <HintPath>..\packages\FSharp.Data.2.2.5\lib\net40\FSharp.Data.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.PowerPack">
-      <HintPath>..\packages\FSPowerPack.Core.Community.3.0.0.0\lib\Net40\FSharp.PowerPack.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.PowerPack.Linq">
-      <HintPath>..\packages\FSPowerPack.Linq.Community.3.0.0.0\lib\Net40\FSharp.PowerPack.Linq.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FsPickler">
       <HintPath>..\packages\FsPickler.1.2.21\lib\net45\FsPickler.dll</HintPath>
       <Private>True</Private>
     </Reference>
+
     <Reference Include="HttpMultipartParser">
       <HintPath>..\packages\WebSharper.Owin.3.6.10.125\lib\net45\HttpMultipartParser.dll</HintPath>
       <Private>True</Private>
@@ -251,5 +241,5 @@ copy /Y "$(ProjectDir)Content\css\bootstrap.min.css" "$(ProjectDir)Content\WebSh
 copy /Y "$(ProjectDir)Content\css\bootstrap-theme.min.css" "$(ProjectDir)Content\WebSharper\Application"
 copy /Y "$(ProjectDir)Content\css\styles.css" "$(ProjectDir)Content\WebSharper\Application"
 copy /Y "$(ProjectDir)Content\css\jquery.smartmenus.bootstrap.css" "$(ProjectDir)Content\WebSharper\Application"</PostBuildEvent>
-  </PropertyGroup>  
+  </PropertyGroup>    
 </Project>

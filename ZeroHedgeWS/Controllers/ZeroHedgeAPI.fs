@@ -73,6 +73,11 @@ module ZeroHedgeAPI =
 
 
 
+        let CheckExpired( a: TimeSpan) =
+            if a.TotalMinutes > 10. then
+                true
+            else
+                false
 
 
         let createActor =
@@ -317,7 +322,7 @@ module ZeroHedgeAPI =
             let newSearchIndex = { keys = keys; page = 0}
             let (bResult, SearchArticles) = requestsmap.TryGetValue(newSearchIndex)
             if bResult = true then
-                if (DateTime.Now - SearchArticles.updated).TotalMinutes > 100.0 then
+                if CheckExpired(DateTime.Now - SearchArticles.updated) then
                     DownloadAndParseSearchPage(keys)
                 else
                     if SearchArticles.stories.Count > 0 then
@@ -328,15 +333,23 @@ module ZeroHedgeAPI =
                 DownloadAndParseSearchPage(keys)
 
 
+
+
         let DownloadPage (id:int) : List<Story> =
             //PageMessage.doSomething
 
             let (bResult, thePage) = pagesmap.TryGetValue(id)
-            if bResult = true && (DateTime.Now - thePage.updated).TotalMinutes < 10.0 &&
-                (thePage.stories.Count > 0 || thePage.isLoading) then
+            if bResult = true && CheckExpired(DateTime.Now - thePage.updated) = false &&
+                (thePage.stories.Count > 0 //|| thePage.isLoading
+                ) then
+
+                let sLine = sprintf "Will not Download page %d, return from cache" id
+                Console.WriteLine sLine
+
                 thePage.stories
             else
-                
+                let sLine = sprintf "Downloading page %d" id
+                Console.WriteLine sLine
                 let myWebClient = new WebClient()
 
                 
@@ -417,6 +430,9 @@ module ZeroHedgeAPI =
                     let bResult = pagesmap.Remove(id)
                     pagesmap.Add(id, newPage)
 
+                    let sLine = sprintf "Cache data for page: %d has been updated with Loading = %b" id newPage.isLoading
+                    Console.WriteLine sLine
+
                     articles
                 else
                     if bResult = false then
@@ -432,10 +448,14 @@ module ZeroHedgeAPI =
             else
                 let newSearchIndex = { keys = keys; page = page}
                 let (bResult, SearchArticles) = requestsmap.TryGetValue(newSearchIndex)
-                if bResult = true && (DateTime.Now - SearchArticles.updated).TotalMinutes < 10.0 &&
+                if bResult = true && CheckExpired(DateTime.Now - SearchArticles.updated) = false &&
                     SearchArticles.stories.Count > 0 then
                     SearchArticles.stories
                 else
+
+                    let sLine = sprintf "Downloading search keys: %s  page: %d" keys page
+                    Console.WriteLine sLine
+                    
                     let keyDecode = keys //HttpUtility.UrlDecode(keys).Replace(" ", "+")
                     let markup1 = DownloadURL( sprintf "http://www.zerohedge.com/search/apachesolr_search/%s?page=%d" keyDecode page )
                     let markup = markup1.ToString()
@@ -578,19 +598,35 @@ module ZeroHedgeAPI =
         let stories = new Dictionary<string, Story>()
 
         let getPage (id: int) : Async<List<Story>> =
+            let sLine = sprintf "Call Get page %d" id
+            Console.WriteLine sLine
             async{
                 let (bResult, thePage) = pagesmap.TryGetValue(id)
                 if bResult = true then
+                    let sLine = sprintf "Found page %d in cache with Loading = %b" id thePage.isLoading 
+                    Console.WriteLine sLine
+
                     if thePage.stories.Count > 0 then
-                        if (DateTime.Now - thePage.updated).TotalSeconds > 10.0 then
+                        if CheckExpired(DateTime.Now - thePage.updated) then
                             if thePage.isLoading = false then
                                 //let res = crud.PostAndAsyncReply( fun reply -> GetPage(id, reply) )
-                                let newPage = { updated = DateTime.Now; stories = thePage.stories; isLoading = true }
+                                let newPage = { updated = thePage.updated; stories = thePage.stories; isLoading = true }
                                 let bResult = pagesmap.Remove(id)
+
+
+                                let sLine = sprintf "Updated page %d to cache with Loading = %b" id newPage.isLoading 
+                                Console.WriteLine sLine
+
                                 pagesmap.Add(id, newPage)
                                 read'page id
+                            else
+                                let sLine = sprintf "Page: %d is still downloading, return from cache" id 
+                                Console.WriteLine sLine
+
                             return thePage.stories
                         else
+                            let sLine = sprintf "Page: %d is not expired yet, return from cache" id 
+                            Console.WriteLine sLine
                             return thePage.stories
                     else
                         let stories = new List<Story>()
