@@ -1,9 +1,31 @@
-# Zero Hedge : Most Valuable International Capital Markets Stories 
-ZeroHedge Mobile + WEB API implemented in Websharper
+[![Issue Stats](http://issuestats.com/github/fsprojects/FsReveal/badge/issue)](http://issuestats.com/github/fsprojects/FsReveal)
+[![Issue Stats](http://issuestats.com/github/fsprojects/FsReveal/badge/pr)](http://issuestats.com/github/fsprojects/FsReveal)
 
-ZeroHedge 3 types WEB APIs and user interfaces implemented:
+# FsReveal [![NuGet Status](http://img.shields.io/nuget/v/FsReveal.svg?style=flat)](https://www.nuget.org/packages/FsReveal/)
 
-1. Retrieve given page stories: GET /api/page/{num : integer}. Response will contain JSON array with stories for the current page
-2. Retrieve given story based on it's base64 URL, received from the page request above: GET /api/story/{URL: base64 string}
-3. Post full text search to the site: POST /api/search/{search keys: URLEncoded string} - will return JSON object conytaining first search page stories for the given keys
-4. Retrieve given search page stories: GET /api/search/{keys}/{pagenum : integer}
+FsReveal allows you to write beautiful slides in [Markdown](http://daringfireball.net/projects/markdown/syntax)
+and brings F# to the [reveal.js][revealjs] web presentation framework.
+
+## Features
+
+- Write your slides in [Markdown](http://daringfireball.net/projects/markdown/syntax) or .fsx files
+- Automatically updates the browser in edit mode on every save
+- Syntax highlighting for most programming languages including C#, F# and LaTeX
+- Speaker notes; Shows the current slide, next slide, elapsed time and current time
+- Built in themes
+- Horizontal and vertical slides
+- Built in slide transitions using CSS 3D transforms
+- Slide overview
+- Works on mobile browsers. Swipe your way through the presentation.
+
+[Examples](http://fsprojects.github.io/FsReveal/index.html#Examples) and a [Getting started guide](http://fsprojects.github.io/FsReveal/getting-started.html) can be found in the docs.
+
+[revealjs]: https://github.com/hakimel/reveal.js/ "reveal.js | HTML presentations made easy"
+
+### Maintainer(s)
+
+- [@kimsk](https://github.com/kimsk)
+- [@forki](https://github.com/forki)
+- [@troykershaw](https://github.com/troykershaw)
+
+The default maintainer account for projects under "fsprojects" is [@fsprojectsgit](https://github.com/fsprojectsgit) - F# Community Project Incubation Space (repo management)
