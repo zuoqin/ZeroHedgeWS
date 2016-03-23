@@ -1,31 +1,55 @@
-- title : FsReveal
-- description : Introduction to FsReveal
-- author : Karlkim Suwanmongkol
+- title : Zero Hedge
+- description : Most Valuable Financial Stories
+- author : Alexey Zorchenkov
 - theme : night
 - transition : default
 
 ***
 
-### Take5People Reporting?
+### Zero Hedge
 
-- Generates [reveal.js](http://lab.hakim.se/reveal-js/#/) presentation from [markdown](http://daringfireball.net/projects/markdown/)
-- Utilizes [FSharp.Formatting](https://github.com/tpetricek/FSharp.Formatting) for markdown parsing
-- Get it from [http://fsprojects.github.io/FsReveal/](http://fsprojects.github.io/FsReveal/)
+- Zero Hedge is a mobile WEB site and REST API from [Zero Hedge web site](http://www.zerohedge.com)
+- Utilizes [WebSharper](http://www.websharper.com/) and [AKKA](http://getakka.net/)
+- Get it from [GitHub](https://github.com/zuoqin/ZeroHedgeWS) or [open the link](http://www.take5people.cn:8083/)
 
-![FsReveal](images/reportlist.png)
+![Zero Hedge](images/mainpage.png)
 
 ***
 
-### Reveal.js
+### Reactive Manifesto
 
-- A framework for easily creating beautiful presentations using HTML.
+![Reactive Manifesto](images/responsive-manifesto.svg)
+
+***
+
+### WebSharper
+
+- More productive with less code
+- A fundamentally different web framework for developing functional and reactive .NET applications
+- Markup-driven, strongly-typed reactive applications in minutes
+
+***
 
 
-> **Atwood's Law**: any application that can be written in JavaScript, will eventually be written in JavaScript.
+### AKKA
+
+- Scalable, distributed real-time transaction processing
+- Fault Tolerance
+- Location Transparency
+- Persistence
+
+***
+
+
+### System Workflow
+
+![Zero Hedge](images/workflow.png)
 
 ***
 
 ### FSharp.Formatting
+
+> **Atwood's Law**: any application that can be written in JavaScript, will eventually be written in JavaScript.
 
 - F# tools for generating documentation (Markdown processor and F# code formatter).
 - It parses markdown and F# script file and generates HTML or PDF.
