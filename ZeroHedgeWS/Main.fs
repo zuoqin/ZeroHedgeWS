@@ -150,7 +150,7 @@ module Site =
     let cfg =
       { defaultConfig with
           bindings =
-            [ HttpBinding.mk HTTP (IPAddress.Parse "0.0.0.0") 8083us
+            [ HttpBinding.mk HTTP (IPAddress.Parse "0.0.0.0") 80us
             ]
           listenTimeout = TimeSpan.FromMilliseconds 3000. }
 

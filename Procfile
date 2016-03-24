@@ -1,1 +1,1 @@
-web: fsharpi-heroku ZeroHedgeWS.sln
+web: fsharpi-heroku app.fsx
