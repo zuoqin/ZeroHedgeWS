@@ -1,1 +1,1 @@
-web: ZeroHedgeWS/bin/Debug/ZeroHedgeWS.exe -p 0.0.0.0:$PORT
+web: fsharpi-heroku ZeroHedgeWS/main.fs
