@@ -215,21 +215,21 @@ module SearchClient =
             newPageID <- JS.ParseInt(sessionPage)        
 
         JavaScript.Console.Log( "Search Page = " + newPageID.ToString() )
-        async {
-
-            match newPageID with
-            | 0 ->
-                let! stories = PostSearch v'search.Value
-                stories
-                |> List.iter( fun x -> 
-                postList.Add x )
-            | _ -> 
-                let! stories = SearchArticles( v'search.Value, newPageID )
-                stories
-                |> List.iter( fun x -> 
-                    postList.Add x )
-        }
-        |> Async.Start
+//        async {
+//
+//            match newPageID with
+//            | 0 ->
+//                let! stories = PostSearch v'search.Value
+//                stories
+//                |> List.iter( fun x -> 
+//                postList.Add x )
+//            | _ -> 
+//                let! stories = SearchArticles( v'search.Value, newPageID )
+//                stories
+//                |> List.iter( fun x -> 
+//                    postList.Add x )
+//        }
+//        |> Async.Start
             
         
         let attr'div'fixed1 =  Attr.Create "role" "navigation"
