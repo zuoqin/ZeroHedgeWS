@@ -121,22 +121,7 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
-  <PropertyGroup>
-    <PostBuildEvent>mkdir "$(ProjectDir)Scripts\WebSharper\Application
 
-copy /Y "$(ProjectDir)Scripts\jquery-2.2.0.min.js" "$(ProjectDir)Scripts\WebSharper\Application"
-copy /Y "$(ProjectDir)Scripts\bootstrap.min.js" "$(ProjectDir)Scripts\WebSharper\Application"
-copy /Y "$(ProjectDir)Scripts\jquery.smartmenus.js" "$(ProjectDir)Scripts\WebSharper\Application"
-copy /Y "$(ProjectDir)Scripts\jquery.smartmenus.bootstrap.js" "$(ProjectDir)Scripts\WebSharper\Application"
-
-
-mkdir "$(ProjectDir)Content\WebSharper\Application
-copy /Y "$(ProjectDir)Content\favicon.ico" "$(ProjectDir)Content\WebSharper\Application"
-copy /Y "$(ProjectDir)Content\css\bootstrap.min.css" "$(ProjectDir)Content\WebSharper\Application"
-copy /Y "$(ProjectDir)Content\css\bootstrap-theme.min.css" "$(ProjectDir)Content\WebSharper\Application"
-copy /Y "$(ProjectDir)Content\css\styles.css" "$(ProjectDir)Content\WebSharper\Application"
-copy /Y "$(ProjectDir)Content\css\jquery.smartmenus.bootstrap.css" "$(ProjectDir)Content\WebSharper\Application"</PostBuildEvent>
-  </PropertyGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
       <ItemGroup>
