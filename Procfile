@@ -1,1 +1,1 @@
-web: fsharpi-heroku app.fsx
+web: fsharpi-heroku ZeroHedgeWS/app.fsx
