@@ -1,1 +1,1 @@
-web: fsharpi-heroku ZeroHedgeWS/app.fsx
+web: mono ZeroHedgeWS/bin/Debug/ZeroHedgeWS.exe
