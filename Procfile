@@ -1,0 +1,1 @@
+web: ZeroHedgeWS.exe

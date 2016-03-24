@@ -1,0 +1,20 @@
+source https://www.nuget.org/api/v2/
+framework >= net45
+
+nuget FSharp.Core 4.0.0.1
+nuget Microsoft.Owin 3.0.1
+nuget Mono.Cecil 0.9.6.1
+nuget Owin 1.0
+nuget Suave 1.1.1
+nuget WebSharper 3.6.11.234
+nuget WebSharper.Owin 3.6.10.125
+nuget WebSharper.Suave 3.6.10.37
+nuget WebSharper.UI.Next 3.6.11.207
+nuget Newtonsoft.Json 8.0.3
+nuget FsPickler 2.0.0
+nuget FSPowerPack.Core.Community 3.0.0
+nuget FSPowerPack.Linq.Community 3.0.0
+nuget Akka 1.0.6
+nuget Akka.FSharp 1.0.6
+nuget Newtonsoft.Json 8.0.3
+

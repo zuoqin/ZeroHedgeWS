@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ZeroHedgeWS", "ZeroHedgeWS\ZeroHedgeWS.fsproj", "{72EF2E7A-0D2B-4F86-953B-2F3507C2C126}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{E24C40F4-DC4B-493B-B162-241A08FE0B50}"
+	ProjectSection(SolutionItems) = preProject
+		paket.dependencies = paket.dependencies
+	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ZeroHedgeWS", "ZeroHedgeWS\ZeroHedgeWS.fsproj", "{492EA003-2B37-4289-83A5-10ED323F9BAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +16,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{72EF2E7A-0D2B-4F86-953B-2F3507C2C126}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{72EF2E7A-0D2B-4F86-953B-2F3507C2C126}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{72EF2E7A-0D2B-4F86-953B-2F3507C2C126}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{72EF2E7A-0D2B-4F86-953B-2F3507C2C126}.Release|Any CPU.Build.0 = Release|Any CPU
+		{492EA003-2B37-4289-83A5-10ED323F9BAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{492EA003-2B37-4289-83A5-10ED323F9BAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{492EA003-2B37-4289-83A5-10ED323F9BAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{492EA003-2B37-4289-83A5-10ED323F9BAB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
