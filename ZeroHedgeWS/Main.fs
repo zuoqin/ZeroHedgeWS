@@ -197,10 +197,14 @@ module Site =
     open Suave.Http
 
     let cfg =
-      { defaultConfig with
-          bindings =
-            [ HttpBinding.mk HTTP (IPAddress.Parse "0.0.0.0") 8083us
-            ]
-          listenTimeout = TimeSpan.FromMilliseconds 3000. }
+        let port = System.Environment.GetEnvironmentVariable("PORT")
+        let ip127  = IPAddress.Parse("127.0.0.1")
+        let ipZero = IPAddress.Parse("0.0.0.0")
+
+        { defaultConfig with
+            bindings =
+            [ (if port = null then HttpBinding.mk HTTP ip127 (uint16 8080)
+                    else HttpBinding.mk HTTP ipZero (uint16 port))
+            ]}
 
     do startWebServer cfg (WebSharperAdapter.ToWebPart Main)
