@@ -1,1 +1,1 @@
-web: fsharpi-heroku ZeroHedgeWS/main.fs
+web: fsharpi-heroku ZeroHedgeWS/Main.fs
