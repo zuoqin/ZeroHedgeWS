@@ -303,6 +303,14 @@
     </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>"$(ProjectDir)copy.bat"</PostBuildEvent>
+    <PostBuildEvent>mkdir "$(ProjectDir)Content\Websharper\Application"
+
+
+copy /Y "$(ProjectDir)Content\css\*.*" "$(ProjectDir)Content\Websharper\Application"
+
+
+mkdir "$(ProjectDir)Scripts\Websharper\Application"
+
+copy /Y "$(ProjectDir)Scripts\*.*" "$(ProjectDir)Scripts\Websharper\Application"</PostBuildEvent>
   </PropertyGroup>
 </Project>
