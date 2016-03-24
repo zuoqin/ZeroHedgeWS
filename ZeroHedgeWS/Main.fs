@@ -8,11 +8,7 @@ open WebSharper.UI.Next.Server
 
 
 type EndPoint =
-    | [<EndPoint "/">] Home
     | [<EndPoint "/about">] About
-    | [<EndPoint "/page">] Page of id : int
-    | [<EndPoint "/search">] Search of id : string * page : int
-    | [<EndPoint "/story">] Story of id : string
     | [<EndPoint "/api">] Api of id: ApiEndPoint
 
 and ApiEndPoint =
@@ -21,8 +17,6 @@ and ApiEndPoint =
     | [<EndPoint "POST /search">] PostSearch of string
     | [<EndPoint "GET /search">] GetSearch of string * int
 
-//and StoryPoint =
-//    | [<Query("id")>] Story of string
 
 
 
@@ -112,19 +106,6 @@ module Site =
             }
         |> Async.RunSynchronously
 
-    let HomePage (ctx :Context<EndPoint>) =
-        let attr'topmenu'1 =  Attr.Create "role" "navigation"
-        let attr'topmenu'2 =  Attr.Create "class" "navbar navbar-inverse navbar-fixed-top"
-        let attrs'topmenu = Seq.append [|attr'topmenu'1|] [ attr'topmenu'2]
-
-
-        Templating.MainView ctx EndPoint.Home "Zero Hedge | Home"
-            [
-                div [client <@ PageClient.Main(0) @>]
-            ]
-            [
-                divAttr attrs'topmenu [client <@ PageClient.Search @>]
-            ]
 
     let AboutPage ctx =
         Templating.MainView ctx EndPoint.About "About"
@@ -135,43 +116,13 @@ module Site =
                 p [text "This is a template WebSharper client-server application."]
             ]
 
-    let StoryPage ctx reference =
-        Templating.StoryView ctx EndPoint.Story "Zero Hedge" [
-            div [client <@ StoryClient.Main(reference) @>]
-        ]
-
-    let PagePage( ctx, id : int ) =
-        let attr'div'container1 =  Attr.Create "class" "container"
-        let attrs'div'container = Seq.append  [ attr'div'container1] []
-        Templating.PageView ctx EndPoint.Page "Zero Hedge"
-            [
-                div [client <@ PageClient.Main(id) @>]
-            ] 
-            [
-                divAttr attrs'div'container [client <@ PageClient.Search @>]
-            ]
-
-    let SearchPage( ctx, keys : string, page : int ) =
-        let attr'div'container1 =  Attr.Create "class" "container"
-        let attrs'div'container = Seq.append  [ attr'div'container1] []
-        Templating.SearchView ctx EndPoint.Page "Zero Hedge | Search"
-            [
-                div [client <@ SearchClient.Main(keys, page) @>]
-            ]
-            [
-                divAttr attrs'div'container [client <@ SearchClient.Search( keys ) @>]
-            ]
 
     let Main =
         
         Application.MultiPage (fun ctx endpoint ->
             match endpoint with
             | EndPoint.Api id -> ApiContent(ctx)(id)
-            | EndPoint.Home -> HomePage (ctx)
-            | EndPoint.Page id -> PagePage( ctx ,id )
-            | EndPoint.Search( keys, page) -> SearchPage( ctx , keys, page )
             | EndPoint.About -> AboutPage ctx
-            | EndPoint.Story id -> StoryPage ctx id
         )
 
 
