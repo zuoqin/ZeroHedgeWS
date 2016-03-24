@@ -1,1 +1,1 @@
-web: ZeroHedgeWS.exe
+web: ZeroHedgeWS/bin/Debug/ZeroHedgeWS.exe -p 0.0.0.0:8083
