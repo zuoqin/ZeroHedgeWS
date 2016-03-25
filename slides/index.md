@@ -8,7 +8,7 @@
 
 ### Zero Hedge
 
-- Zero Hedge is a mobile WEB site and REST API from [Zero Hedge web site](http://www.zerohedge.com)
+- Zero Hedge is a mobile WEB site and REST API sourcing data from [Zero Hedge web site](http://www.zerohedge.com)
 - Utilizes [WebSharper](http://www.websharper.com/) and [AKKA](http://getakka.net/)
 - Get it from [GitHub](https://github.com/zuoqin/ZeroHedgeWS) or [open the link](http://www.take5people.cn:8083/)
 
