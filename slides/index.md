@@ -41,9 +41,62 @@
 ***
 
 
+### Heroku
+
+- Heroku is a platform as a service (PaaS) 
+
+![Heroku](images/heroku.png)
+
+---
+- id : Heroku-1
+
+#### Cloud
+
+- enables developers to build and run applications entirely in the cloud
+- it’s the best platform for building with modern architectures, innovating quickly, and scaling precisely to meet demand
+
+![Heroku Cloud](images/startup.png)
+
+---
+
+- id : Heroku-2
+
+#### Focus
+
+- Heroku handles the hard stuff — patching and upgrading, 24/7 ops and security, build systems, failovers, and more — so your developers can stay focussed on building great apps
+
+![Heroku Support](images/focus.png)
+
+---
+
+- id : Heroku-3
+
+#### Ecosystem
+
+- Powerful platform, unparalleled ecosystem
+- it’s the best platform for building with modern architectures, innovating quickly, and scaling precisely to meet demand
+
+![Heroku Architecture](images/ecosystem.png)
+
+---
+
+- id : Heroku-4
+
+#### Applications
+
+
+- Today every company needs apps to engage their customers and run their businesses. Step up your ability to build, manage, and deploy great apps at scale with Heroku.
+
+![Heroku Applications](images/apps.png)
+
+---
+
+***
+
+
 ### System Workflow
 
-![Zero Hedge](images/workflow.png)
+![System Workflow](images/workflow.png)
 
 ***
 
