@@ -1,6 +1,6 @@
 (function()
 {
- var Global=this,Runtime=this.IntelliFactory.Runtime,jQuery,Exception,Concurrency,ZeroHedgeWS,Client,Json,Provider,Id,JSON,UI,Next,AttrProxy,AttrModule,Seq,List,Var1,Doc,ListModel1,View,PrintfHelpers,T,ListModel,View1,Var,String,PageClient,window,$1,Operators,SearchClient,console,StoryClient;
+ var Global=this,Runtime=this.IntelliFactory.Runtime,jQuery,Exception,Concurrency,ZeroHedgeWS,Client,Json,Provider,Id,JSON,UI,Next,AttrProxy,AttrModule,Seq,List,Var1,Doc,ListModel1,View,PrintfHelpers,T,ListModel,View1,Var,String,PageClient,window,$1,console,Operators,SearchClient,StoryClient;
  Runtime.Define(Global,{
   ZeroHedgeWS:{
    Client:{
@@ -292,8 +292,61 @@
      var arg00;
      arg00=Concurrency.Delay(function()
      {
-      window.sessionStorage.setItem("page",String(page));
-      return Concurrency.Bind(PageClient.GetPageArticles(page),function(_arg1)
+      var a,_;
+      if(page===0)
+       {
+        Var1.Set(PageClient["v'mode"](),0);
+        _=Concurrency.Return(null);
+       }
+      else
+       {
+        _=Concurrency.Return(null);
+       }
+      a=_;
+      return Concurrency.Combine(a,Concurrency.Delay(function()
+      {
+       var stories,a1,copyOfStruct,a2;
+       stories=[Runtime.New(T,{
+        $:0
+       })];
+       copyOfStruct=Var1.Get(PageClient["v'mode"]());
+       a1="Mode: "+String(copyOfStruct);
+       console?console.log(a1):undefined;
+       a2="Page: "+String(page);
+       console?console.log(a2):undefined;
+       return Concurrency.Combine(Var1.Get(PageClient["v'mode"]())===0?Concurrency.Bind(PageClient.GetPageArticles(page),function(_arg1)
+       {
+        stories[0]=_arg1;
+        return Concurrency.Return(null);
+       }):Concurrency.Bind(PageClient.SearchArticles(Var1.Get(PageClient["v'search"]()),page-1),function(_arg2)
+       {
+        stories[0]=_arg2;
+        return Concurrency.Return(null);
+       }),Concurrency.Delay(function()
+       {
+        var action,list;
+        PageClient.postList().Clear();
+        action=function(x)
+        {
+         return PageClient.postList().Add(x);
+        };
+        list=stories[0];
+        Seq.iter(action,list);
+        return Concurrency.Return(null);
+       }));
+      }));
+     });
+     return Concurrency.Start(arg00,{
+      $:0
+     });
+    },
+    OnSearchButtonClick:function(keys)
+    {
+     var arg00;
+     arg00=Concurrency.Delay(function()
+     {
+      Var1.Set(PageClient["v'mode"](),1);
+      return Concurrency.Bind(PageClient.SearchArticles(keys,0),function(_arg1)
       {
        var action;
        PageClient.postList().Clear();
@@ -338,11 +391,7 @@
      ats=List.ofArray([AttrProxy.Create("class","navbar-collapse collapse")]);
      _arg20_=function()
      {
-      var keyEncode,newLocation;
-      keyEncode=Global.encodeURIComponent(Var1.Get(PageClient["v'search"]()));
-      newLocation="./search/"+PrintfHelpers.toSafe(keyEncode)+"/0";
-      window.location.href=newLocation;
-      return;
+      return PageClient.OnSearchButtonClick(Var1.Get(PageClient["v'search"]()));
      };
      arg201=List.ofArray([Doc.Element("form",_attrs_form,List.ofArray([Doc.Input(_attrs_input_1,PageClient["v'search"]()),Doc.Button("Search",_attrs_srch_btn,_arg20_)]))]);
      arg20=List.ofArray([Doc.Element("ul",attrs_ul,List.ofArray([Doc.Element("li",[],arg201)]))]);
@@ -354,6 +403,20 @@
       },PageClient.SitePagination());
      })))])),Doc.Element("div",_attrs_div_right,List.ofArray([Doc.Element("nav",[],arg20)]))]));
     }),
+    SearchArticles:function(keys,page)
+    {
+     return Concurrency.Delay(function()
+     {
+      var pageURL;
+      pageURL="./api/search/"+PrintfHelpers.toSafe(keys)+"/"+Global.String(page);
+      return Concurrency.Bind(PageClient.Ajax("GET",pageURL,null),function(_arg1)
+      {
+       var _;
+       _=Provider.get_Default();
+       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0],["isLoading",Id,0]])))())(JSON.parse(_arg1)));
+      });
+     });
+    },
     SitePagination:Runtime.Field(function()
     {
      var list1,list;
@@ -419,15 +482,15 @@
      arg10=View1.Const(1);
      return View.MapAsync(arg00,arg10);
     }),
+    "v'mode":Runtime.Field(function()
+    {
+     return Var.Create(0);
+    }),
     "v'page":Runtime.Field(function()
     {
      return Var.Create(1);
     }),
     "v'search":Runtime.Field(function()
-    {
-     return Var.Create("");
-    }),
-    "v'search2":Runtime.Field(function()
     {
      return Var.Create("");
     })
@@ -875,9 +938,9 @@
   PageClient=Runtime.Safe(ZeroHedgeWS.PageClient);
   window=Runtime.Safe(Global.window);
   $1=Runtime.Safe(Global.$1);
+  console=Runtime.Safe(Global.console);
   Operators=Runtime.Safe(Global.WebSharper.Operators);
   SearchClient=Runtime.Safe(ZeroHedgeWS.SearchClient);
-  console=Runtime.Safe(Global.console);
   return StoryClient=Runtime.Safe(ZeroHedgeWS.StoryClient);
  });
  Runtime.OnLoad(function()
@@ -887,9 +950,9 @@
   SearchClient["v'page"]();
   SearchClient["v'blog"]();
   SearchClient.postList();
-  PageClient["v'search2"]();
   PageClient["v'search"]();
   PageClient["v'page"]();
+  PageClient["v'mode"]();
   PageClient["v'blog"]();
   PageClient.postList();
   PageClient.SitePagination();

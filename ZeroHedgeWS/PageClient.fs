@@ -29,7 +29,7 @@ module PageClient =
     let v'page = Var.Create 1
     let v'search = Var.Create ""
     // this variable just fake input
-    let v'search2 = Var.Create ""
+    let mutable v'mode = Var.Create 0
 
     let doc'header (post : Story) = 
         //JavaScript.Console.Log post.Title
@@ -74,6 +74,14 @@ module PageClient =
                 return Json.Deserialize<List<Story>> response 
         }
 
+    let SearchArticles (keys : string, page : int) : Async<Story list> =
+        async {
+                
+                let pageURL = sprintf "./api/search/%s/%d" keys page
+                let! response = Ajax "GET" pageURL (null)
+                return Json.Deserialize<List<Story>> response 
+        }
+
 
     let v'blog =
         View.Do{
@@ -86,8 +94,21 @@ module PageClient =
 
     let OnPageButtonClick (page : int)= 
         async {
-            JS.Window.SessionStorage.SetItem("page", page.ToString())
-            let! stories = GetPageArticles page
+            if page = 0 then
+                v'mode.Value <- 0
+
+            let mutable stories : List<Story> = []
+            JavaScript.Console.Log( "Mode: " + v'mode.Value.ToString() )
+            JavaScript.Console.Log( "Page: " + page.ToString() )
+
+            if v'mode.Value = 0 then
+                let! stories1 = GetPageArticles( page )
+                stories <- stories1
+
+            else
+                let! stories1 = SearchArticles( v'search.Value, page - 1 )
+                stories <- stories1
+
             postList.Clear()
             stories
             |> List.iter( fun x -> 
@@ -95,7 +116,16 @@ module PageClient =
         }
         |> Async.Start
 
-
+    let OnSearchButtonClick (keys : string)= 
+        async {
+            v'mode.Value <- 1
+            let! stories = SearchArticles( keys, 0 )
+            postList.Clear()
+            stories
+            |> List.iter( fun x -> 
+                postList.Add x )
+        }
+        |> Async.Start
 
     let AddNewPageButton (page : int) =
         let homeRef = sprintf "./"
@@ -185,12 +215,8 @@ module PageClient =
                                 <| "Search"
                                 <| attrs'srch'btn
                                 <| fun _ -> 
-                                    let keyEncode = JS.EncodeURIComponent(v'search.Value)
-                                    let newLocation = sprintf "./search/%s/0" keyEncode
-                                    JS.Window.Location.Href <-newLocation
+                                    OnSearchButtonClick( v'search.Value )
                             ]
-                    
-
                         ]
                     ]   
                 ]
