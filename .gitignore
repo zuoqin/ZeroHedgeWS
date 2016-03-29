@@ -237,4 +237,4 @@ _Pvt_Extensions
 .fake/
 
 .paket/paket.exe
-ZeroHedgeWS/Scripts/WebSharper/*.*
+# ZeroHedgeWS/Scripts/WebSharper/*.*

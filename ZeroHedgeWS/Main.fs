@@ -5,7 +5,7 @@ open WebSharper.Sitelets
 open WebSharper.UI.Next
 open WebSharper.UI.Next.Server
 
-
+open System.Configuration
 
 type EndPoint =
     | [<EndPoint "/">] Home
@@ -175,11 +175,6 @@ module Site =
         )
 
 
-//    open Suave.Web
-//    open WebSharper.Suave
-//
-//    do startWebServer defaultConfig (WebSharperAdapter.ToWebPart Main)
-
 
     open Suave.Web
     open WebSharper.Suave
@@ -196,6 +191,14 @@ module Site =
     open Suave.Filters
     open Suave.Http
 
+    let paths =
+        let s = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+        let ends = s.LastIndexOf("ZeroHedgeWS")
+        Console.WriteLine "Our assemply..."
+        Console.WriteLine( s.Substring(0,ends + 11))
+
+        s.Substring(0,ends + 11)
+
     let cfg =
         let port = System.Environment.GetEnvironmentVariable("PORT")
         let ip127  = IPAddress.Parse("127.0.0.1")
@@ -203,8 +206,8 @@ module Site =
 
         { defaultConfig with
             bindings =
-            [ (if port = null then HttpBinding.mk HTTP ip127 (uint16 8080)
+            [ (if port = null then HttpBinding.mk HTTP ipZero (uint16 8083)
                     else HttpBinding.mk HTTP ipZero (uint16 port))
             ]}
 
-    do startWebServer cfg (WebSharperAdapter.ToWebPart Main)
+    do startWebServer cfg (WebSharperAdapter.ToWebPart(Main, paths))

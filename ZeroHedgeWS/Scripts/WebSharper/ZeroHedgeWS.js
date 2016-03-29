@@ -501,7 +501,7 @@
     },
     Main:function(keys,pageID)
     {
-     var _attr_divid,_attr_divstyle,_attr_divclass,attrs_div,keyDecode,arg00,sessionPage,newPageID,a,_attr_div_fixed1,_attr_div_fixed2,_attr_div_fixed,_attr_container1,_attr_container2,_attrs_container,_attr_container11,_attr_container21,_attrs_container1,ats,arg001,arg10,_arg00_1;
+     var _attr_divid,_attr_divstyle,_attr_divclass,attrs_div,keyDecode,arg00,sessionPage,newPageID,a,arg001,_attr_div_fixed1,_attr_div_fixed2,_attr_div_fixed,_attr_container1,_attr_container2,_attrs_container,_attr_container11,_attr_container21,_attrs_container1,ats,arg002,arg10,_arg00_1;
      _attr_divid=AttrProxy.Create("id","blogItems");
      _attr_divstyle=AttrModule.Style("margin-top","60px");
      _attr_divclass=AttrModule.Class("col-md-12");
@@ -510,10 +510,35 @@
      arg00=SearchClient["v'search"]();
      Var1.Set(arg00,keyDecode);
      sessionPage=window.sessionStorage.getItem("searchpage");
-     newPageID=pageID;
-     (sessionPage!==null?sessionPage.length>0:false)?newPageID=Global.parseInt(sessionPage,$1):null;
-     a="Search Page = "+String(newPageID);
+     newPageID=[pageID];
+     (sessionPage!==null?sessionPage.length>0:false)?void(newPageID[0]=Global.parseInt(sessionPage,$1)):null;
+     a="Search Page = "+String(newPageID[0]);
      console?console.log(a):undefined;
+     arg001=Concurrency.Delay(function()
+     {
+      return newPageID[0]===0?Concurrency.Bind(SearchClient.PostSearch(Var1.Get(SearchClient["v'search"]())),function(_arg1)
+      {
+       var action;
+       action=function(x)
+       {
+        return SearchClient.postList().Add(x);
+       };
+       Seq.iter(action,_arg1);
+       return Concurrency.Return(null);
+      }):Concurrency.Bind(SearchClient.SearchArticles(Var1.Get(SearchClient["v'search"]()),newPageID[0]),function(_arg2)
+      {
+       var action;
+       action=function(x)
+       {
+        return SearchClient.postList().Add(x);
+       };
+       Seq.iter(action,_arg2);
+       return Concurrency.Return(null);
+      });
+     });
+     Concurrency.Start(arg001,{
+      $:0
+     });
      _attr_div_fixed1=AttrProxy.Create("role","navigation");
      _attr_div_fixed2=AttrProxy.Create("class","navbar navbar-inverse navbar-fixed-top");
      _attr_div_fixed=Seq.append([_attr_div_fixed1],List.ofArray([_attr_div_fixed2]));
@@ -524,7 +549,7 @@
      _attr_container21=AttrModule.Style("margin-top","100px");
      _attrs_container1=Seq.append([_attr_container11],List.ofArray([_attr_container21]));
      ats=List.ofArray([AttrProxy.Create("class","container top-padding-med ng-scope")]);
-     arg001=function()
+     arg002=function()
      {
       var _arg00_,_arg10_;
       _arg00_=function(p)
@@ -535,7 +560,7 @@
       return Doc.Convert(_arg00_,_arg10_);
      };
      arg10=SearchClient["v'blog"]();
-     _arg00_1=View.Map(arg001,arg10);
+     _arg00_1=View.Map(arg002,arg10);
      return Doc.Element("div",ats,List.ofArray([Doc.Element("div",attrs_div,List.ofArray([Doc.EmbedView(_arg00_1)]))]));
     },
     OnSearchPageBtnClick:function(page)

@@ -200,13 +200,15 @@ module ZeroHedgeAPI =
             result
         
         let DownloadStory (refBase64 : string) : string =
+            
+            let newRefBase64 = Encoding.UTF8.GetString( HttpUtility.UrlDecodeToBytes refBase64 )
 
-            let (bResult,theStory) = storiesmap.TryGetValue refBase64 
+            let (bResult,theStory) = storiesmap.TryGetValue newRefBase64 
             if bResult && (theStory.Body.Length > 0 || theStory.isLoading) then
                 theStory.Body
             else
                 let mutable newStory = { Title = ""; 
-                    Introduction = ""; Body = ""; Reference = refBase64;
+                    Introduction = ""; Body = ""; Reference = newRefBase64;
                     Published = ""; Updated = DateTime.Now; isLoading = true}
                 if bResult = true then
                     newStory <- { Title = theStory.Title; 
@@ -214,8 +216,8 @@ module ZeroHedgeAPI =
                     Published = theStory.Published; Updated = DateTime.Now; isLoading = true}
 
                 
-                Console.WriteLine( sprintf "retrieving URL: %s"  refBase64)
-                let base64EncodedBytes = System.Convert.FromBase64String(refBase64);
+                //Console.WriteLine( sprintf "retrieving URL: %s"  newRefBase64)
+                let base64EncodedBytes = System.Convert.FromBase64String(newRefBase64);
                 let markup1 = DownloadURL(Encoding.UTF8.GetString(base64EncodedBytes))
                 let markup = markup1.ToString()
                 let mutable ind1 = markup.IndexOf("<h1 class=\"title\">", 0)
@@ -241,8 +243,8 @@ module ZeroHedgeAPI =
 
 
                 
-                let bResult = storiesmap.Remove(refBase64)
-                let bResult = storiesmap.Add(refBase64, newStory)
+                let bResult = storiesmap.Remove(newRefBase64)
+                let bResult = storiesmap.Add(newRefBase64, newStory)
                 body;
 
 
@@ -652,7 +654,6 @@ module ZeroHedgeAPI =
             async{
                 let sURL = Uri.UnescapeDataString id // Encoding.UTF8.GetString( System.Web.HttpServerUtility.UrlDecode( id))
                 
-                Console.WriteLine( sprintf "1st retrieving URL: %s"  sURL)
                 let blog = read'story sURL
                 return blog                
             }
