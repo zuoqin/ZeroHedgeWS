@@ -249,9 +249,14 @@ module ZeroHedgeAPI =
 
 
         let DownloadAndParseSearchPage (keys : string): List<Story> =
-            let newSearchIndex = { keys = keys; page = 0}
+            let newKeys = Encoding.UTF8.GetString( HttpUtility.UrlDecodeToBytes keys )
+            Console.WriteLine( sprintf "Searching for: %s"  newKeys)
+            
+            let newSearchIndex = { keys = newKeys; page = 0}
             let (bResult, SearchArticles) = requestsmap.TryGetValue(newSearchIndex)
-            let markup1 = PostURL( sprintf( "http://www.zerohedge.com/search/apachesolr_search/" ), keys )
+
+
+            let markup1 = PostURL( sprintf( "http://www.zerohedge.com/search/apachesolr_search/" ), newKeys )
             let markup = markup1.ToString()
             let articles = new List<Story>()
 
