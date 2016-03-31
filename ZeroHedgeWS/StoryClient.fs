@@ -62,14 +62,14 @@ module StoryClient =
             ]
 
     /// Use Json.Serialize and Deserialize to send and receive data to and from the server.
-    let GetStory (id : string) : Async<string> =
+    let GetStory (id : string) : Async<Story> =
         async {
                 let id1 = JavaScript.JS.DecodeURIComponent id
                 JavaScript.Console.Log id1
                 let pageURL = sprintf "./api/story/%s" id1
                 let! response = Ajax "GET" pageURL (null)
                 //JavaScript.Console.Log "Get zerohedge story"                
-                return Json.Deserialize<string> response 
+                return Json.Deserialize<Story> response 
         }
 
     let Main (reference :string) =
@@ -88,8 +88,10 @@ module StoryClient =
             let! story = GetStory reference
             
             JQuery.JQuery.Of("#bodyid").Children().Remove().Ignore
-            let domNode = JQuery.Of( sprintf "%s%s%s" "<div>" story "</div>").Get(0)
+            let domNode = JQuery.Of( sprintf "%s%s%s" "<div>" story.Body "</div>").Get(0)
             JQuery.JQuery.Of("#bodyid").Append( domNode :?> Dom.Element ).Ignore
+
+            JQuery.Of("title").Text( story.Title ).Ignore
             //JavaScript.Console.Log story
         }
         |> Async.Start

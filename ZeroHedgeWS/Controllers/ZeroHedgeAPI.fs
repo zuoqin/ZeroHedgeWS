@@ -53,7 +53,7 @@ module ZeroHedgeAPI =
     // asynchronious client messages for CRUD operations
     type CRUDBlogMessage = 
         | GetPage      of int * AsyncReplyChannel<List<Story>>
-        | GetStory     of string * AsyncReplyChannel<string>
+        | GetStory     of string * AsyncReplyChannel<Story>
         | GetSearch    of string * int * AsyncReplyChannel<List<Story>>
 
     // asynchronious client messages for AKKA operations
@@ -170,6 +170,7 @@ module ZeroHedgeAPI =
 
         let replaceLinks (inStr : string) : string =
             let mutable result = inStr
+            let root : string = System.Configuration.ConfigurationManager.AppSettings.Get "URLroot"
             let list1 = [ "http://www.zerohedge.com/news/"; "http://www.zerohedge.com/article/" ]
             for i in list1 do
                 let mutable indref = 0
@@ -181,7 +182,7 @@ module ZeroHedgeAPI =
                         let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(oldref)
                         let mutable base64Ref = System.Convert.ToBase64String(refBase64)
 
-                        result <- result.Replace(oldref, sprintf "%s%s" "./story/" base64Ref)
+                        result <- result.Replace(oldref, sprintf "%s%s%s" root "/story/" base64Ref)
             result
 
 
@@ -199,13 +200,14 @@ module ZeroHedgeAPI =
                         result <- result.Replace(oldref, sprintf "%s%s" "http://www.zerohedge.com" oldref)
             result
         
-        let DownloadStory (refBase64 : string) : string =
+        let DownloadStory (refBase64 : string) : Story =
             
             let newRefBase64 = Encoding.UTF8.GetString( HttpUtility.UrlDecodeToBytes refBase64 )
 
             let (bResult,theStory) = storiesmap.TryGetValue newRefBase64 
             if bResult && (theStory.Body.Length > 0 || theStory.isLoading) then
-                theStory.Body
+                Console.WriteLine( sprintf "Return story from cache: %s"  newRefBase64)
+                theStory
             else
                 let mutable newStory = { Title = ""; 
                     Introduction = ""; Body = ""; Reference = newRefBase64;
@@ -216,7 +218,7 @@ module ZeroHedgeAPI =
                     Published = theStory.Published; Updated = DateTime.Now; isLoading = true}
 
                 
-                //Console.WriteLine( sprintf "retrieving URL: %s"  newRefBase64)
+                Console.WriteLine( sprintf "retrieving URL: %s"  newRefBase64)
                 let base64EncodedBytes = System.Convert.FromBase64String(newRefBase64);
                 let markup1 = DownloadURL(Encoding.UTF8.GetString(base64EncodedBytes))
                 let markup = markup1.ToString()
@@ -245,7 +247,8 @@ module ZeroHedgeAPI =
                 
                 let bResult = storiesmap.Remove(newRefBase64)
                 let bResult = storiesmap.Add(newRefBase64, newStory)
-                body;
+                Console.WriteLine (sprintf "Downloaded and added to the cache: %s" newStory.Title)
+                newStory
 
 
         let DownloadAndParseSearchPage (keys : string): List<Story> =
@@ -543,6 +546,7 @@ module ZeroHedgeAPI =
                             DownloadPage search.page |> ignore
                         | GetStoryX(reference) ->                      
                             let story = DownloadStory reference
+                            Console.WriteLine( sprintf "Downloaded story: %s" story.Title)
                             sender <! story
 //                        | GetSearch ( keys, page, reply ) ->                      
 //                            let search'results = DownLoadSearchPage( keys, page )
@@ -573,6 +577,7 @@ module ZeroHedgeAPI =
             loop () )        
 
         let read'page'2 page'number =
+            Console.WriteLine "In read'page'2 function"
             crud.PostAndAsyncReply( fun reply -> GetPage(page'number, reply) )
 
         let read'page page =
@@ -584,9 +589,12 @@ module ZeroHedgeAPI =
         let load'search'page( keys: string, page:int) =
             crud.PostAndAsyncReply( fun reply -> GetSearch(keys, page, reply) )
 
-        let read'story reference =
+        let read'story (reference : string)  : Story =
             //crud.PostAndAsyncReply( fun reply -> GetStory(reference, reply) )
-            let mutable response = ""
+            let mutable response = { Title = ""; 
+                    Introduction = ""; Body = ""; Reference = reference;
+                    Published = ""; Updated = DateTime.Now; isLoading = true}
+
             try
                 let request = reference
                 let task = (aref <? GetStoryX(request))
@@ -605,7 +613,7 @@ module ZeroHedgeAPI =
         let stories = new Dictionary<string, Story>()
 
         let getPage (id: int) : Async<List<Story>> =
-            let sLine = sprintf "Call Get page %d" id
+            let sLine = sprintf "Call Get page %d in getPage" id
             Console.WriteLine sLine
             async{
                 let (bResult, thePage) = pagesmap.TryGetValue(id)
@@ -645,17 +653,19 @@ module ZeroHedgeAPI =
                         return blog
                         //return thePage.stories
                 else
+                    Console.WriteLine "Before calling read'page'2  1111"
                     let stories = new List<Story>()
                     let newPage = { updated = DateTime(1900,1,1); stories = stories; isLoading = true }
                     let bResult = pagesmap.Remove(id)
                     pagesmap.Add(id, newPage)
+                    Console.WriteLine "Before calling read'page'2"
                     let! blog = read'page'2 id
                     return blog
                     //return thePage.stories
             }
 
 
-        let getStory (id: string) : Async<string> =
+        let getStory (id: string) : Async<Story> =
             async{
                 let sURL = Uri.UnescapeDataString id // Encoding.UTF8.GetString( System.Web.HttpServerUtility.UrlDecode( id))
                 
