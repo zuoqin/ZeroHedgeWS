@@ -392,23 +392,30 @@ module ZeroHedgeAPI =
                             let mutable published = markup.Substring(ind2, ind3 - ind2)
 
                             ind5 <- markup.IndexOf("<p>", ind4)
-                            let mutable ind6 = 0
+                            let mutable ind6 = markup.IndexOf("<div class=\"clear-block\"></div>", ind4)
 
-                            if markup.Substring(ind5 + 3, 3).CompareTo("<a ") = 0 then
-                                ind6 <- markup.IndexOf("<p>", ind5 + 5)
-                                if ind6 < markup.IndexOf("</p>", ind5) then
-                                    ind5 <- markup.IndexOf("<p>", ind5 + 5);
+                            if ind5 > 0 && ind6 < ind5 then
+                                ind5 <- ind6
+                                ind6 <- ind3 + 7
+                                
+                                Console.WriteLine( sprintf "One story odd ind5 = %d ind6 = %d" ind5 ind6 )
+                            else 
+                                Console.WriteLine "One story common"
+                                if markup.Substring(ind5 + 3, 3).CompareTo("<a ") = 0 then
+                                    ind6 <- markup.IndexOf("<p>", ind5 + 5)
+                                    if ind6 < markup.IndexOf("</p>", ind5) then
+                                        ind5 <- markup.IndexOf("<p>", ind5 + 5);
 
-                                ind6 <- ( ind5 + 3 )
-                                ind5 <- markup.IndexOf("</p>", ind6)
+                                    ind6 <- ( ind5 + 3 )
+                                    ind5 <- markup.IndexOf("</p>", ind6)
 
-                            elif markup.IndexOf("<img", ind5) < markup.IndexOf("</p>", ind5) then
-                                ind6 <- markup.IndexOf("/>", ind5)
-                                ind6 <- (ind6 + 2)
-                                ind5 <- markup.IndexOf("<div class=\"clear-block\"></div>", ind6)
-                            else
-                                ind6 <- ind5
-                                ind5 <- markup.IndexOf("<div class=\"clear-block\"></div>", ind6)
+                                elif markup.IndexOf("<img", ind5) < markup.IndexOf("</p>", ind5) then
+                                    ind6 <- markup.IndexOf("/>", ind5)
+                                    ind6 <- (ind6 + 2)
+                                    ind5 <- markup.IndexOf("<div class=\"clear-block\"></div>", ind6)
+                                else
+                                    ind6 <- ind5
+                                    ind5 <- markup.IndexOf("<div class=\"clear-block\"></div>", ind6)
 
                             let mutable body = ""
                             if ind5 > 0 && ind6 > 0 then
