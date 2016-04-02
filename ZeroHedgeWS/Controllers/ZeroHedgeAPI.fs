@@ -99,26 +99,35 @@ module ZeroHedgeAPI =
             //request.Connection <- "Keep-alive"
             
             // Set credentials to use for this request.
-            request.Credentials <- CredentialCache.DefaultCredentials;
-            let response = request.GetResponse()
+            request.Credentials <- CredentialCache.DefaultCredentials;            
+            let response = 
+                try
+                    request.GetResponse()
+                with
+                    | _ -> 
+                        Console.WriteLine( sprintf "An error while retrieving URL: %s" uri )
+                        null
 
 
-            // Get the stream associated with the response.
-            let receiveStream = response.GetResponseStream();
+            if response <> null then
+                // Get the stream associated with the response.
+                let receiveStream = response.GetResponseStream();
             
-            let buf = [| for i in 0..8192 -> byte(0)|]
-            let mutable count = 1
-            let mutable sb = new StringBuilder()
-            let mutable tmpString = ""
-            while count > 0 do
-                count <- receiveStream.Read(buf, 0, buf.Length);
-                if count > 0 then                    
-                    tmpString <- Encoding.UTF8.GetString(buf, 0, count)
-                    sb.Append( tmpString ) |> ignore
+                let buf = [| for i in 0..8192 -> byte(0)|]
+                let mutable count = 1
+                let mutable sb = new StringBuilder()
+                let mutable tmpString = ""
+                while count > 0 do
+                    count <- receiveStream.Read(buf, 0, buf.Length);
+                    if count > 0 then                    
+                        tmpString <- Encoding.UTF8.GetString(buf, 0, count)
+                        sb.Append( tmpString ) |> ignore
 
-            response.Close()
-            receiveStream.Close()
-            sb.ToString()
+                response.Close()
+                receiveStream.Close()
+                sb.ToString()
+            else
+                ""
 
         let PostURL (uri : string, keys : string)=
             let request = HttpWebRequest.Create(uri)  :?> HttpWebRequest 
@@ -145,28 +154,36 @@ module ZeroHedgeAPI =
             newStream.Write(bytedata,0,bytedata.Length)
             newStream.Close()
 
-            let response = request.GetResponse()
-            // Get the stream associated with the response.
-            let receiveStream = response.GetResponseStream()
+            let response = 
+                try
+                    request.GetResponse()
+                with
+                    | _ -> Console.WriteLine("hjhkhkj"); null
+
+
+            if response <> null then
+                // Get the stream associated with the response.
+                let receiveStream = response.GetResponseStream()
             
-            let buf = [| for i in 0..8192 -> byte(0)|]
-            let mutable count = 1
-            let mutable sb = new StringBuilder()
-            let mutable tmpString = ""
-            while count > 0 do
-                count <- receiveStream.Read(buf, 0, buf.Length)
-                if count > 0 then                    
-                    tmpString <- Encoding.UTF8.GetString(buf, 0, count)
-                    sb.Append( tmpString ) |> ignore
-                    //printf "dsfds"
-            // Pipes the stream to a higher level stream reader with the required encoding format. 
-            //let readStream = new StreamReader(receiveStream, Encoding.UTF8)
+                let buf = [| for i in 0..8192 -> byte(0)|]
+                let mutable count = 1
+                let mutable sb = new StringBuilder()
+                let mutable tmpString = ""
+                while count > 0 do
+                    count <- receiveStream.Read(buf, 0, buf.Length)
+                    if count > 0 then                    
+                        tmpString <- Encoding.UTF8.GetString(buf, 0, count)
+                        sb.Append( tmpString ) |> ignore
+                        //printf "dsfds"
+                // Pipes the stream to a higher level stream reader with the required encoding format. 
+                //let readStream = new StreamReader(receiveStream, Encoding.UTF8)
 
-            //let s = sb.ToString() //readStream.ReadToEnd()
-            response.Close()
-            receiveStream.Close()
-            sb.ToString()
-
+                //let s = sb.ToString() //readStream.ReadToEnd()
+                response.Close()
+                receiveStream.Close()
+                sb.ToString()
+            else
+                ""
 
         let replaceLinks (inStr : string) : string =
             let mutable result = inStr
