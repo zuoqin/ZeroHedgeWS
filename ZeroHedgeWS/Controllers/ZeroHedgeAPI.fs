@@ -117,11 +117,15 @@ module ZeroHedgeAPI =
                 let mutable count = 1
                 let mutable sb = new StringBuilder()
                 let mutable tmpString = ""
-                while count > 0 do
-                    count <- receiveStream.Read(buf, 0, buf.Length);
-                    if count > 0 then                    
-                        tmpString <- Encoding.UTF8.GetString(buf, 0, count)
-                        sb.Append( tmpString ) |> ignore
+                try
+                    while count > 0 do
+                        count <- receiveStream.Read(buf, 0, buf.Length);
+                        if count > 0 then                    
+                            tmpString <- Encoding.UTF8.GetString(buf, 0, count)
+                            sb.Append( tmpString ) |> ignore
+                with
+                    | _ -> 
+                        Console.WriteLine( sprintf "An error while Read Stream URL: %s" uri )
 
                 response.Close()
                 receiveStream.Close()
@@ -238,33 +242,35 @@ module ZeroHedgeAPI =
                 Console.WriteLine( sprintf "retrieving URL: %s"  newRefBase64)
                 let base64EncodedBytes = System.Convert.FromBase64String(newRefBase64);
                 let markup1 = DownloadURL(Encoding.UTF8.GetString(base64EncodedBytes))
-                let markup = markup1.ToString()
-                let mutable ind1 = markup.IndexOf("<h1 class=\"title\">", 0)
-                ind1 <- markup.IndexOf("<div class=\"content\">", ind1)
-                ind1 <- (ind1+21)
-                let mutable ind2 = markup.IndexOf("<div class=\"fivestar-static-form-item\">", ind1)
-                if ind2 = -1 then
-                    ind2 <- markup.IndexOf("<div class=\"comment-content\">", ind1)
-                    if ind2 = -1 || ind2 > markup.IndexOf("<a href=\"/users/", ind1) then
-                        ind2 <- markup.IndexOf("<a href=\"/users/", ind1)
-                        if ind2 = -1 then
-                            ind2 <- markup.IndexOf("<div class=\"clear-block clear\">", ind1)
+                let mutable body = ""
+                if markup1.Length > 0 then
+                    let markup = markup1.ToString()
+                    let mutable ind1 = markup.IndexOf("<h1 class=\"title\">", 0)
+                    ind1 <- markup.IndexOf("<div class=\"content\">", ind1)
+                    ind1 <- (ind1+21)
+                    let mutable ind2 = markup.IndexOf("<div class=\"fivestar-static-form-item\">", ind1)
+                    if ind2 = -1 then
+                        ind2 <- markup.IndexOf("<div class=\"comment-content\">", ind1)
+                        if ind2 = -1 || ind2 > markup.IndexOf("<a href=\"/users/", ind1) then
+                            ind2 <- markup.IndexOf("<a href=\"/users/", ind1)
+                            if ind2 = -1 then
+                                ind2 <- markup.IndexOf("<div class=\"clear-block clear\">", ind1)
                 
 
 
-                let mutable body = markup.Substring(ind1, ind2 - ind1)
-                body <- replaceLinks body
-                body <- replaceLinksBack body
+                    body <- markup.Substring(ind1, ind2 - ind1)
+                    body <- replaceLinks body
+                    body <- replaceLinksBack body
 
-                newStory <- { Title = newStory.Title; 
-                Introduction = newStory.Introduction; Body = body; Reference = newStory.Reference;
-                Published = newStory.Published; Updated = DateTime.Now; isLoading = false}                
+                    newStory <- { Title = newStory.Title; 
+                    Introduction = newStory.Introduction; Body = body; Reference = newStory.Reference;
+                    Published = newStory.Published; Updated = DateTime.Now; isLoading = false}                
 
 
                 
-                let bResult = storiesmap.Remove(newRefBase64)
-                let bResult = storiesmap.Add(newRefBase64, newStory)
-                Console.WriteLine (sprintf "Downloaded and added to the cache: %s" newStory.Title)
+                    let bResult = storiesmap.Remove(newRefBase64)
+                    let bResult = storiesmap.Add(newRefBase64, newStory)
+                    Console.WriteLine (sprintf "Downloaded and added to the cache: %s" newStory.Title)
                 newStory
 
 
