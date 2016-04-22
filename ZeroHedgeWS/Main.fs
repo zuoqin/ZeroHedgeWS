@@ -5,6 +5,10 @@ open WebSharper.Sitelets
 open WebSharper.UI.Next
 open WebSharper.UI.Next.Server
 
+
+open System;
+open System.Threading;
+
 open System.Configuration
 
 type EndPoint =
@@ -162,8 +166,11 @@ module Site =
                 divAttr attrs'div'container [client <@ SearchClient.Search( keys ) @>]
             ]
 
+
+
+            
     let Main =
-        
+
         Application.MultiPage (fun ctx endpoint ->
             match endpoint with
             | EndPoint.Api id -> ApiContent(ctx)(id)
@@ -209,5 +216,11 @@ module Site =
             [ (if port = null then HttpBinding.mk HTTP ipZero (uint16 8083)
                     else HttpBinding.mk HTTP ipZero (uint16 port))
             ]}
+
+    async{
+        ZeroHedgeAPI.ApplicationLogic.loopAPI()
+    }
+    |> Async.Start
+
 
     do startWebServer cfg (WebSharperAdapter.ToWebPart(Main, paths))

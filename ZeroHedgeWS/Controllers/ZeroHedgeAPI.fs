@@ -52,6 +52,7 @@ module ZeroHedgeAPI =
 
     // asynchronious client messages for CRUD operations
     type CRUDBlogMessage = 
+        | RetrievePage of int
         | GetPage      of int * AsyncReplyChannel<List<Story>>
         | GetStory     of string * AsyncReplyChannel<Story>
         | GetSearch    of string * int * AsyncReplyChannel<List<Story>>
@@ -592,6 +593,9 @@ module ZeroHedgeAPI =
             let rec loop () : Async<unit> = async {
                 let! msg = agent.Receive()
                 match msg with 
+                | RetrievePage ( page'number ) ->                      
+                    DownloadPage page'number |> ignore
+                    
                 | GetPage ( page'number, reply ) ->                      
                     let posts = DownloadPage page'number
                     reply.Reply posts
@@ -605,6 +609,9 @@ module ZeroHedgeAPI =
 
                 return! loop () }
             loop () )        
+
+
+
 
         let read'page'2 page'number =
             Console.WriteLine "In read'page'2 function"
@@ -643,8 +650,7 @@ module ZeroHedgeAPI =
         let stories = new Dictionary<string, Story>()
 
         let getPage (id: int) : Async<List<Story>> =
-            let sLine = sprintf "Call Get page %d in getPage" id
-            Console.WriteLine sLine
+            Console.WriteLine (sprintf "Call Get page %d in getPage" id)
             async{
                 let (bResult, thePage) = pagesmap.TryGetValue(id)
                 if bResult = true then
@@ -694,6 +700,21 @@ module ZeroHedgeAPI =
                     //return thePage.stories
             }
 
+        let loopPages pageID =
+            let interval = new TimeSpan(0, 0, 5);
+            Thread.Sleep interval
+            crud.Post( RetrievePage pageID )
+
+
+        let rec loopAPI() = 
+            let listOfPages = [ 1 .. 5 ]
+            
+            listOfPages
+            |> List.map( fun n -> (loopPages n))
+            |> ignore
+
+            
+            loopAPI()
 
         let getStory (id: string) : Async<Story> =
             async{
