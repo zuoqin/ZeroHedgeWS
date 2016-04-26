@@ -286,70 +286,84 @@ module ZeroHedgeAPI =
             let markup1 = PostURL( sprintf( "http://www.zerohedge.com/search/apachesolr_search/" ), newKeys )
             let markup = markup1.ToString()
             let articles = new List<Story>()
-
-            let mutable ind2 = markup.IndexOf("<dl class=\"search-results apachesolr_search-results\">", 0);
-             
-            let ind_end = markup.IndexOf("</dl>");
-            while(ind2 > 0) do                
-                ind2 <- markup.IndexOf("<dt class=\"title\"", ind2)
-                let mutable title = ""
-                let mutable ref1 = ""
-                let mutable introduction = ""
-                let mutable published = ""
-                if ind2 < ind_end && ind2 <> -1 then
-                    ind2 <- markup.IndexOf("<a href=\"", ind2)
-                    ind2 <- (ind2 + 9)
-                    let mutable ind3 = markup.IndexOf("\">", ind2)
-
-                    ref1 <- markup.Substring(ind2, ind3 - ind2)
-
-                    ind2 <- (ind3 + 2)
-
-                    ind3 <- markup.IndexOf("</a>", ind3)
-
-                    title <- markup.Substring(ind2, ind3 - ind2)
-
-                    ind2 <- markup.IndexOf("<p class=\"search-snippet\"", ind3)
-                    if ind2 < ind_end then
-                        ind2 <- (ind2 + 27)
-                        ind3 <- markup.IndexOf("</p>", ind2)
-                        introduction <- markup.Substring(ind2, ind3 - ind2)
-
-                    ind2 <- markup.IndexOf("<p class=\"search-info\"", ind3)
-                    if ind2 < ind_end then
-                        ind2 <- markup.IndexOf("</a>", ind2)
-                        if ind2 < ind_end then
-                            ind2 <- (ind2 + 7)
-                            ind3 <- (ind2 + 18)
-                            published <- markup.Substring(ind2, ind3 - ind2)
-
-
-                let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
-                let mutable base64Ref = System.Convert.ToBase64String(refBase64)
-                let article = { Title = title; Introduction = introduction; Body = "";
-                    Reference = base64Ref;
-                    Published = published; Updated = DateTime.Now; isLoading = false }
+            let mutable ind2 = markup.IndexOf("Your search yielded no results", 0);
+            if ind2 > 0 then
+                let article = { Title = "Your search yielded no results"; Introduction = ""; Body = "";
+                    Reference = "";
+                    Published = ""; Updated = DateTime.Now; isLoading = false }
                     
                     
-                let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
-                if bResult = false then
-                    storiesmap.Add(base64Ref, article)
-
-                if published.Length > 0 && introduction.Length > 0 then
-                    articles.Add( article )
-
-
-            if articles.Count > 0 then
-                let newPage = { updated = DateTime.Now; stories = articles; isLoading = false }
-                let bResult = requestsmap.Remove(newSearchIndex)
-                requestsmap.Add(newSearchIndex, newPage)
-
+                articles.Add( article )
                 articles
-            else
-                if bResult = false then
-                    null
+            else            
+                //Console.WriteLine( sprintf "Downloaded page: %s"  markup)
+                //System.IO.File.WriteAllText (@"D:\DEV\markup.html", markup);
+
+                let mutable ind2 = markup.IndexOf("<dl class=\"search-results apachesolr_search-results\">", 0);
+             
+                let ind_end = markup.IndexOf("</dl>");
+                while(ind2 > 0) do                
+                    ind2 <- markup.IndexOf("<dt class=\"title\"", ind2)
+                    let mutable title = ""
+                    let mutable ref1 = ""
+                    let mutable introduction = ""
+                    let mutable published = ""
+                    if ind2 < ind_end && ind2 <> -1 then
+                        ind2 <- markup.IndexOf("<a href=\"", ind2)
+                        ind2 <- (ind2 + 9)
+                        let mutable ind3 = markup.IndexOf("\">", ind2)
+
+                        ref1 <- markup.Substring(ind2, ind3 - ind2)
+
+                        ind2 <- (ind3 + 2)
+
+                        ind3 <- markup.IndexOf("</a>", ind3)
+
+                        title <- markup.Substring(ind2, ind3 - ind2)
+
+                        //Console.WriteLine( sprintf "Found title: %s"  title)
+
+                        ind2 <- markup.IndexOf("<p class=\"search-snippet\"", ind3)
+                        if ind2 < ind_end then
+                            ind2 <- (ind2 + 27)
+                            ind3 <- markup.IndexOf("</p>", ind2)
+                            introduction <- markup.Substring(ind2, ind3 - ind2)
+
+                        ind2 <- markup.IndexOf("<p class=\"search-info\"", ind3)
+                        if ind2 < ind_end then
+                            ind2 <- markup.IndexOf("</a>", ind2)
+                            if ind2 < ind_end then
+                                ind2 <- (ind2 + 7)
+                                ind3 <- (ind2 + 18)
+                                published <- markup.Substring(ind2, ind3 - ind2)
+
+
+                    let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
+                    let mutable base64Ref = System.Convert.ToBase64String(refBase64)
+                    let article = { Title = title; Introduction = introduction; Body = "";
+                        Reference = base64Ref;
+                        Published = published; Updated = DateTime.Now; isLoading = false }
+                    
+                    
+                    let (bResult, theStory) = storiesmap.TryGetValue(base64Ref)
+                    if bResult = false then
+                        storiesmap.Add(base64Ref, article)
+
+                    if published.Length > 0 && introduction.Length > 0 then
+                        articles.Add( article )
+
+
+                if articles.Count > 0 then
+                    let newPage = { updated = DateTime.Now; stories = articles; isLoading = false }
+                    let bResult = requestsmap.Remove(newSearchIndex)
+                    requestsmap.Add(newSearchIndex, newPage)
+
+                    articles
                 else
-                    SearchArticles.stories
+                    if bResult = false then
+                        null
+                    else
+                        SearchArticles.stories
 
 
         let DownloadPostSearchPage (keys : string): List<Story> =
@@ -701,15 +715,17 @@ module ZeroHedgeAPI =
             }
 
         let loopPages pageID =
-            let interval = new TimeSpan(0, 0, 5);
+            let interval = new TimeSpan(0, 1, 0);
             Thread.Sleep interval
-            crud.Post( RetrievePage pageID )
-
-
-        let rec loopAPI() = 
-            let listOfPages = [ 1 .. 5 ]
+            Console.WriteLine( sprintf "In Loooping page %d" pageID)
+            //crud.Post( RetrievePage pageID )
             
-            listOfPages
+            let request = { keys = ""; page = pageID }
+            aref <! GetPageX(request) 
+
+
+        let rec loopAPI() =             
+            [ 0 .. 9 ]
             |> List.map( fun n -> (loopPages n))
             |> ignore
 

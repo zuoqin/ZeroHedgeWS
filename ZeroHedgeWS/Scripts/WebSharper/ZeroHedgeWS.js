@@ -1,6 +1,6 @@
 (function()
 {
- var Global=this,Runtime=this.IntelliFactory.Runtime,jQuery,Exception,Concurrency,ZeroHedgeWS,Client,Json,Provider,Id,JSON,UI,Next,AttrProxy,AttrModule,Seq,List,Var1,Doc,ListModel1,View,PrintfHelpers,T,ListModel,View1,Var,String,PageClient,window,$1,console,Operators,SearchClient,StoryClient;
+ var Global=this,Runtime=this.IntelliFactory.Runtime,jQuery,Exception,Concurrency,ZeroHedgeWS,Client,Json,Provider,Id,JSON,UI,Next,AttrProxy,AttrModule,Seq,List,Var1,Doc,ListModel1,View,PrintfHelpers,T,ListModel,View1,Var,String,PageClient,window,$1,Operators,SearchClient,console,StoryClient;
  Runtime.Define(Global,{
   ZeroHedgeWS:{
    Client:{
@@ -305,15 +305,10 @@
       a=_;
       return Concurrency.Combine(a,Concurrency.Delay(function()
       {
-       var stories,a1,copyOfStruct,a2;
+       var stories;
        stories=[Runtime.New(T,{
         $:0
        })];
-       copyOfStruct=Var1.Get(PageClient["v'mode"]());
-       a1="Mode: "+String(copyOfStruct);
-       console?console.log(a1):undefined;
-       a2="Page: "+String(page);
-       console?console.log(a2):undefined;
        return Concurrency.Combine(Var1.Get(PageClient["v'mode"]())===0?Concurrency.Bind(PageClient.GetPageArticles(page),function(_arg1)
        {
         stories[0]=_arg1;
@@ -345,17 +340,32 @@
      var arg00;
      arg00=Concurrency.Delay(function()
      {
+      var x;
       Var1.Set(PageClient["v'mode"](),1);
-      return Concurrency.Bind(PageClient.SearchArticles(keys,0),function(_arg1)
+      x=PageClient.SearchArticles(keys,0);
+      return Concurrency.Bind(x,function(_arg1)
       {
-       var action;
+       var _;
        PageClient.postList().Clear();
-       action=function(x)
+       if(_arg1.get_Length()<=1)
+        {
+         Var1.Set(PageClient["v'mode"](),0);
+         _=Concurrency.Return(null);
+        }
+       else
+        {
+         _=Concurrency.Return(null);
+        }
+       return Concurrency.Combine(_,Concurrency.Delay(function()
        {
-        return PageClient.postList().Add(x);
-       };
-       Seq.iter(action,_arg1);
-       return Concurrency.Return(null);
+        var action;
+        action=function(x1)
+        {
+         return PageClient.postList().Add(x1);
+        };
+        Seq.iter(action,_arg1);
+        return Concurrency.Return(null);
+       }));
       });
      });
      return Concurrency.Start(arg00,{
@@ -447,14 +457,23 @@
     },
     "doc'header":function(post)
     {
-     var domNode,_,_1,href,_a_attr_1,_a_attr_list;
+     var domNode,_,_1,href,_a_attr_1,_a_attr_list,_2,arg20;
      _=post.Title;
      domNode=jQuery(PrintfHelpers.toSafe("<div>")+PrintfHelpers.toSafe(_)+PrintfHelpers.toSafe("</div>")).get(0);
      _1=post.Reference;
      href=PrintfHelpers.toSafe("./story/")+PrintfHelpers.toSafe(_1);
      _a_attr_1=AttrProxy.Create("href",href);
      _a_attr_list=List.ofArray([_a_attr_1]);
-     return Doc.Element("div",List.ofArray([AttrModule.Class("panel-heading")]),List.ofArray([Doc.Element("h3",List.ofArray([AttrProxy.Create("class","panel-title")]),List.ofArray([Doc.Element("a",_a_attr_list,List.ofArray([Doc.Static(domNode)]))]))]));
+     if(post.Reference.length>0)
+      {
+       _2=Doc.Element("div",List.ofArray([AttrModule.Class("panel-heading")]),List.ofArray([Doc.Element("h3",List.ofArray([AttrProxy.Create("class","panel-title")]),List.ofArray([Doc.Element("a",_a_attr_list,List.ofArray([Doc.Static(domNode)]))]))]));
+      }
+     else
+      {
+       arg20=List.ofArray([Doc.Static(domNode)]);
+       _2=Doc.Element("div",List.ofArray([AttrModule.Class("panel-heading")]),List.ofArray([Doc.Element("h3",List.ofArray([AttrProxy.Create("class","panel-title")]),List.ofArray([Doc.Element("a",[],arg20)]))]));
+      }
+     return _2;
     },
     postList:Runtime.Field(function()
     {
@@ -941,9 +960,9 @@
   PageClient=Runtime.Safe(ZeroHedgeWS.PageClient);
   window=Runtime.Safe(Global.window);
   $1=Runtime.Safe(Global.$1);
-  console=Runtime.Safe(Global.console);
   Operators=Runtime.Safe(Global.WebSharper.Operators);
   SearchClient=Runtime.Safe(ZeroHedgeWS.SearchClient);
+  console=Runtime.Safe(Global.console);
   return StoryClient=Runtime.Safe(ZeroHedgeWS.StoryClient);
  });
  Runtime.OnLoad(function()

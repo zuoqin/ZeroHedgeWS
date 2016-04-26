@@ -38,13 +38,23 @@ module PageClient =
         let a'attr'1 =  Attr.Create "href" href
         let a'attr'list = [ a'attr'1 ] :> seq<Attr>
 
-        divAttr[Attr.Class "panel-heading"][
-            h3Attr [attr.``class`` "panel-title"] [
-                aAttr a'attr'list [
-                    Doc.Static(domNode :?> Dom.Element)
-                ]
-            ]            
-        ]
+
+        if post.Reference.Length > 0 then
+            divAttr[Attr.Class "panel-heading"][
+                h3Attr [attr.``class`` "panel-title"] [
+                    aAttr a'attr'list [
+                        Doc.Static(domNode :?> Dom.Element)
+                    ]
+                ]            
+            ]
+        else
+            divAttr[Attr.Class "panel-heading"][
+                h3Attr [attr.``class`` "panel-title"] [
+                    a [
+                        Doc.Static(domNode :?> Dom.Element)
+                    ]
+                ]            
+            ]
 
     let doc'body (post : Story) = 
         let attr'title1 =  Attr.Create "placeholder" "Title"
@@ -98,8 +108,8 @@ module PageClient =
                 v'mode.Value <- 0
 
             let mutable stories : List<Story> = []
-            JavaScript.Console.Log( "Mode: " + v'mode.Value.ToString() )
-            JavaScript.Console.Log( "Page: " + page.ToString() )
+            //JavaScript.Console.Log( "Mode: " + v'mode.Value.ToString() )
+            //JavaScript.Console.Log( "Page: " + page.ToString() )
 
             if v'mode.Value = 0 then
                 let! stories1 = GetPageArticles( page )
@@ -121,6 +131,9 @@ module PageClient =
             v'mode.Value <- 1
             let! stories = SearchArticles( keys, 0 )
             postList.Clear()
+            if stories.Length <= 1 then
+                v'mode.Value <- 0
+
             stories
             |> List.iter( fun x -> 
                 postList.Add x )
