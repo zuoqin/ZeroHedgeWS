@@ -5,7 +5,7 @@ open WebSharper.Sitelets
 open WebSharper.UI.Next
 open WebSharper.UI.Next.Server
 
-
+open Newtonsoft.Json
 open System;
 open System.Threading;
 
@@ -87,32 +87,59 @@ module Templating =
 
 
 
+
+
+
 module Site =
     open WebSharper.UI.Next.Html
+
+    // HELPER FUNCTIONS
+
+
+    let content( data :string) =
+        let header1 = Http.Header.Custom "Content-Type" "application/json"
+        let header2 = Http.Header.Custom "Access-Control-Allow-Origin" "*"
+        let headers = Seq.append [header1] [header2]
+        Content.Custom(
+            Status = Http.Status.Ok,
+            Headers = headers,
+            WriteBody = fun stream ->
+                use w = new System.IO.StreamWriter(stream)
+                w.Write(data)
+        )    
+
 
     let ApiContent (ctx: Context<EndPoint>) (action: ApiEndPoint)  =
         match action with
         | GetPage id ->
             async{
                 let! result = ZeroHedgeAPI.ApplicationLogic.getPage id
-                return Content.Json(result.ToArray())          
+                let json = JsonConvert.SerializeObject(result)
+                //return Content.Json(result.ToArray())
+                return content(json)
             }
         | GetStory id ->
             async{
                 let! result = ZeroHedgeAPI.ApplicationLogic.getStory id
-                return Content.Json(result)          
+                let json = JsonConvert.SerializeObject(result)
+                //return Content.Json(result)
+                return content(json)
             }
 
         | PostSearch keys ->
             async{
                 let! result = ZeroHedgeAPI.ApplicationLogic.postSearch keys
-                return Content.Json(result.ToArray())
+                let json = JsonConvert.SerializeObject(result)
+                //return Content.Json(result.ToArray())
+                return content(json)
             }
 
         | GetSearch( keys, page ) ->
             async{
                 let! result = ZeroHedgeAPI.ApplicationLogic.getSearch(keys, page)
-                return Content.Json(result.ToArray())          
+                let json = JsonConvert.SerializeObject(result)
+                //return Content.Json(result.ToArray())          
+                return content(json)
             }
         |> Async.RunSynchronously
 
