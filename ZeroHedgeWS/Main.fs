@@ -115,8 +115,9 @@ module Site =
             async{
                 let! result = ZeroHedgeAPI.ApplicationLogic.getPage id
                 let json = JsonConvert.SerializeObject(result)
+                let addPage = sprintf "{ \"Page\": %d, \"Data\": %s}" id json
                 //return Content.Json(result.ToArray())
-                return content(json)
+                return content(addPage)
             }
         | GetStory id ->
             async{
