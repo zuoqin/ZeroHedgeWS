@@ -224,13 +224,15 @@
     {
      return Concurrency.Delay(function()
      {
-      var x;
+      var x,x1;
       x="./api/page/"+Global.String(id);
-      return Concurrency.Bind(PageClient.Ajax("GET",x,null),function(_arg1)
+      x1=PageClient.Ajax("GET",x,null);
+      return Concurrency.Bind(x1,function(_arg1)
       {
-       var _;
+       var toJSONresponse,_;
        _=Provider.get_Default();
-       return Concurrency.Return(((_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0],["isLoading",Id,0]])))())(JSON.parse(_arg1)));
+       toJSONresponse=((_.DecodeRecord(undefined,[["Data",_.DecodeList(_.DecodeRecord(undefined,[["Title",Id,0],["Introduction",Id,0],["Body",Id,0],["Reference",Id,0],["Published",Id,0],["Updated",_.DecodeDateTime(),0],["isLoading",Id,0]])),0],["Page",Id,0]]))())(JSON.parse(_arg1)).Data;
+       return Concurrency.Return(toJSONresponse);
       });
      });
     },

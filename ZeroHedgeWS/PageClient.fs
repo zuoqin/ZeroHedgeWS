@@ -8,6 +8,7 @@ open WebSharper.UI.Next.Client
 open WebSharper.UI.Next.Html
 
 [<JavaScript>]
+
 module PageClient =
 
     /// General function to send an AJAX request with a body.
@@ -81,7 +82,9 @@ module PageClient =
                 let pageURL = sprintf "./api/page/%d" id
                 let! response = Ajax "GET" pageURL (null)
                 //JavaScript.Console.Log "Get zerohedge page"
-                return Json.Deserialize<List<Story>> response 
+                let toJSONresponse = (Json.Deserialize<getpage> response).Data
+
+                return toJSONresponse
         }
 
     let SearchArticles (keys : string, page : int) : Async<Story list> =

@@ -16,6 +16,8 @@ open System.Threading
 open System.Web
 
 
+
+
 type Story =
     {
         Title : string;
@@ -25,6 +27,11 @@ type Story =
         Published : string;
         Updated : DateTime;
         isLoading : bool
+    }
+type getpage =
+    {
+        Data : Microsoft.FSharp.Collections.List<Story>;
+        Page : int
     }
 
 type Page =
