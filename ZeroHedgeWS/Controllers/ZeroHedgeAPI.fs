@@ -248,8 +248,11 @@ module ZeroHedgeAPI =
 
                 
                 Console.WriteLine( sprintf "retrieving URL: %s"  newRefBase64)
-                let base64EncodedBytes = System.Convert.FromBase64String(newRefBase64);
-                let markup1 = DownloadURL(Encoding.UTF8.GetString(base64EncodedBytes))
+                
+                let base64EncodedBytes = System.Convert.FromBase64String(newRefBase64)
+                let base64DecodedString = Encoding.UTF8.GetString(base64EncodedBytes)
+                let finalURL = (sprintf "http://www.zerohedge.com%s" base64DecodedString)
+                let markup1 = DownloadURL(finalURL)
                 let mutable body = ""
                 if markup1.Length > 0 then
                     let markup = markup1.ToString()
@@ -417,8 +420,9 @@ module ZeroHedgeAPI =
                     let mutable ind5 = 0
                     let markup1 = DownloadURL( sprintf "http://www.zerohedge.com/?page=%d" id )
                     let markup = markup1.ToString()
+                    ind1 := markup.IndexOf("view view-zh-frontpage view-id-zh_frontpage view-display-id-page_1 view-dom-id-1", ind5);
                     while(!j < 100 && !ind1 > 0 && ind5 >= 0) do
-                        ind1 := markup.IndexOf("<div class=\"picture\">", ind5);
+                        ind1 := markup.IndexOf("<div class=\"teaser-content\">", ind5);
                         if ind1.Value > 0 then
                             let mutable ind2 = markup.IndexOf("<h2 class=\"title\"><a href=", ind1.Value)
                             ind2 <- (ind2 + 27)
@@ -431,46 +435,28 @@ module ZeroHedgeAPI =
                             let ind4 = markup.IndexOf("</a>", ind3)
                             let title = markup.Substring(ind3, ind4 - ind3)
 
-                            ind2 <- markup.IndexOf(" on ", ind4)
-                            ind2 <- (ind2 + 4)
-                            ind3 <- markup.IndexOf("</span>", ind2)
-                            let mutable published = markup.Substring(ind2, ind3 - ind2)
+                            ind5 <- markup.IndexOf("<div class=\"teaser-text\">", ind4)
+                            ind5 <- ind5 + 26
+                            let mutable ind6 = markup.IndexOf("</div>", ind5)
 
-                            ind5 <- markup.IndexOf("<p>", ind4)
-                            let mutable ind6 = markup.IndexOf("<div class=\"clear-block\"></div>", ind4)
 
-                            if ind5 > 0 && ind6 < ind5 then
-                                ind5 <- ind6
-                                ind6 <- ind3 + 7
-                                
-                                Console.WriteLine( sprintf "One story odd ind5 = %d ind6 = %d" ind5 ind6 )
-                            else 
-                                Console.WriteLine "One story common"
-                                if markup.Substring(ind5 + 3, 3).CompareTo("<a ") = 0 then
-                                    ind6 <- markup.IndexOf("<p>", ind5 + 5)
-                                    if ind6 < markup.IndexOf("</p>", ind5) then
-                                        ind5 <- markup.IndexOf("<p>", ind5 + 5);
-
-                                    ind6 <- ( ind5 + 3 )
-                                    ind5 <- markup.IndexOf("</p>", ind6)
-
-                                elif markup.IndexOf("<img", ind5) < markup.IndexOf("</p>", ind5) then
-                                    ind6 <- markup.IndexOf("/>", ind5)
-                                    ind6 <- (ind6 + 2)
-                                    ind5 <- markup.IndexOf("<div class=\"clear-block\"></div>", ind6)
-                                else
-                                    ind6 <- ind5
-                                    ind5 <- markup.IndexOf("<div class=\"clear-block\"></div>", ind6)
 
                             let mutable body = ""
                             if ind5 > 0 && ind6 > 0 then
-                                body <- markup.Substring(ind6, ind5 - ind6)
+                                body <- markup.Substring(ind5, ind6 - ind5)
                                 body <- replaceLinks body
                                 body <- replaceLinksBack body
                             else
                                 body <- ""
+
                             let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
                             let mutable base64Ref = System.Convert.ToBase64String(refBase64)
+
+                            ind5 <- markup.IndexOf("<li class=\"link-created\">", ind6)
+                            ind5 <- ind5 + 25
+                            ind6 <- markup.IndexOf("</li>", ind5)
+                            let mutable published = markup.Substring(ind5, ind6 - ind5)
+
                             let article = { Title = title; Introduction = body; Body = "";
                                 Reference = base64Ref;
                                 Published = published; Updated = DateTime.Now; isLoading = false }

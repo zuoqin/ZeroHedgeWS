@@ -448,14 +448,15 @@
     },
     "doc'body":function(post)
     {
-     var _attr_title1,_attr_title2,_attrs_title,domNode,_,arg20;
+     var _attr_title1,_attr_title2,_attrs_title,domNodeIntro,_,domNodePublished,_1;
      _attr_title1=AttrProxy.Create("placeholder","Title");
      _attr_title2=AttrModule.Class("form-control");
      _attrs_title=Seq.append([_attr_title1],List.ofArray([_attr_title2]));
      _=post.Introduction;
-     domNode=jQuery(PrintfHelpers.toSafe("<div>")+PrintfHelpers.toSafe(_)+PrintfHelpers.toSafe("</div>")).get(0);
-     arg20=List.ofArray([Doc.TextNode(post.Published)]);
-     return Doc.Element("div",List.ofArray([AttrModule.Class("panel-body")]),List.ofArray([Doc.Static(domNode),Doc.Element("p",[],arg20)]));
+     domNodeIntro=jQuery(PrintfHelpers.toSafe("<div>")+PrintfHelpers.toSafe(_)+PrintfHelpers.toSafe("</div>")).get(0);
+     _1=post.Published;
+     domNodePublished=jQuery(PrintfHelpers.toSafe("<div>")+PrintfHelpers.toSafe(_1)+PrintfHelpers.toSafe("</div>")).get(0);
+     return Doc.Element("div",List.ofArray([AttrModule.Class("panel-body")]),List.ofArray([Doc.Static(domNodeIntro),Doc.Static(domNodePublished)]));
     },
     "doc'header":function(post)
     {

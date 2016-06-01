@@ -63,11 +63,13 @@ module PageClient =
         let attrs'title = Seq.append [| attr'title1|] [ attr'title2]
 
 
-        let domNode = JQuery.Of(sprintf "%s%s%s" "<div>" post.Introduction "</div>").Get(0)
+        let domNodeIntro = JQuery.Of(sprintf "%s%s%s" "<div>" post.Introduction "</div>").Get(0)
+        let domNodePublished = JQuery.Of(sprintf "%s%s%s" "<div>" post.Published "</div>").Get(0)
 
         divAttr[Attr.Class "panel-body" ][
-            Doc.Static(domNode :?> Dom.Element)
-            p[Doc.TextNode post.Published]
+            Doc.Static(domNodeIntro :?> Dom.Element)
+            Doc.Static(domNodePublished :?> Dom.Element)
+            //p[Doc.TextNode post.Published]
         ]
 
     let doc post  =
