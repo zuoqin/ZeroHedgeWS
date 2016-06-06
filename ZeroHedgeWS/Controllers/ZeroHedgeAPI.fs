@@ -247,11 +247,17 @@ module ZeroHedgeAPI =
                     Published = theStory.Published; Updated = DateTime.Now; isLoading = true}
 
                 
-                Console.WriteLine( sprintf "retrieving URL: %s"  newRefBase64)
+                //Console.WriteLine( sprintf "retrieving URL: %s"  newRefBase64)
                 
                 let base64EncodedBytes = System.Convert.FromBase64String(newRefBase64)
                 let base64DecodedString = Encoding.UTF8.GetString(base64EncodedBytes)
-                let finalURL = (sprintf "http://www.zerohedge.com%s" base64DecodedString)
+                let mutable headerurl = "http://www.zerohedge.com"
+                if base64DecodedString.Contains("www.zerohedge.com") then
+                    headerurl <- ""
+                    
+                let finalURL = (sprintf "%s%s" headerurl base64DecodedString)
+                Console.WriteLine( sprintf "Decrypted URL: %s"  finalURL)
+
                 let markup1 = DownloadURL(finalURL)
                 let mutable body = ""
                 if markup1.Length > 0 then
