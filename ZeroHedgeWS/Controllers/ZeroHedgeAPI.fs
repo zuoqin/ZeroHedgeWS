@@ -428,10 +428,12 @@ module ZeroHedgeAPI =
                     let markup = markup1.ToString()
                     ind1 := markup.IndexOf("view view-zh-frontpage view-id-zh_frontpage view-display-id-page_1 view-dom-id-1", ind5);
                     while(!j < 100 && !ind1 > 0 && ind5 >= 0) do
-                        ind1 := markup.IndexOf("<div class=\"teaser-content\">", ind5);
+                        ind1 := markup.IndexOf("<article class=\"node", ind5);
                         if ind1.Value > 0 then
-                            let mutable ind2 = markup.IndexOf("<h2 class=\"title\"><a href=", ind1.Value)
-                            ind2 <- (ind2 + 27)
+                            
+                            Console.WriteLine(sprintf "next article ind1 = %d ind5 = %d" !ind1 ind5 )
+                            let mutable ind2 = markup.IndexOf("<h2 class=\"title teaser-title\"><a href=\"", ind1.Value)
+                            ind2 <- (ind2 + 40)
 
                             let mutable ind3 = markup.IndexOf("\">", ind2)
 
@@ -441,11 +443,9 @@ module ZeroHedgeAPI =
                             let ind4 = markup.IndexOf("</a>", ind3)
                             let title = markup.Substring(ind3, ind4 - ind3)
 
-                            ind5 <- markup.IndexOf("<div class=\"teaser-text\">", ind4)
-                            ind5 <- ind5 + 26
-                            let mutable ind6 = markup.IndexOf("</div>", ind5)
-
-
+                            ind5 <- markup.IndexOf("<span class=\"teaser-text\">", ind4)
+                            ind5 <- ind5 + 27
+                            let mutable ind6 = markup.IndexOf("</span>", ind5)
 
                             let mutable body = ""
                             if ind5 > 0 && ind6 > 0 then
@@ -455,13 +455,16 @@ module ZeroHedgeAPI =
                             else
                                 body <- ""
 
-                            let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
-                            let mutable base64Ref = System.Convert.ToBase64String(refBase64)
-
                             ind5 <- markup.IndexOf("<li class=\"link-created\">", ind6)
                             ind5 <- ind5 + 25
                             ind6 <- markup.IndexOf("</li>", ind5)
                             let mutable published = markup.Substring(ind5, ind6 - ind5)
+
+
+                            let mutable refBase64 = System.Text.Encoding.UTF8.GetBytes(ref1)
+                            let mutable base64Ref = System.Convert.ToBase64String(refBase64)
+
+
 
                             let article = { Title = title; Introduction = body; Body = "";
                                 Reference = base64Ref;
