@@ -886,14 +886,26 @@
      _v_body=Var.Create(body);
      Concurrency.Start(Concurrency.Delay(function()
      {
-      return Concurrency.Bind(StoryClient.GetStory(reference),function(_arg1)
+      var x;
+      x=StoryClient.GetStory(reference);
+      return Concurrency.Bind(x,function(_arg1)
       {
-       var domNode,_;
+       var domNode,_,theTitle,a;
        jQuery("#bodyid").children().remove();
        _=_arg1.Body;
        domNode=jQuery(PrintfHelpers.toSafe("<div>")+PrintfHelpers.toSafe(_)+PrintfHelpers.toSafe("</div>")).get(0);
        jQuery("#bodyid").append(domNode);
-       jQuery("title").text(_arg1.Title);
+       theTitle=window.decode1.call(null,_arg1.Title);
+       window.setTitle.call(null,theTitle);
+       if(console)
+        {
+         console.log(theTitle);
+        }
+       a=_arg1.Title;
+       if(console)
+        {
+         console.log(a);
+        }
        return Concurrency.Return(null);
       });
      }),{

@@ -7,6 +7,8 @@ open WebSharper.UI.Next
 open WebSharper.UI.Next.Client
 open WebSharper.UI.Next.Html
 
+open System.Net
+
 [<JavaScript>]
 module StoryClient =
 
@@ -91,8 +93,11 @@ module StoryClient =
             let domNode = JQuery.Of( sprintf "%s%s%s" "<div>" story.Body "</div>").Get(0)
             JQuery.JQuery.Of("#bodyid").Append( domNode :?> Dom.Element ).Ignore
 
-            JQuery.Of("title").Text( story.Title ).Ignore
-            //JavaScript.Console.Log story
+            let theTitle = JS.Window?decode1(story.Title)
+            JS.Window?setTitle(theTitle)
+            //JQuery.Of(JS.Document).Text( theTitle ).Ignore
+            JavaScript.Console.Log theTitle
+            JavaScript.Console.Log story.Title
         }
         |> Async.Start
             

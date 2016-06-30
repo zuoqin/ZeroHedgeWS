@@ -30,7 +30,7 @@ type Story =
     }
 type getpage =
     {
-        Data : Microsoft.FSharp.Collections.List<Story>;
+        Data : Story list;
         Page : int
     }
 
@@ -68,7 +68,7 @@ module ZeroHedgeAPI =
     type AKKAMessage = 
         | GetPageX      of SearchPageIndex
         | GetStoryX     of string
-
+        | GetPageStories of int
 
     module ApplicationLogic =
 
@@ -247,7 +247,7 @@ module ZeroHedgeAPI =
                     Published = theStory.Published; Updated = DateTime.Now; isLoading = true}
 
                 
-                //Console.WriteLine( sprintf "retrieving URL: %s"  newRefBase64)
+                Console.WriteLine( sprintf "retrieving URL: %s"  newRefBase64)
                 
                 let base64EncodedBytes = System.Convert.FromBase64String(newRefBase64)
                 let base64DecodedString = Encoding.UTF8.GetString(base64EncodedBytes)
@@ -430,8 +430,7 @@ module ZeroHedgeAPI =
                     while(!j < 100 && !ind1 > 0 && ind5 >= 0) do
                         ind1 := markup.IndexOf("<article class=\"node", ind5);
                         if ind1.Value > 0 then
-                            
-                            Console.WriteLine(sprintf "next article ind1 = %d ind5 = %d" !ind1 ind5 )
+                                                       
                             let mutable ind2 = markup.IndexOf("<h2 class=\"title teaser-title\"><a href=\"", ind1.Value)
                             ind2 <- (ind2 + 40)
 
@@ -581,6 +580,37 @@ module ZeroHedgeAPI =
                         else
                             SearchArticles.stories
 
+
+        let loopStory reference =
+            Console.WriteLine( sprintf "In Loooping story %s" reference)
+            let interval = new TimeSpan(0, 0, 7);
+            Thread.Sleep interval
+            
+            DownloadStory reference
+//            let task = (aref <? GetStoryX(reference))
+//            Async.RunSynchronously (task)
+
+
+
+        let downloadPageStories pageID =
+            Console.WriteLine( sprintf "In downloadPageStories pageID = %d" pageID)
+            let (bResult, thePage) = pagesmap.TryGetValue(pageID)
+            if bResult = true && thePage.stories.Count > 0 then
+                Console.WriteLine( sprintf "Will try to loop stories In downloadPageStories pageID = %d" pageID)
+                let theStories = Microsoft.FSharp.Collections.List.ofSeq(thePage.stories)
+                //theStories|> List.map( fun story -> loopStory story.Reference)
+                //|> ignore
+                Console.WriteLine( sprintf "Will try to loop stories In downloadPageStories pageID = %d" pageID)
+
+            
+
+            if bResult = true && thePage.stories.Count = 0 then
+                Console.WriteLine( sprintf "Found pageID = %d in downloadPageStories, but no stories inside" pageID)
+
+            if bResult = false then
+                Console.WriteLine( sprintf "Can not find pageID = %d in downloadPageStories" pageID)
+
+
         let aref =
             spawn AkkaSystem "my-actor"
                 (fun mailbox ->
@@ -595,14 +625,14 @@ module ZeroHedgeAPI =
                             let story = DownloadStory reference
                             Console.WriteLine( sprintf "Downloaded story: %s" story.Title)
                             sender <! story
-//                        | GetSearch ( keys, page, reply ) ->                      
-//                            let search'results = DownLoadSearchPage( keys, page )
-//                            reply.Reply search'results
-                        // handle an incoming message
-                        //| _ ->  failwith "unknown message"
+                        | GetPageStories ( pageID ) ->                      
+                            downloadPageStories pageID |> ignore
+
                         return! loop()
                     }
                     loop())
+
+
 
 
         let crud = MailboxProcessor.Start(fun agent ->             
@@ -716,14 +746,24 @@ module ZeroHedgeAPI =
                     //return thePage.stories
             }
 
+
+
+
         let loopPages pageID =
-            let interval = new TimeSpan(0, 1, 0);
+            let interval = new TimeSpan(0, 0, 10);
             Thread.Sleep interval
             Console.WriteLine( sprintf "In Loooping page %d" pageID)
             //crud.Post( RetrievePage pageID )
             
             let request = { keys = ""; page = pageID }
             aref <! GetPageX(request) 
+            aref <! GetPageStories(pageID) 
+
+//            async{
+//                let newPageID = pageID - 1
+//                downloadPageStories newPageID
+//            }
+
 
 
         let rec loopAPI() =             
@@ -737,7 +777,7 @@ module ZeroHedgeAPI =
         let getStory (id: string) : Async<Story> =
             async{
                 let sURL = Uri.UnescapeDataString id // Encoding.UTF8.GetString( System.Web.HttpServerUtility.UrlDecode( id))
-                
+                Console.WriteLine( sprintf "in getStory: %s"  sURL)
                 let blog = read'story sURL
                 return blog                
             }
