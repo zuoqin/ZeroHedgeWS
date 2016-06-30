@@ -235,7 +235,7 @@ module ZeroHedgeAPI =
 
             let (bResult,theStory) = storiesmap.TryGetValue newRefBase64 
             if bResult && (theStory.Body.Length > 0 || theStory.isLoading) then
-                Console.WriteLine( sprintf "Return story from cache: %s"  newRefBase64)
+                //Console.WriteLine( sprintf "Return story from cache: %s"  newRefBase64)
                 theStory
             else
                 let mutable newStory = { Title = ""; 
@@ -247,7 +247,7 @@ module ZeroHedgeAPI =
                     Published = theStory.Published; Updated = DateTime.Now; isLoading = true}
 
                 
-                Console.WriteLine( sprintf "retrieving URL: %s"  newRefBase64)
+                //Console.WriteLine( sprintf "retrieving URL: %s"  newRefBase64)
                 
                 let base64EncodedBytes = System.Convert.FromBase64String(newRefBase64)
                 let base64DecodedString = Encoding.UTF8.GetString(base64EncodedBytes)
@@ -256,7 +256,7 @@ module ZeroHedgeAPI =
                     headerurl <- ""
                     
                 let finalURL = (sprintf "%s%s" headerurl base64DecodedString)
-                Console.WriteLine( sprintf "Decrypted URL: %s"  finalURL)
+                //Console.WriteLine( sprintf "Decrypted URL: %s"  finalURL)
 
                 let markup1 = DownloadURL(finalURL)
                 let mutable body = ""
@@ -293,7 +293,7 @@ module ZeroHedgeAPI =
 
         let DownloadAndParseSearchPage (keys : string): List<Story> =
             let newKeys = Encoding.UTF8.GetString( HttpUtility.UrlDecodeToBytes keys )
-            Console.WriteLine( sprintf "Searching for: %s"  newKeys)
+            //Console.WriteLine( sprintf "Searching for: %s"  newKeys)
             
             let newSearchIndex = { keys = newKeys; page = 0}
             let (bResult, SearchArticles) = requestsmap.TryGetValue(newSearchIndex)
@@ -408,12 +408,12 @@ module ZeroHedgeAPI =
                 ) then
 
                 let sLine = sprintf "Will not Download page %d, return from cache" id
-                Console.WriteLine sLine
+                //Console.WriteLine sLine
 
                 thePage.stories
             else
                 let sLine = sprintf "Downloading page %d" id
-                Console.WriteLine sLine
+                //Console.WriteLine sLine
                 let myWebClient = new WebClient()
 
                 
@@ -487,7 +487,7 @@ module ZeroHedgeAPI =
                     pagesmap.Add(id, newPage)
 
                     let sLine = sprintf "Cache data for page: %d has been updated with Loading = %b" id newPage.isLoading
-                    Console.WriteLine sLine
+                    //Console.WriteLine sLine
 
                     articles
                 else
@@ -510,7 +510,7 @@ module ZeroHedgeAPI =
                 else
 
                     let sLine = sprintf "Downloading search keys: %s  page: %d" keys page
-                    Console.WriteLine sLine
+                    //Console.WriteLine sLine
                     
                     let keyDecode = keys //HttpUtility.UrlDecode(keys).Replace(" ", "+")
                     let markup1 = DownloadURL( sprintf "http://www.zerohedge.com/search/apachesolr_search/%s?page=%d" keyDecode page )
@@ -582,33 +582,37 @@ module ZeroHedgeAPI =
 
 
         let loopStory reference =
-            Console.WriteLine( sprintf "In Loooping story %s" reference)
-            let interval = new TimeSpan(0, 0, 7);
-            Thread.Sleep interval
+            //Console.WriteLine( sprintf "In Loooping story %s" reference)
             
             DownloadStory reference
+            |> ignore
 //            let task = (aref <? GetStoryX(reference))
 //            Async.RunSynchronously (task)
+            let interval = new TimeSpan(0, 0, 7);
+            Thread.Sleep interval
 
 
 
         let downloadPageStories pageID =
-            Console.WriteLine( sprintf "In downloadPageStories pageID = %d" pageID)
-            let (bResult, thePage) = pagesmap.TryGetValue(pageID)
-            if bResult = true && thePage.stories.Count > 0 then
-                Console.WriteLine( sprintf "Will try to loop stories In downloadPageStories pageID = %d" pageID)
-                let theStories = Microsoft.FSharp.Collections.List.ofSeq(thePage.stories)
-                //theStories|> List.map( fun story -> loopStory story.Reference)
-                //|> ignore
-                Console.WriteLine( sprintf "Will try to loop stories In downloadPageStories pageID = %d" pageID)
+            async{
+                //Console.WriteLine( sprintf "In downloadPageStories pageID = %d" pageID)
+                let (bResult, thePage) = pagesmap.TryGetValue(pageID)
+                if bResult = true && thePage.stories.Count > 0 then
+                    Console.WriteLine( sprintf "Will try to loop stories In downloadPageStories pageID = %d" pageID)
+                    let theStories = Microsoft.FSharp.Collections.List.ofSeq(thePage.stories)
+                    theStories|> List.map( fun story -> loopStory story.Reference)
+                    |> ignore
+                    Console.WriteLine( sprintf "After loop stories In downloadPageStories pageID = %d" pageID)
 
             
 
-            if bResult = true && thePage.stories.Count = 0 then
-                Console.WriteLine( sprintf "Found pageID = %d in downloadPageStories, but no stories inside" pageID)
+                //if bResult = true && thePage.stories.Count = 0 then
+                    //Console.WriteLine( sprintf "Found pageID = %d in downloadPageStories, but no stories inside" pageID)
 
-            if bResult = false then
-                Console.WriteLine( sprintf "Can not find pageID = %d in downloadPageStories" pageID)
+                //if bResult = false then
+                    //Console.WriteLine( sprintf "Can not find pageID = %d in downloadPageStories" pageID)
+
+            }
 
 
         let aref =
@@ -623,10 +627,11 @@ module ZeroHedgeAPI =
                             DownloadPage search.page |> ignore
                         | GetStoryX(reference) ->                      
                             let story = DownloadStory reference
-                            Console.WriteLine( sprintf "Downloaded story: %s" story.Title)
+                            //Console.WriteLine( sprintf "Downloaded story: %s" story.Title)
                             sender <! story
                         | GetPageStories ( pageID ) ->                      
-                            downloadPageStories pageID |> ignore
+                            downloadPageStories pageID
+                            |> Async.Start
 
                         return! loop()
                     }
@@ -660,7 +665,7 @@ module ZeroHedgeAPI =
 
 
         let read'page'2 page'number =
-            Console.WriteLine "In read'page'2 function"
+            //Console.WriteLine "In read'page'2 function"
             crud.PostAndAsyncReply( fun reply -> GetPage(page'number, reply) )
 
         let read'page page =
@@ -696,12 +701,12 @@ module ZeroHedgeAPI =
         let stories = new Dictionary<string, Story>()
 
         let getPage (id: int) : Async<List<Story>> =
-            Console.WriteLine (sprintf "Call Get page %d in getPage" id)
+            //Console.WriteLine (sprintf "Call Get page %d in getPage" id)
             async{
                 let (bResult, thePage) = pagesmap.TryGetValue(id)
                 if bResult = true then
                     let sLine = sprintf "Found page %d in cache with Loading = %b" id thePage.isLoading 
-                    Console.WriteLine sLine
+                    //Console.WriteLine sLine
 
                     if thePage.stories.Count > 0 then
                         if CheckExpired(DateTime.Now - thePage.updated) then
@@ -711,8 +716,8 @@ module ZeroHedgeAPI =
                                 let bResult = pagesmap.Remove(id)
 
 
-                                let sLine = sprintf "Updated page %d to cache with Loading = %b" id newPage.isLoading 
-                                Console.WriteLine sLine
+                                //let sLine = sprintf "Updated page %d to cache with Loading = %b" id newPage.isLoading 
+                                //Console.WriteLine sLine
 
                                 pagesmap.Add(id, newPage)
                                 read'page id
@@ -723,7 +728,7 @@ module ZeroHedgeAPI =
                             return thePage.stories
                         else
                             let sLine = sprintf "Page: %d is not expired yet, return from cache" id 
-                            Console.WriteLine sLine
+                            //Console.WriteLine sLine
                             return thePage.stories
                     else
                         let stories = new List<Story>()
@@ -735,12 +740,12 @@ module ZeroHedgeAPI =
                         return blog
                         //return thePage.stories
                 else
-                    Console.WriteLine "Before calling read'page'2  1111"
+                    //Console.WriteLine "Before calling read'page'2  1111"
                     let stories = new List<Story>()
                     let newPage = { updated = DateTime(1900,1,1); stories = stories; isLoading = true }
                     let bResult = pagesmap.Remove(id)
                     pagesmap.Add(id, newPage)
-                    Console.WriteLine "Before calling read'page'2"
+                    //Console.WriteLine "Before calling read'page'2"
                     let! blog = read'page'2 id
                     return blog
                     //return thePage.stories
@@ -749,15 +754,15 @@ module ZeroHedgeAPI =
 
 
 
-        let loopPages pageID =
-            let interval = new TimeSpan(0, 0, 10);
-            Thread.Sleep interval
+        let loopPages pageID =            
             Console.WriteLine( sprintf "In Loooping page %d" pageID)
             //crud.Post( RetrievePage pageID )
             
             let request = { keys = ""; page = pageID }
             aref <! GetPageX(request) 
             aref <! GetPageStories(pageID) 
+            let interval = new TimeSpan(0, 10, 0);
+            Thread.Sleep interval
 
 //            async{
 //                let newPageID = pageID - 1
@@ -765,14 +770,27 @@ module ZeroHedgeAPI =
 //            }
 
 
-
-        let rec loopAPI() =             
-            [ 0 .. 9 ]
-            |> List.map( fun n -> (loopPages n))
-            |> ignore
+        
+//        let rec loopAPI() =
+//            async{
+//                [ 0 .. 9 ]
+//                |> List.map( fun n -> (loopPages n))
+//                |> ignore
+//
+//            
+//                return! loopAPI()
+//            
+//            }
+            
+        
+        let rec loopAPI() =
+                [ 0 .. 9 ]
+                |> List.map( fun n -> (loopPages n))
+                |> ignore
 
             
-            loopAPI()
+                loopAPI()
+            
 
         let getStory (id: string) : Async<Story> =
             async{
