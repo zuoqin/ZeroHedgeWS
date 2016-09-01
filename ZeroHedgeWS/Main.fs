@@ -145,17 +145,13 @@ module Site =
         |> Async.RunSynchronously
 
     let HomePage (ctx :Context<EndPoint>) =
-        let attr'topmenu'1 =  Attr.Create "role" "navigation"
-        let attr'topmenu'2 =  Attr.Create "class" "navbar navbar-inverse navbar-fixed-top"
-        let attrs'topmenu = Seq.append [|attr'topmenu'1|] [ attr'topmenu'2]
-
 
         Templating.MainView ctx EndPoint.Home "Zero Hedge | Home"
             [
                 div [client <@ PageClient.Main(0) @>]
             ]
             [
-                divAttr attrs'topmenu [client <@ PageClient.Search @>]
+                div [client <@ PageClient.Search @>]
             ]
 
     let AboutPage ctx =

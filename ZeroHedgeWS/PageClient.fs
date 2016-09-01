@@ -184,8 +184,7 @@ module PageClient =
 
 
     let SitePagination =
-        let list1 = [0..9]
-        List.map (fun x -> (x)) list1
+        List.map (fun x -> (x)) [1..9]
             |> List.map AddNewPageButton
 
 
@@ -215,31 +214,82 @@ module PageClient =
         let attr'srch'btn1 =  Attr.Create "type" "submit"
         let attrs'srch'btn = Seq.append [|attr'srch'btn1;  |] [ ]
 
+        let attr'topmenu'1 =  Attr.Create "role" "navigation"
+        let attr'topmenu'2 =  Attr.Create "class" "navbar navbar-inverse navbar-fixed-top"
+        let attrs'topmenu = Seq.append [|attr'topmenu'1|] [ attr'topmenu'2]
 
-        divAttr [attr.``class`` "navbar-collapse collapse"][
-            divAttr [attr.``align`` "left"] [
-                ulAttr [attr.``class`` "nav navbar-nav" ] [
-                    for x in  SitePagination do
-                        yield x :> Doc
+        let attr'small'btn1 =  Attr.Create "aria-controls" "bs-navbar"
+        let attr'small'btn2 =  Attr.Create "aria-expanded" "true"
+        let attr'small'btn3 =  Attr.Create "class" "navbar-toggle"
+        let attr'small'btn4 =  Attr.Create "data-target" "#bs-navbar"
+        let attr'small'btn5 =  Attr.Create "data-toggle" "collapse"
+        let attr'small'btn6 =  Attr.Create "type" "button"
+        let attrs'small'btn = Seq.append [|attr'small'btn1; attr'small'btn2; attr'small'btn3; attr'small'btn4; attr'small'btn5; attr'small'btn6;  |] [ ]
+
+
+        let attr'small'a'1 =  Attr.Create "class" "navbar-brand"
+        let attr'small'a'2 =  Attr.Create "href" "/page/0"
+        let attrs'small'a = Seq.append [|attr'small'a'1; attr'small'a'2;  |] [ ]
+
+
+        let attr'small'ul'1 =  Attr.Create "class" "nav navbar-nav"
+        //let attr'small'ul'2 =  Attr.Create "id" "bs-navbar"
+        let attrs'small'ul = Seq.append [|attr'small'ul'1;  |] [ ]
+
+        let attr'small'div'1 =  Attr.Create "class" "navbar-collapse collapse"
+        let attr'small'div'2 =  Attr.Create "id" "bs-navbar"
+        let attrs'small'div = Seq.append [|attr'small'div'1;  attr'small'div'2;  |] [ ]
+
+        let attr'page'button'1 =  Attr.Create "class" "pageButton"
+        //let attr'page'button'2 =  Attr.Create "id" "pageButton"
+        let attrs'page'button = Seq.append [|attr'page'button'1;  |] [ ]
+
+        divAttr attrs'topmenu [
+            divAttr [attr.``class`` "navbar-header"][
+                buttonAttr attrs'small'btn [
+                    spanAttr[attr.``class`` "sr-only"][Doc.TextNode "Toggle navigation"]
+                    spanAttr[attr.``class`` "icon-bar"][]
+                    spanAttr[attr.``class`` "icon-bar"][]
+                    spanAttr[attr.``class`` "icon-bar"][]
                 ]
-            ]
-            divAttr attrs'div'right [
-                nav [
-                    ulAttr attrs_ul [
-                        li [
-                            formAttr attrs'form [
-                                Doc.Input attrs'input'1 v'search
-                                Doc.Button
-                                <| "Search"
-                                <| attrs'srch'btn
-                                <| fun _ -> 
-                                    OnSearchButtonClick( v'search.Value )
+                //aAttr attrs'small'a [Doc.TextNode "Home"]
+                Doc.Button
+                <| "Home"
+                <| attrs'page'button
+                <| fun _ -> 
+                    OnPageButtonClick 0
+            ]        
+
+
+
+            divAttr attrs'small'div [
+                divAttr [attr.``align`` "left"] [
+                    ulAttr attrs'small'ul [
+                        for x in  SitePagination do
+                            yield x :> Doc
+                    ]
+                ]
+                divAttr attrs'div'right [
+                    nav [
+                        ulAttr attrs_ul [
+                            li [
+                                formAttr attrs'form [
+                                    Doc.Input attrs'input'1 v'search
+                                    Doc.Button
+                                    <| "Search"
+                                    <| attrs'srch'btn
+                                    <| fun _ -> 
+                                        OnSearchButtonClick( v'search.Value )
+                                ]
                             ]
-                        ]
-                    ]   
+                        ]   
+                    ]
                 ]
             ]
         ]
+
+
+
     let Main (pageID : int) =
         let attr'divid =  Attr.Create "id" "blogItems"
         let attr'divstyle = Attr.Style "margin-top" "60px"

@@ -376,7 +376,7 @@
     },
     Search:Runtime.Field(function()
     {
-     var _attr_ul1,attrs_ul,_attr_div_right_1,_attr_div_right_2,_attrs_div_right,_attr_input_1_1,_attr_input_1_2,_attr_input_1_4,_attrs_input_1,_attr_input_2_1,_attr_input_2_2,_attr_input_2_3,_attrs_input_2,_attr_form_1,_attrs_form,_attr_srch_btn1,_attrs_srch_btn,ats,arg20,arg201,_arg20_;
+     var _attr_ul1,attrs_ul,_attr_div_right_1,_attr_div_right_2,_attrs_div_right,_attr_input_1_1,_attr_input_1_2,_attr_input_1_4,_attrs_input_1,_attr_input_2_1,_attr_input_2_2,_attr_input_2_3,_attrs_input_2,_attr_form_1,_attrs_form,_attr_srch_btn1,_attrs_srch_btn,_attr_topmenu_1,_attr_topmenu_2,_attrs_topmenu,_attr_small_btn1,_attr_small_btn2,_attr_small_btn3,_attr_small_btn4,_attr_small_btn5,_attr_small_btn6,_attrs_small_btn,_attr_small_a_1,_attr_small_a_2,_attrs_small_a,_attr_small_ul_1,_attrs_small_ul,_attr_small_div_1,_attr_small_div_2,_attrs_small_div,_attr_page_button_1,_attrs_page_button,ats,_arg20_,arg20,arg201,_arg20_1;
      _attr_ul1=AttrProxy.Create("style","margin-left:0px; padding: 0px;");
      attrs_ul=Seq.append([_attr_ul1],Runtime.New(T,{
       $:0
@@ -400,20 +400,60 @@
      _attrs_srch_btn=Seq.append([_attr_srch_btn1],Runtime.New(T,{
       $:0
      }));
-     ats=List.ofArray([AttrProxy.Create("class","navbar-collapse collapse")]);
+     _attr_topmenu_1=AttrProxy.Create("role","navigation");
+     _attr_topmenu_2=AttrProxy.Create("class","navbar navbar-inverse navbar-fixed-top");
+     _attrs_topmenu=Seq.append([_attr_topmenu_1],List.ofArray([_attr_topmenu_2]));
+     _attr_small_btn1=AttrProxy.Create("aria-controls","bs-navbar");
+     _attr_small_btn2=AttrProxy.Create("aria-expanded","true");
+     _attr_small_btn3=AttrProxy.Create("class","navbar-toggle");
+     _attr_small_btn4=AttrProxy.Create("data-target","#bs-navbar");
+     _attr_small_btn5=AttrProxy.Create("data-toggle","collapse");
+     _attr_small_btn6=AttrProxy.Create("type","button");
+     _attrs_small_btn=Seq.append([_attr_small_btn1,_attr_small_btn2,_attr_small_btn3,_attr_small_btn4,_attr_small_btn5,_attr_small_btn6],Runtime.New(T,{
+      $:0
+     }));
+     _attr_small_a_1=AttrProxy.Create("class","navbar-brand");
+     _attr_small_a_2=AttrProxy.Create("href","/page/0");
+     _attrs_small_a=Seq.append([_attr_small_a_1,_attr_small_a_2],Runtime.New(T,{
+      $:0
+     }));
+     _attr_small_ul_1=AttrProxy.Create("class","nav navbar-nav");
+     _attrs_small_ul=Seq.append([_attr_small_ul_1],Runtime.New(T,{
+      $:0
+     }));
+     _attr_small_div_1=AttrProxy.Create("class","navbar-collapse collapse");
+     _attr_small_div_2=AttrProxy.Create("id","bs-navbar");
+     _attrs_small_div=Seq.append([_attr_small_div_1,_attr_small_div_2],Runtime.New(T,{
+      $:0
+     }));
+     _attr_page_button_1=AttrProxy.Create("class","pageButton");
+     _attrs_page_button=Seq.append([_attr_page_button_1],Runtime.New(T,{
+      $:0
+     }));
+     ats=List.ofArray([AttrProxy.Create("class","navbar-header")]);
      _arg20_=function()
+     {
+      return PageClient.OnPageButtonClick(0);
+     };
+     _arg20_1=function()
      {
       return PageClient.OnSearchButtonClick(Var1.Get(PageClient["v'search"]()));
      };
-     arg201=List.ofArray([Doc.Element("form",_attrs_form,List.ofArray([Doc.Input(_attrs_input_1,PageClient["v'search"]()),Doc.Button("Search",_attrs_srch_btn,_arg20_)]))]);
+     arg201=List.ofArray([Doc.Element("form",_attrs_form,List.ofArray([Doc.Input(_attrs_input_1,PageClient["v'search"]()),Doc.Button("Search",_attrs_srch_btn,_arg20_1)]))]);
      arg20=List.ofArray([Doc.Element("ul",attrs_ul,List.ofArray([Doc.Element("li",[],arg201)]))]);
-     return Doc.Element("div",ats,List.ofArray([Doc.Element("div",List.ofArray([AttrProxy.Create("align","left")]),List.ofArray([Doc.Element("ul",List.ofArray([AttrProxy.Create("class","nav navbar-nav")]),Seq.toList(Seq.delay(function()
+     return Doc.Element("div",_attrs_topmenu,List.ofArray([Doc.Element("div",ats,List.ofArray([Doc.Element("button",_attrs_small_btn,List.ofArray([Doc.Element("span",List.ofArray([AttrProxy.Create("class","sr-only")]),List.ofArray([Doc.TextNode("Toggle navigation")])),Doc.Element("span",List.ofArray([AttrProxy.Create("class","icon-bar")]),Runtime.New(T,{
+      $:0
+     })),Doc.Element("span",List.ofArray([AttrProxy.Create("class","icon-bar")]),Runtime.New(T,{
+      $:0
+     })),Doc.Element("span",List.ofArray([AttrProxy.Create("class","icon-bar")]),Runtime.New(T,{
+      $:0
+     }))])),Doc.Button("Home",_attrs_page_button,_arg20_)])),Doc.Element("div",_attrs_small_div,List.ofArray([Doc.Element("div",List.ofArray([AttrProxy.Create("align","left")]),List.ofArray([Doc.Element("ul",_attrs_small_ul,Seq.toList(Seq.delay(function()
      {
       return Seq.map(function(x)
       {
        return x;
       },PageClient.SitePagination());
-     })))])),Doc.Element("div",_attrs_div_right,List.ofArray([Doc.Element("nav",[],arg20)]))]));
+     })))])),Doc.Element("div",_attrs_div_right,List.ofArray([Doc.Element("nav",[],arg20)]))]))]));
     }),
     SearchArticles:function(keys,page)
     {
@@ -431,12 +471,11 @@
     },
     SitePagination:Runtime.Field(function()
     {
-     var list1,list;
-     list1=Seq.toList(Operators.range(0,9));
+     var list;
      list=List.map(function(x)
      {
       return x;
-     },list1);
+     },Seq.toList(Operators.range(1,9)));
      return List.map(function(page)
      {
       return PageClient.AddNewPageButton(page);

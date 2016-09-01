@@ -125,6 +125,7 @@ module ZeroHedgeAPI =
                 let mutable count = 1
                 let mutable sb = new StringBuilder()
                 let mutable tmpString = ""
+                sb.Append( tmpString ) |> ignore
                 try
                     while count > 0 do
                         count <- receiveStream.Read(buf, 0, buf.Length);
@@ -133,7 +134,7 @@ module ZeroHedgeAPI =
                             sb.Append( tmpString ) |> ignore
                 with
                     | _ -> 
-                        Console.WriteLine( sprintf "An error while Read Stream URL: %s" uri )
+                        Console.WriteLine( sprintf "An error while Read Stream URL: %s" uri )                        
 
                 response.Close()
                 receiveStream.Close()
@@ -426,7 +427,7 @@ module ZeroHedgeAPI =
                     let mutable ind5 = 0
                     let markup1 = DownloadURL( sprintf "http://www.zerohedge.com/?page=%d" id )
                     let markup = markup1.ToString()
-                    ind1 := markup.IndexOf("view view-zh-frontpage view-id-zh_frontpage view-display-id-page_1 view-dom-id-1", ind5);
+                    ind1 := markup.IndexOf("<main>", ind5);
                     while(!j < 100 && !ind1 > 0 && ind5 >= 0) do
                         ind1 := markup.IndexOf("<article class=\"node", ind5);
                         if ind1.Value > 0 then
@@ -761,7 +762,7 @@ module ZeroHedgeAPI =
             let request = { keys = ""; page = pageID }
             aref <! GetPageX(request) 
             aref <! GetPageStories(pageID) 
-            let interval = new TimeSpan(0, 10, 0);
+            let interval = new TimeSpan(0, 3, 0);
             Thread.Sleep interval
 
 //            async{
