@@ -126,14 +126,14 @@
 }   
 
 
+.container {
+    width: 100% !important;
+    padding-left: 1px !important;
+	padding-right: 1px !important;
+}
 
 
 @media (min-width: 1200px) {
-    .container {
-        width: 100% !important;
-        padding-left: 1px !important;
-	    padding-right: 1px !important;
-    }
     .form-wrapper input {
         width: 300px !important;
     }
@@ -194,11 +194,6 @@
 
 
 @media (min-width: 768px) {
-    .container {
-        width: 100% !important;
-        padding-left: 1px !important;
-	padding-right: 1px !important;
-    }
    .col-sm-12 {
        padding: 0px !important;
    }
@@ -377,10 +372,6 @@ nav ul li:hover button {
 }
 
 @media (min-width: 768px) {
-    .container {
-        width: 100%;
-        padding-left: 10px;
-    }
     .ngscope {
         padding: 0px;
     }
